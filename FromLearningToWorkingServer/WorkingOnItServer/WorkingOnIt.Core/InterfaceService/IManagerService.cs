@@ -9,14 +9,14 @@ namespace FromLearningToWorking.Core.InterfaceService
 {
     public interface IManagerService
     {
-        IEnumerable<ManagerDTO> GetAll();
+        Task<IEnumerable<ManagerDTO>> GetAllAsync();
 
-        ManagerDTO? GetById(int id);
+        Task<ManagerDTO?> GetByIdAsync(int id);
 
-        ManagerDTO Add(ManagerDTO interviewDTO);
+        Task<ManagerDTO> AddAsync(ManagerDTO managerDTO);
 
-        ManagerDTO Update(int id, ManagerDTO interviewDTO);
+        Task<ManagerDTO> UpdateAsync(int id, ManagerDTO managerDTO);
 
-        bool Delete(int id);
+        Task<bool> DeleteAsync(int id);
     }
 }

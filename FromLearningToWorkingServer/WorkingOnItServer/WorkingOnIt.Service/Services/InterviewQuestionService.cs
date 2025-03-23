@@ -3,58 +3,58 @@ using FromLearningToWorking.Core.DTOs;
 using FromLearningToWorking.Core.Entities;
 using FromLearningToWorking.Core.InterfaceRepository;
 using FromLearningToWorking.Core.InterfaceService;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class InterviewQuestionService(IRepositoryManager repositoryManager, IMapper mapper) : IInterviewQuestionService
+    public class InterviewQuestionService : IInterviewQuestionService
     {
-        private readonly IRepositoryManager _repositoryManager = repositoryManager;
-        private readonly IMapper _mapper = mapper;
+        private readonly IRepositoryManager _repositoryManager;
+        private readonly IMapper _mapper;
 
-        public IEnumerable<InterviewQuestionDTO> GetAll()
+        public InterviewQuestionService(IRepositoryManager repositoryManager, IMapper mapper)
         {
-            var questions = _repositoryManager._interviewQuestionRepository.GetAll();
+            _repositoryManager = repositoryManager;
+            _mapper = mapper;
+        }
+
+        public async Task<IEnumerable<InterviewQuestionDTO>> GetAllAsync()
+        {
+            var questions = await _repositoryManager._interviewQuestionRepository.GetAllAsync();
             return _mapper.Map<List<InterviewQuestionDTO>>(questions);
         }
 
-        public InterviewQuestionDTO? GetById(int id)
+        public async Task<InterviewQuestionDTO?> GetByIdAsync(int id)
         {
-            var question = _repositoryManager._interviewQuestionRepository.GetById(id);
+            var question = await _repositoryManager._interviewQuestionRepository.GetByIdAsync(id);
             return _mapper.Map<InterviewQuestionDTO>(question);
         }
 
-        public InterviewQuestionDTO Add(InterviewQuestionDTO interviewQuestionDTO)
+        public async Task<InterviewQuestionDTO> AddAsync(InterviewQuestionDTO interviewQuestionDTO)
         {
             var question = _mapper.Map<InterviewQuestion>(interviewQuestionDTO);
-            question = _repositoryManager._interviewQuestionRepository.Add(question);
-            if(question!=null)
-                _repositoryManager.Save();
+            question = await _repositoryManager._interviewQuestionRepository.AddAsync(question);
+            if (question != null)
+                await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return _mapper.Map<InterviewQuestionDTO>(question);
         }
 
-        public InterviewQuestionDTO Update(int id, InterviewQuestionDTO interviewQuestionDTO)
+        public async Task<InterviewQuestionDTO> UpdateAsync(int id, InterviewQuestionDTO interviewQuestionDTO)
         {
             var question = _mapper.Map<InterviewQuestion>(interviewQuestionDTO);
-            var updatedQuestion = _repositoryManager._interviewQuestionRepository.Update(id, question);
-            if(updatedQuestion!=null)
-                _repositoryManager.Save();
+            var updatedQuestion = await _repositoryManager._interviewQuestionRepository.UpdateAsync(id, question);
+            if (updatedQuestion != null)
+                await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return _mapper.Map<InterviewQuestionDTO>(updatedQuestion);
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var res = _repositoryManager._interviewQuestionRepository.Delete(id);
-             if (res)
-                  _repositoryManager.Save();
+            var res = await _repositoryManager._interviewQuestionRepository.DeleteAsync(id);
+            if (res)
+                await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return res;
         }
-
     }
-    
-
 }

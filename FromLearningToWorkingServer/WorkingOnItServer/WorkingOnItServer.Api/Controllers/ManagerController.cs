@@ -2,54 +2,62 @@
 using FromLearningToWorking.Core.InterfaceService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Api.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
-    public class ManagerController(IManagerService managerService) : ControllerBase
+    public class ManagerController : ControllerBase
     {
-        private readonly IManagerService _managerService = managerService;
+        private readonly IManagerService _managerService;
 
-
-        [HttpGet]
-        public ActionResult<IEnumerable<ManagerDTO>> GetAll()
+        public ManagerController(IManagerService managerService)
         {
-            return Ok(_managerService.GetAll());
+            _managerService = managerService;
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<ManagerDTO> GetById(int id)
+        // GET: api/manager
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ManagerDTO>>> GetAll()
         {
-            var manager = _managerService.GetById(id);
+            var managers = await _managerService.GetAllAsync();
+            return Ok(managers);
+        }
+
+        // GET api/manager/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ManagerDTO>> GetById(int id)
+        {
+            var manager = await _managerService.GetByIdAsync(id);
             if (manager == null) return NotFound();
             return Ok(manager);
         }
 
+        // POST api/manager
         [HttpPost]
-        public ActionResult<ManagerDTO> Post([FromBody] ManagerDTO managerDTO)
+        public async Task<ActionResult<ManagerDTO>> Post([FromBody] ManagerDTO managerDTO)
         {
-            var createdManager = _managerService.Add(managerDTO);
+            var createdManager = await _managerService.AddAsync(managerDTO);
             return CreatedAtAction(nameof(GetById), new { id = createdManager.Id }, createdManager);
         }
 
+        // PUT api/manager/{id}
         [HttpPut("{id}")]
-        public ActionResult<ManagerDTO> Put(int id, [FromBody] ManagerDTO managerDTO)
+        public async Task<ActionResult<ManagerDTO>> Put(int id, [FromBody] ManagerDTO managerDTO)
         {
-            var updatedManager = _managerService.Update(id, managerDTO);
+            var updatedManager = await _managerService.UpdateAsync(id, managerDTO);
             if (updatedManager == null) return NotFound();
             return Ok(updatedManager);
         }
 
+        // DELETE api/manager/{id}
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            if (!_managerService.Delete(id)) return NotFound();
+            if (!await _managerService.DeleteAsync(id)) return NotFound();
             return NoContent();
         }
     }
-
 }

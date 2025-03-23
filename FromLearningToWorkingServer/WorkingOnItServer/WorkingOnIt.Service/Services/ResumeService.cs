@@ -1,6 +1,5 @@
 ﻿using Amazon.Runtime;
 using Amazon.S3;
-using Amazon.S3.Model;
 using Amazon.S3.Transfer;
 using AutoMapper;
 using FromLearningToWorking.Core.DTOs;
@@ -9,20 +8,18 @@ using FromLearningToWorking.Core.InterfaceRepository;
 using FromLearningToWorking.Core.InterfaceService;
 using FromLearningToWorking.Core.models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class ResumeService  : IResumeService
+    public class ResumeService : IResumeService
     {
         private readonly IRepositoryManager _iRepositoryManager;
         private readonly IMapper _mapper;
-
         private readonly IAmazonS3 _s3Client;
         private readonly string _bucketName;
         private readonly string _bucketUrl;
@@ -36,52 +33,50 @@ namespace FromLearningToWorking.Service.Services
             _bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
-            _s3Client = new AmazonS3Client(credentials, Amazon.RegionEndpoint.USEast1); // שינוי האזור לפי הצורך
+            _s3Client = new AmazonS3Client(credentials, Amazon.RegionEndpoint.USEast1);
             _bucketUrl = $"https://{_bucketName}.s3.amazonaws.com/";
         }
 
-        public async Task<ResumeDTO> Add(ResumePostModel resumePost)
+        public async Task<ResumeDTO> AddAsync(ResumePostModel resumePost)
         {
-            var FilePath = await UploadFileAsync(resumePost.file);//עלאת הקובץ לaws
+            var filePath = await UploadFileAsync(resumePost.file); // Upload file to AWS
             var resume = _mapper.Map<Resume>(resumePost);
-            resume.FilePath = FilePath;
-      
-            resume = _iRepositoryManager._resumeRepository.Add(resume);
+            resume.FilePath = filePath;
+
+            resume = await _iRepositoryManager._resumeRepository.AddAsync(resume);
             if (resume != null)
-                _iRepositoryManager.Save();
+                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return _mapper.Map<ResumeDTO>(resume);
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var res = _iRepositoryManager._resumeRepository.Delete(id);
+            var res = await _iRepositoryManager._resumeRepository.DeleteAsync(id);
             if (res)
-                _iRepositoryManager.Save();
+                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return res;
         }
 
-        public IEnumerable<ResumeDTO> GetAll()
+        public async Task<IEnumerable<ResumeDTO>> GetAllAsync()
         {
-            var list = _iRepositoryManager._resumeRepository.GetAll();
+            var list = await _iRepositoryManager._resumeRepository.GetAllAsync();
             return _mapper.Map<List<ResumeDTO>>(list);
         }
 
-        public ResumeDTO? GetById(int id)
+        public async Task<ResumeDTO?> GetByIdAsync(int id)
         {
-            var resume = _iRepositoryManager._resumeRepository.GetById(id);
+            var resume = await _iRepositoryManager._resumeRepository.GetByIdAsync(id);
             return _mapper.Map<ResumeDTO>(resume);
         }
 
-        public ResumeDTO Update(int id, ResumeDTO resumeDTO)
+        public async Task<ResumeDTO> UpdateAsync(int id, ResumeDTO resumeDTO)
         {
             var resume = _mapper.Map<Resume>(resumeDTO);
-            var response = _iRepositoryManager._resumeRepository.Update(id, resume);
+            var response = await _iRepositoryManager._resumeRepository.UpdateAsync(id, resume);
             if (response != null)
-                _iRepositoryManager.Save();
+                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return _mapper.Map<ResumeDTO>(response);
         }
-
-        /////////////
 
         public async Task<string> UploadFileAsync(IFormFile file)
         {
@@ -92,26 +87,22 @@ namespace FromLearningToWorking.Service.Services
                 await fileTransferUtility.UploadAsync(stream, _bucketName, file.FileName);
             }
 
-            return $"{_bucketUrl}{file.FileName}"; // החזרת ה-URL של הקובץ
+            return $"{_bucketUrl}{file.FileName}"; // Return the URL of the file
+        }
+
+        public async Task<byte[]> DownloadResumeAsync(int userId)
+        {
+            var resume = await _iRepositoryManager._resumeRepository.GetAllAsync()
+                .ContinueWith(task => task.Result.FirstOrDefault(r => r.UserId == userId));
+            if (resume == null)
+            {
+                throw new Exception("קורות חיים לא נמצאו עבור המשתמש.");
+            }
+
+            using (var client = new HttpClient())
+            {
+                return await client.GetByteArrayAsync(resume.FilePath);
+            }
         }
     }
-
-    //public async Task UploadResume(ResumeDTO resumeDto, Stream fileStream)
-    //{
-    //   //maybe change to mapper.....
-    //    var resume = new Resume
-    //    {
-    //        Id = resumeDto.Id,
-    //        FileName = resumeDto.FileName,
-    //        FilePath = $"{resumeDto.UserId}/resumes/{resumeDto.FileName}-{DateTime.UtcNow:yyyyMMddHHmmss}",
-    //        UploadDate = DateTime.UtcNow,
-    //        UserId = resumeDto.UserId
-    //    };
-
-    //    await _iRepositoryManager._resumeRepository.UploadResume(resume, fileStream);
-    //}
-
 }
-
-
-

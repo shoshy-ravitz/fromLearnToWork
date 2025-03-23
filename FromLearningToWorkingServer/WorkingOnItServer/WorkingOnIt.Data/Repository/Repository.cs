@@ -4,71 +4,69 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Data.Repository
 {
-    public class Repository<T>(DataContext context): IRepository<T> where T : class
+    public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly DbSet<T> _dbSet= context.Set<T>();
+        private readonly DbSet<T> _dbSet;
 
-        public T Add(T entity)
+        public Repository(DataContext context)
         {
-            _dbSet.Add(entity);
+            _dbSet = context.Set<T>();
+        }
+
+        public async Task<T> AddAsync(T entity)
+        {
+            await _dbSet.AddAsync(entity);
             return entity;
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            if (_dbSet.Find(id) != null)
+            var entity = await _dbSet.FindAsync(id);
+            if (entity != null)
             {
-                _dbSet.Remove(_dbSet.Find(id));
+                _dbSet.Remove(entity);
                 return true;
             }
             return false;
         }
-        public IEnumerable<T> GetAll()
+
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return _dbSet.ToList();
+            return await _dbSet.ToListAsync();
         }
-        public T? GetById(int id)
+
+        public async Task<T?> GetByIdAsync(int id)
         {
-            return _dbSet.Find(id);
+            return await _dbSet.FindAsync(id);
         }
-        public T Update(int id, T entity)
+
+        public async Task<T> UpdateAsync(int id, T entity)
         {
-            T myentity = _dbSet.Find(id);
-            if (myentity != null)
+            var myEntity = await _dbSet.FindAsync(id);
+            if (myEntity != null)
             {
                 Type entityType = typeof(T);
                 PropertyInfo[] propertyInfos = entityType.GetProperties();
                 foreach (PropertyInfo propertyInfo in propertyInfos)
                 {
-                    // לא מעדכנים את המאפיינים Id ו-Password
+                    // Do not update Id and Password properties
                     if (propertyInfo.Name != "Id" && propertyInfo.Name != "Password")
                     {
                         object value = propertyInfo.GetValue(entity);
                         if (value != null)
                         {
-                            propertyInfo.SetValue(myentity, value);
+                            propertyInfo.SetValue(myEntity, value);
                         }
                     }
                 }
 
-                // שמירה של השינויים במסד הנתונים
-                _dbSet.Update(myentity);
-               // _context.SaveChanges(); // הנחה שיש לך גישה ל-DbContext
+                _dbSet.Update(myEntity);
             }
-            return myentity; // החזרת הישות המעודכנת
+            return myEntity; // Return the updated entity
         }
-
-        //var existingEntity = _dbSet.Find(id);
-        //if (existingEntity != null)
-        //{
-        //    _dbSet.Entry(existingEntity).CurrentValues.SetValues(entity);       
-        //}
-        //return existingEntity;
     }
 }
-

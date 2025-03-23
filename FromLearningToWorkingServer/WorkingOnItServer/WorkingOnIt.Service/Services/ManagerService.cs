@@ -5,55 +5,57 @@ using FromLearningToWorking.Core.InterfaceRepository;
 using FromLearningToWorking.Core.InterfaceService;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class ManagerService(IRepositoryManager iManager, IMapper mapper) : IManagerService
+    public class ManagerService : IManagerService
     {
-        private readonly IRepositoryManager _iRepositoryManager = iManager;
-        private readonly IMapper _mapper = mapper;
+        private readonly IRepositoryManager _iRepositoryManager;
+        private readonly IMapper _mapper;
 
-
-        public ManagerDTO Add(ManagerDTO ManagerDTO)
+        public ManagerService(IRepositoryManager iManager, IMapper mapper)
         {
-            var manager = _mapper.Map<Manager>(ManagerDTO);
-            manager = _iRepositoryManager._managerRepository.Add(manager);
+            _iRepositoryManager = iManager;
+            _mapper = mapper;
+        }
+
+        public async Task<ManagerDTO> AddAsync(ManagerDTO managerDTO)
+        {
+            var manager = _mapper.Map<Manager>(managerDTO);
+            manager = await _iRepositoryManager._managerRepository.AddAsync(manager);
             if (manager != null)
-                _iRepositoryManager.Save();
+                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return _mapper.Map<ManagerDTO>(manager);
         }
 
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var res = _iRepositoryManager._managerRepository.Delete(id);
+            var res = await _iRepositoryManager._managerRepository.DeleteAsync(id);
             if (res)
-                _iRepositoryManager.Save();
+                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return res;
         }
 
-        public IEnumerable<ManagerDTO> GetAll()
+        public async Task<IEnumerable<ManagerDTO>> GetAllAsync()
         {
-            var list = _iRepositoryManager._managerRepository.GetAll();
+            var list = await _iRepositoryManager._managerRepository.GetAllAsync();
             return _mapper.Map<List<ManagerDTO>>(list);
         }
 
-        public ManagerDTO? GetById(int id)
+        public async Task<ManagerDTO?> GetByIdAsync(int id)
         {
-            var manager = _iRepositoryManager._managerRepository.GetById(id);
+            var manager = await _iRepositoryManager._managerRepository.GetByIdAsync(id);
             return _mapper.Map<ManagerDTO>(manager);
         }
 
-        public ManagerDTO Update(int id, ManagerDTO ManagerDTO)
+        public async Task<ManagerDTO> UpdateAsync(int id, ManagerDTO managerDTO)
         {
-            var manager = _mapper.Map<Manager>(ManagerDTO);
-            var response = _iRepositoryManager._managerRepository.Update(id, manager);
+            var manager = _mapper.Map<Manager>(managerDTO);
+            var response = await _iRepositoryManager._managerRepository.UpdateAsync(id, manager);
             if (response != null)
-                _iRepositoryManager.Save();
+                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return _mapper.Map<ManagerDTO>(response);
         }
     }
-
 }

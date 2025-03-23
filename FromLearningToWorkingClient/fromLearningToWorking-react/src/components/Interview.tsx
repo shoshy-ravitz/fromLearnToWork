@@ -39,7 +39,7 @@ const Interview = () => {
                 <button type="submit">שלח קורות חיים</button>
             </form>
 
-            {currentQuestionIndex < questions.length && (
+            {currentQuestionIndex < questions.length -1&& (
                 <Question
                     question={questions[currentQuestionIndex]}
                     onFeedbackReceived={handleFeedbackReceived}

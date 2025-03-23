@@ -21,11 +21,11 @@ namespace FromLearningToWorking.Api.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterModel user)
+        public async Task<IActionResult> Register([FromBody] RegisterModel user)
         {
             try
             {
-                var authResponse = _authService.Register(user);
+                var authResponse =await _authService.Register(user);
                 return Ok(authResponse);
             }
             catch (Exception ex)
@@ -35,7 +35,7 @@ namespace FromLearningToWorking.Api.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginModel user)
+        public async Task<IActionResult> Login([FromBody] LoginModel user)
         {
             try
             {

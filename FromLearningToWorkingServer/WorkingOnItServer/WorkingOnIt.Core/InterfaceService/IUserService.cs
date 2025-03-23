@@ -9,14 +9,16 @@ namespace FromLearningToWorking.Core.InterfaceService
 {
     public interface IUserService
     {
-        IEnumerable<UserDTO> GetAll();
 
-        UserDTO? GetById(int id);
+        Task<IEnumerable<UserDTO>> GetAllAsync();
 
-        UserDTO Add(UserDTO userDTO);
+        Task<UserDTO?> GetByIdAsync(int id);
 
-        UserDTO Update(int id,UserDTO userDTO);
+        Task<UserDTO> AddAsync(UserDTO userDTO);
 
-        bool Delete(int id);
+        Task<UserDTO> UpdateAsync(int id, UserDTO userDTO);
+
+        Task<bool> DeleteAsync(int id);
     }
 }
+

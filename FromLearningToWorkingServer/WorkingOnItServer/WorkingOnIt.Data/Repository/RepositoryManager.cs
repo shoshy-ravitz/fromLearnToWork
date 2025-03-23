@@ -32,9 +32,9 @@ namespace FromLearningToWorking.Data.Repository
             _managerRepository = managerRepository;
         }
 
-        public void Save()
+        public async Task SaveAsync()
         {
-            _dataContext.SaveChanges();
+            _dataContext.SaveChangesAsync();
         }
     }
 }

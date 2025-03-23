@@ -2,24 +2,26 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_PYTHON_BASE_URL } from '../config';
 import { interviewState } from '../models/interview.model';
+import { API_BASE_URL } from '../config';
 
 // Async thunk to upload resume and fetch questions
-export const uploadResume: any = createAsyncThunk(
-    'interview/uploadResume',
-    async (resumeFile: File) => {
-        const formData = new FormData();
-        formData.append('resume', resumeFile);
-        const response = await axios.post(`${API_PYTHON_BASE_URL}/upload_resume`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        const arrayQuestions = parseQuestions(response.data.questions);
-        console.log(arrayQuestions);
+// export const uploadResume: any = createAsyncThunk(
+//     'interview/uploadResume',
+//     async (resumeFile: File) => {
+//         const formData = new FormData();
+//         formData.append('resume', resumeFile);
+//         const response = await axios.post(`${API_PYTHON_BASE_URL}/upload_resume`, formData, {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data',
+//             },
+//         });
+//         const arrayQuestions = parseQuestions(response.data.questions);
+//         console.log(arrayQuestions);
 
-        return arrayQuestions; // מחזירים את השאלות
-    }
-);
+//         return arrayQuestions; // מחזירים את השאלות
+//     }
+// );
+
 function parseQuestions(questionsString) {
     // המרת המחרוזת לאובייקט JSON
     const parsedQuestions = JSON.parse(questionsString);
@@ -42,24 +44,24 @@ export const checkAnswer: any = createAsyncThunk(
     }
 );
 
-export const evaluateResponses: any = createAsyncThunk(
-    'interview/evaluateResponses',
-    async (feedbackList) => {
-        const response = await axios.post(`${API_PYTHON_BASE_URL}/evaluate_responses`, {
-            feedback_list: feedbackList,
-        });
-        return response.data; // מחזירים את הציון הממוצע ואת הסיכום
+
+export const fetchInterviewFeedback: any = createAsyncThunk(
+    'interview/fetchInterviewFeedback',
+    async () => {
+        const response = await axios.get(`${API_PYTHON_BASE_URL}/interview_feedback`);
+        return response.data.feedback; // Return the feedback from the API
     }
 );
 
 export const initialState: interviewState = {
     questions: [],
     currentQuestionIndex: 0,
-    feedbacks: [],
-    averageScore: null,
+    mark: 0,
+    feedback: null,
     summary: '',
-    status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+    status: 'idle',
     error: null,
+    timeInterview: 0,
 }
 
 const interviewSlice = createSlice({
@@ -67,15 +69,19 @@ const interviewSlice = createSlice({
     initialState,
     reducers: {
         resetInterview: (state) => {
-            state.questions = [];
-            state.currentQuestionIndex = 0;
-            state.feedbacks = [];
+            state=initialState
         },
         nextQuestion: (state) => {
             if (state.currentQuestionIndex < state.questions.length - 1) {
                 state.currentQuestionIndex += 1; // עובר לשאלה הבאה
             }
         },
+        saveAnswer: (state, action) => {
+            state.questions[state.currentQuestionIndex].answer = action.payload.answer; // שומר את התשובה בשאלה הנוכחית
+        },
+        saveFeedbackQuestion: (state, action) => {
+            state.questions[state.currentQuestionIndex].feedback = action.payload.feedback; // שומר את הפידבק בשאלה הנוכחית
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -85,10 +91,6 @@ const interviewSlice = createSlice({
             .addCase(uploadResume.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.questions = action.payload;
-                console.log( state.questions);
-                // state.questions = action.payload.map((question: string) => question.replace(/["']/g, '').trim());
-                // console.log(action.payload);
-
             })
             .addCase(uploadResume.rejected, (state, action) => {
                 state.status = 'failed';
@@ -97,13 +99,12 @@ const interviewSlice = createSlice({
             .addCase(checkAnswer.fulfilled, (state, action) => {
                 state.feedbacks.push(action.payload);
             })
-            .addCase(evaluateResponses.fulfilled, (state, action) => {
-                state.averageScore = action.payload.average_score;
-                state.summary = action.payload.summary;
+            .addCase(fetchInterviewFeedback.fulfilled, (state, action) => {
+                state.interviewFeedback = action.payload; // Store the feedback in the state
             });
     },
 });
 
-export const { resetInterview, nextQuestion } = interviewSlice.actions;
+export const { resetInterview, nextQuestion, saveAnswer } = interviewSlice.actions;
 
 export default interviewSlice.reducer;

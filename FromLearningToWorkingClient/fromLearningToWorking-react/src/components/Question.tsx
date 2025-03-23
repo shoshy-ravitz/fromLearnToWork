@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { checkAnswer } from '../store/interviewSlice';
-
+import { checkAnswer, saveAnswer } from '../store/interviewSlice';
 
 const Question = ({ question, onFeedbackReceived }) => {
     const [answer, setAnswer] = useState('');
@@ -12,14 +11,18 @@ const Question = ({ question, onFeedbackReceived }) => {
         setAnswer(e.target.value);
     };
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
         try {
+            // שמירת התשובה ב-Redux
+            dispatch(saveAnswer({answer}));
+
+            // שליחת התשובה לשרת וקבלת פידבק
             const feedback = await dispatch(checkAnswer({ question, answer })).unwrap();
             onFeedbackReceived(feedback);
+            setAnswer('');
         } catch (error) {
             console.error('Error checking answer:', error);
         } finally {

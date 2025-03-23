@@ -9,14 +9,14 @@ namespace FromLearningToWorking.Core.InterfaceService
 {
     public interface IInterviewQuestionService
     {
-            IEnumerable<InterviewQuestionDTO> GetAll();
+        Task<IEnumerable<InterviewQuestionDTO>> GetAllAsync();
 
-            InterviewQuestionDTO? GetById(int id);
+        Task<InterviewQuestionDTO?> GetByIdAsync(int id);
 
-            InterviewQuestionDTO Add(InterviewQuestionDTO interviewQuestionDTO);
+        Task<InterviewQuestionDTO> AddAsync(InterviewQuestionDTO interviewQuestionDTO);
 
-            InterviewQuestionDTO Update(int id,InterviewQuestionDTO interviewQuestionDTO);
+        Task<InterviewQuestionDTO> UpdateAsync(int id, InterviewQuestionDTO interviewQuestionDTO);
 
-            bool Delete(int id);
+        Task<bool> DeleteAsync(int id);
     }
 }

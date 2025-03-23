@@ -4,10 +4,11 @@ export interface User {
     email: string;
     password: string; // Added password field
 }
+
 export interface UsersState {
     users: User[];
 }
 
 export const initialState: UsersState = {
     users: [],
-};
+}

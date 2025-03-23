@@ -11,16 +11,18 @@ namespace FromLearningToWorking.Core.InterfaceService
 {
     public interface IResumeService
     {
-        IEnumerable<ResumeDTO> GetAll();
+        Task<IEnumerable<ResumeDTO>> GetAllAsync();
 
-        ResumeDTO? GetById(int id);
+        Task<ResumeDTO?> GetByIdAsync(int id);
 
-        Task<ResumeDTO> Add(ResumePostModel resumeDTO);
+        Task<ResumeDTO> AddAsync(ResumePostModel resumeDTO);
 
-        ResumeDTO Update(int id,ResumeDTO resumeDTO);
+        Task<ResumeDTO> UpdateAsync(int id, ResumeDTO resumeDTO);
 
-        bool Delete(int id);
+        Task<bool> DeleteAsync(int id);
 
         Task<string> UploadFileAsync(IFormFile file);
+
+        Task<byte[]> DownloadResumeAsync(int userId);
     }
 }

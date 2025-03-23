@@ -11,7 +11,7 @@ namespace FromLearningToWorking.Core.InterfaceService
 {
     public interface IAuthService
     {
-        AuthResponseModel Register(RegisterModel user);
-        AuthResponseModel Login(LoginModel user);
+        Task<AuthResponseModel> Register(RegisterModel user);
+        Task<AuthResponseModel> Login(LoginModel user);
     }
 }

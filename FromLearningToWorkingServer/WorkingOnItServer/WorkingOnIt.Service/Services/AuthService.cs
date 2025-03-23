@@ -20,18 +20,19 @@ namespace FromLearningToWorking.Service.Services
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
         private readonly IMapper _mapper = mapper;
         private readonly string _secretKey= Environment.GetEnvironmentVariable("Jwt:Key");
-        public AuthResponseModel Register(RegisterModel userRegister)
+        public async Task<AuthResponseModel> Register(RegisterModel userRegister)
         {
-            var existingUser = _repositoryManager._userRepository.GetAll().FirstOrDefault(u => u.Email == userRegister.Email);
-            if (existingUser != null)
+            var existingUser =await _repositoryManager._userRepository.GetAllAsync();
+            var exist=existingUser.FirstOrDefault(u => u.Email == userRegister.Email);
+            if (exist != null)
             {
                 throw new Exception("User already exists.");
             }
 
             var user = _mapper.Map<User>(userRegister);
-            user = _repositoryManager._userRepository.Add(user);
+            user =await _repositoryManager._userRepository.AddAsync(user);
             if (user != null)
-                _repositoryManager.Save();
+                _repositoryManager.SaveAsync();
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenKey = Encoding.ASCII.GetBytes(_secretKey);
@@ -54,9 +55,10 @@ namespace FromLearningToWorking.Service.Services
             return new AuthResponseModel { User = user, Token = tokenHandler.WriteToken(token) };
         }
 
-        public AuthResponseModel Login(LoginModel userLogin)
+        public async Task<AuthResponseModel> Login(LoginModel userLogin)
         {
-            var existingUser = _repositoryManager._userRepository.GetAll().FirstOrDefault(u => u.Email == userLogin.Email && u.Password == userLogin.Password);
+            var exist = await _repositoryManager._userRepository.GetAllAsync();
+             var  existingUser = exist.FirstOrDefault(u => u.Email == userLogin.Email && u.Password == userLogin.Password);
             if (existingUser == null)
             {
                 throw new UnauthorizedAccessException("Invalid credentials");
@@ -83,78 +85,7 @@ namespace FromLearningToWorking.Service.Services
             return new AuthResponseModel { User = existingUser, Token = tokenHandler.WriteToken(token) };
         }
 
-        //public string Register(RegisterModel userRegister)
-        //{
-        //    var existingUser = _repositoryManager._userRepository.GetAll().FirstOrDefault(u => u.Email == userRegister.Email);
-        //    if (existingUser != null)
-        //    {
-        //        throw new Exception("User already exists.");
-        //    }
-
-        //    var user = _mapper.Map<User>(userRegister);
-        //    user = _repositoryManager._userRepository.Add(user);
-        //    if (user!=null)
-        //        _repositoryManager.Save();
-
-
-        //    var tokenHandler = new JwtSecurityTokenHandler();
-        //    var tokenKey = Encoding.ASCII.GetBytes(_secretKey);
-
-        //    var claims = new List<Claim>
-        //    {
-        //        new Claim(ClaimTypes.Email, user.Email)
-        //    };
-
-
-
-
-
-
-        //    var tokenDescriptor = new SecurityTokenDescriptor
-        //    {
-        //        Subject = new ClaimsIdentity(claims),
-        //        Expires = DateTime.UtcNow.AddHours(1),
-        //        Issuer = configuration["Jwt:Issuer"],
-        //        Audience = configuration["Jwt:Audience"],
-        //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
-        //    };
-
-        //    var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        //    return tokenHandler.WriteToken(token);
-
-
-        //}
-
-        //public string Login(LoginModel userLogin)
-        //{
-        //    var existingUser = _repositoryManager._userRepository.GetAll().FirstOrDefault(u => u.Email == userLogin.Email && u.Password == userLogin.Password);
-        //    if (existingUser == null)
-        //    {
-        //        throw new UnauthorizedAccessException("Invalid credentials");
-        //    }
-        //    var tokenHandler = new JwtSecurityTokenHandler();
-        //    var tokenKey = Encoding.ASCII.GetBytes(_secretKey);
-
-        //    var claims = new List<Claim>
-        //    {
-        //        new Claim(ClaimTypes.Email, existingUser.Email)
-        //    };
-
-        //    var tokenDescriptor = new SecurityTokenDescriptor
-        //    {
-        //        Subject = new ClaimsIdentity(claims),
-        //        Expires = DateTime.UtcNow.AddHours(1),
-        //        Issuer = configuration["Jwt:Issuer"],
-        //        Audience = configuration["Jwt:Audience"],
-        //        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
-        //    };
-
-        //    var token = tokenHandler.CreateToken(tokenDescriptor);
-        //    return tokenHandler.WriteToken(token);
-
-        //}
-
+      
 
     }
 }

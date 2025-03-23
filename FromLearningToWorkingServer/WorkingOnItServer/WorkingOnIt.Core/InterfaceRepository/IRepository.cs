@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Core.InterfaceRepository
 {
-    public interface IRepository<T>
-    {
-        IEnumerable<T> GetAll();
+        public interface IRepository<T>
+        {
+            Task<IEnumerable<T>> GetAllAsync();
 
-        T? GetById(int id);
+            Task<T?> GetByIdAsync(int id);
 
-        T Add(T entity);
+            Task<T> AddAsync(T entity);
 
-        T Update(int id,T entity);
+            Task<T> UpdateAsync(int id, T entity);
 
-        bool Delete(int id);
-    }
+            Task<bool> DeleteAsync(int id);
+        }
 }

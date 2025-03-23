@@ -42,6 +42,8 @@ builder.Services.AddScoped<IInterviewQuestionRepository, InterviewQuestionReposi
 builder.Services.AddScoped<IInterviewRepository, InterviewRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+builder.Services.AddHttpClient(); 
+
 // Add services to the container.
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
 builder.Services.AddDbContext<DataContext>(options =>

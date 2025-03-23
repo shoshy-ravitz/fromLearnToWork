@@ -12,65 +12,81 @@ namespace FromLearningToWorking.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class ResumeController(IResumeService resumeService,IMapper mapper) : ControllerBase
+    public class ResumeController : ControllerBase
     {
-        private readonly IResumeService _resumeService = resumeService;
-        private readonly IMapper _mapper = mapper;
+        private readonly IResumeService _resumeService;
+        private readonly IMapper _mapper;
 
-        [HttpGet]
-        public ActionResult<IEnumerable<ResumeDTO>> GetAll()
+        public ResumeController(IResumeService resumeService, IMapper mapper)
         {
-            return Ok(_resumeService.GetAll());
+            _resumeService = resumeService;
+            _mapper = mapper;
         }
 
-        [HttpGet("{id}")]
-        public ActionResult<ResumeDTO> GetById(int id)
+        // GET: api/resume
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ResumeDTO>>> GetAll()
         {
-            var resume = _resumeService.GetById(id);
+            var resumes = await _resumeService.GetAllAsync();
+            return Ok(resumes);
+        }
+
+        // GET api/resume/{id}
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ResumeDTO>> GetById(int id)
+        {
+            var resume = await _resumeService.GetByIdAsync(id);
             if (resume == null) return NotFound();
             return Ok(resume);
         }
 
+        // POST api/resume
         [HttpPost]
-
-        public async Task<IActionResult>  Post([FromForm] ResumePostModel resume)
+        public async Task<IActionResult> Post([FromForm] ResumePostModel resume)
         {
-            if (resume.file == null || resume. file.Length == 0)
+            if (resume.file == null || resume.file.Length == 0)
                 return BadRequest("No file uploaded.");
 
-            //var resumeDTO = _mapper.Map<ResumeDTO>(resume);
-            var resumeDTO =await _resumeService.Add(resume);
+            var resumeDTO = await _resumeService.AddAsync(resume);
             return CreatedAtAction(nameof(GetById), new { id = resumeDTO.Id }, resumeDTO);
         }
+
+        // PUT api/resume/{id}
         [HttpPut("{id}")]
-        public ActionResult<ResumeDTO> Put(int id, [FromBody] ResumeDTO resumeDTO)
+        public async Task<ActionResult<ResumeDTO>> Put(int id, [FromBody] ResumeDTO resumeDTO)
         {
-            var updatedResume = _resumeService.Update(id, resumeDTO);
+            var updatedResume = await _resumeService.UpdateAsync(id, resumeDTO);
             if (updatedResume == null) return NotFound();
             return Ok(updatedResume);
         }
 
+        // DELETE api/resume/{id}
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            if (!_resumeService.Delete(id)) return NotFound();
+            if (!await _resumeService.DeleteAsync(id)) return NotFound();
             return NoContent();
         }
 
-
-
-        //[HttpPost]
-        //public async Task<IActionResult> UploadResume(IFormFile file, [FromForm] ResumeDTO resumeDto)
-        //{
-        //    if (file == null || file.Length == 0)
-        //        return BadRequest("No file uploaded.");
-
-        //    using (var stream = file.OpenReadStream())
-        //    {
-        //        await _resumeService.UploadResume(resumeDto, stream);
-        //    }
-
-        //    return Ok(new { message = "File uploaded successfully" });
-        //}
+        [HttpGet("download/{userId}")]
+        public async Task<IActionResult> DownloadResume(int userId)
+        {
+            try
+            {
+                var fileBytes = await _resumeService.DownloadResumeAsync(userId);
+                var resumes =await _resumeService.GetAllAsync();
+                var resume= resumes.FirstOrDefault(r => r.UserId == userId);
+                return File(fileBytes, "application/octet-stream", resume.FileName);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
 }
+
+
+
+
+

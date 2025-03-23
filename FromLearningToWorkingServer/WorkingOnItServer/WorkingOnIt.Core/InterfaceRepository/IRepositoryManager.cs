@@ -18,6 +18,6 @@ namespace FromLearningToWorking.Core.InterfaceRepository
 
         //Imanager 
 
-        void Save();
+        Task SaveAsync();
     }
 }
