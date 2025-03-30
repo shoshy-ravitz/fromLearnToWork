@@ -21,7 +21,6 @@ namespace FromLearningToWorking.Service.Services
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
         private readonly IMapper _mapper = mapper;
         private readonly HttpClient _httpClient = httpClient;
-        private readonly string  _pythonApiUrl = configuration["PYTHON_API"]; // קריאה ל-PYTHON_API מתוך קובץ ה-env
 
             public async Task<InterviewDTO> AddAsync(InterviewDTO interviewDTO)
             {
@@ -91,7 +90,7 @@ namespace FromLearningToWorking.Service.Services
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             // השתמש ב-PYTHON_API כאן
-            var response = await _httpClient.PostAsync($"{_pythonApiUrl}/upload_resume", content);
+            var response = await _httpClient.PostAsync($"{configuration["PYTHON_API"]}/upload_resume", content);
 
             if (response.IsSuccessStatusCode)
             {

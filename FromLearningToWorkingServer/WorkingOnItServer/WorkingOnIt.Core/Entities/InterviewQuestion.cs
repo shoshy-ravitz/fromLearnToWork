@@ -13,7 +13,8 @@ namespace FromLearningToWorking.Core.Entities
         public int Id { get; set; }
         public string Question { get; set; } 
         public string UserAnswer { get; set; } 
-        public string AiFeedback { get; set; } 
+        public string AiFeedback { get; set; }
+        public int? Time { get; set; }
 
         // קשרים
         public int InterviewId { get; set; }

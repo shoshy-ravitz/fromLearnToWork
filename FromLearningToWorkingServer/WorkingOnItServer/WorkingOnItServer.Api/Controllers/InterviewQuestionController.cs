@@ -1,8 +1,10 @@
 ﻿using FromLearningToWorking.Core.DTOs;
 using FromLearningToWorking.Core.InterfaceService;
+using FromLearningToWorking.Core.models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Api.Controllers
@@ -13,10 +15,12 @@ namespace FromLearningToWorking.Api.Controllers
     public class InterviewQuestionController : ControllerBase
     {
         private readonly IInterviewQuestionService _interviewQuestionService;
+        private readonly IInterviewAIService _interviewAIService;
 
-        public InterviewQuestionController(IInterviewQuestionService interviewQuestionService)
+        public InterviewQuestionController(IInterviewQuestionService interviewQuestionService,IInterviewAIService interviewAIService)
         {
             _interviewQuestionService = interviewQuestionService;
+            _interviewAIService = interviewAIService;
         }
 
         // GET: api/interviewquestion
@@ -60,5 +64,21 @@ namespace FromLearningToWorking.Api.Controllers
             if (!await _interviewQuestionService.DeleteAsync(id)) return NotFound();
             return NoContent();
         }
+
+
+
+
+        [HttpPost("checkAnswer")]
+
+        public async Task<ActionResult<string>> CheckAnswer([FromBody] CheckAnswerRequest request)
+        {
+            var feedback=await _interviewAIService.CheckAnswer(request);
+            if (feedback!=null)
+            {
+                return Ok(feedback);
+            }
+            return BadRequest();
+        }
     }
 }
+

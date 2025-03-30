@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text;
+using FromLearningToWorking.Core.models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,11 +17,14 @@ namespace FromLearningToWorking.Api.Controllers
         public class InterviewController : ControllerBase
         {
             private readonly IInterviewService _interviewService;
+            private readonly IInterviewAIService _interviewAIService;
 
-            public InterviewController(IInterviewService interviewService)
-            {
-                _interviewService = interviewService;
-            }
+
+        public InterviewController(IInterviewService interviewService,IInterviewAIService interviewAIService)
+        {
+            _interviewService = interviewService;
+            _interviewAIService = interviewAIService;
+        }
 
             // GET: api/interview
             [HttpGet]
@@ -63,6 +67,9 @@ namespace FromLearningToWorking.Api.Controllers
                 if (!await _interviewService.DeleteAsync(id)) return NotFound();
                 return NoContent();
             }
+
+
+
         [HttpGet("createInterview")]
         public async Task<ActionResult<string[]>> CreateInterview(int userId, string interviewLevel)
         {
@@ -72,6 +79,14 @@ namespace FromLearningToWorking.Api.Controllers
             return BadRequest();
         }
 
+        [HttpPost("resultOfInterview")]
+        public async Task<ActionResult<string>> ResultOfInterview([FromBody] ResultOfInterviewRequest request)
+        {
+            var feedback = await _interviewAIService.ResultOfInterview(request);
+            if (feedback != null)
+                return Ok(feedback);
+            return BadRequest();
+        }
     }
 }
 

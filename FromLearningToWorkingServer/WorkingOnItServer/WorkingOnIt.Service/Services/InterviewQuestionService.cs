@@ -3,21 +3,28 @@ using FromLearningToWorking.Core.DTOs;
 using FromLearningToWorking.Core.Entities;
 using FromLearningToWorking.Core.InterfaceRepository;
 using FromLearningToWorking.Core.InterfaceService;
+using FromLearningToWorking.Core.models;
+using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class InterviewQuestionService : IInterviewQuestionService
+    public class InterviewQuestionService(IRepositoryManager repositoryManager, IMapper mapper, HttpClient httpClient, IConfiguration configuration) : IInterviewQuestionService
     {
-        private readonly IRepositoryManager _repositoryManager;
-        private readonly IMapper _mapper;
+        private readonly IRepositoryManager _repositoryManager = repositoryManager;
+        private readonly IMapper _mapper=mapper;
+        //private readonly HttpClient http;
 
-        public InterviewQuestionService(IRepositoryManager repositoryManager, IMapper mapper)
-        {
-            _repositoryManager = repositoryManager;
-            _mapper = mapper;
-        }
+        //public InterviewQuestionService(IRepositoryManager repositoryManager, IMapper mapper, HttpClient httpClient, IConfiguration configuration)
+        //{
+        //    _repositoryManager = repositoryManager;
+        //    _mapper = mapper;
+        //    http = httpClient;
+        //}
 
         public async Task<IEnumerable<InterviewQuestionDTO>> GetAllAsync()
         {
@@ -33,6 +40,7 @@ namespace FromLearningToWorking.Service.Services
 
         public async Task<InterviewQuestionDTO> AddAsync(InterviewQuestionDTO interviewQuestionDTO)
         {
+
             var question = _mapper.Map<InterviewQuestion>(interviewQuestionDTO);
             question = await _repositoryManager._interviewQuestionRepository.AddAsync(question);
             if (question != null)
