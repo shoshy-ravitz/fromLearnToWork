@@ -1,36 +1,35 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
 import { Resume, ResumeState } from '../models/resume.model';
+import API from '../axios.interceptor'; // Import the interceptor
 
 const initialState: ResumeState = {
     resumes: [],
     loading: false,
     error: null,
 };
-import { API_BASE_URL } from '../config';
+
 // Async Thunks
 export const fetchResumes = createAsyncThunk('resumes/fetchAll', async () => {
-    const response = await axios.get<Resume[]>(`${API_BASE_URL}/resume`);
+    const response = await API.get<Resume[]>('/resume');
     return response.data;
 });
 
 export const fetchResumeById = createAsyncThunk('resumes/fetchById', async (id: string) => {
-    const response = await axios.get<Resume>(`${API_BASE_URL}/resume/${id}`);
+    const response = await API.get<Resume>(`/resume/${id}`);
     return response.data;
 });
 
 export const addResume: any = createAsyncThunk(
     'resumes/add',
-    async ({ userId, file, token }: { userId: number; file: File; token: string }, { rejectWithValue }) => {
+    async ({ userId, file }: { userId: number; file: File }, { rejectWithValue }) => {
         try {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('userId', userId.toString());
 
-            const response = await axios.post<Resume>(`${API_BASE_URL}/Resume`, formData, {
+            const response = await API.post<Resume>('/Resume', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${token}`, // הוספת ה-token לכותרות
                 },
             });
             return response.data;
@@ -41,12 +40,12 @@ export const addResume: any = createAsyncThunk(
 );
 
 export const updateResume = createAsyncThunk(`resumes/update`, async ({ id, resume }: { id: string; resume: Resume }) => {
-    const response = await axios.put<Resume>(`${API_BASE_URL}/Resume/${id}`, resume);
+    const response = await API.put<Resume>(`/Resume/${id}`, resume);
     return response.data;
 });
 
 export const deleteResume = createAsyncThunk(`resumes/delete`, async (id: string) => {
-    await axios.delete(`${API_BASE_URL}/Resume/${id}`);
+    await API.delete(`/Resume/${id}`);
     return id;
 });
 
@@ -75,7 +74,6 @@ const resumeSlice = createSlice({
                 );
             })
             .addCase(addResume.fulfilled, (state, action: PayloadAction<Resume>) => {
-                // debugger
                 state.resumes.push(action.payload);
             })
             .addCase(updateResume.fulfilled, (state, action: PayloadAction<Resume>) => {

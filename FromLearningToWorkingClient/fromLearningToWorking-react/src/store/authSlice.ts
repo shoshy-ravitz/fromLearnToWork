@@ -2,9 +2,6 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
-// Define the API endpoints
-
-
 // Async thunk for user registration
 export const registerUser: any = createAsyncThunk(
     'auth/registerUser',
@@ -14,7 +11,7 @@ export const registerUser: any = createAsyncThunk(
                 headers: {
                     'Content-Type': 'application/json',
                 },
-            });        
+            });
             return response.data;
         } catch (error: any) {
             return rejectWithValue(error.response?.data || error.message);
@@ -42,7 +39,7 @@ export const loginUser: any = createAsyncThunk(
 // Initial state
 const initialState = {
     user: null,
-    token: null,
+    token: localStorage.getItem('token') || null, // Load token from localStorage
     loading: false,
     error: null,
 };
@@ -55,6 +52,7 @@ const authSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.token = null;
+            localStorage.removeItem('token'); // Remove token from localStorage
         },
     },
     extraReducers: (builder) => {
@@ -68,6 +66,7 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.token = action.payload.token;
                 state.user = action.payload.user;
+                localStorage.setItem('token', action.payload.token); // Save token to localStorage
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;
@@ -75,7 +74,6 @@ const authSlice = createSlice({
             })
             // Login user
             .addCase(loginUser.pending, (state) => {
-                
                 state.loading = true;
                 state.error = null;
             })
@@ -83,6 +81,7 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.token = action.payload.token;
                 state.user = action.payload.user;
+                localStorage.setItem('token', action.payload.token); // Save token to localStorage
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;

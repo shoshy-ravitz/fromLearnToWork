@@ -2,68 +2,42 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_PYTHON_BASE_URL } from '../config';
 import { InterviewState } from '../models/interview.model';
-import { API_BASE_URL } from '../config';
+import API from '../axios.interceptor'; // Import the interceptor
 
-// Async thunk to upload resume and fetch questions
-// export const uploadResume: any = createAsyncThunk(
-//     'interview/uploadResume',
-//     async (resumeFile: File) => {
-//         const formData = new FormData();
-//         formData.append('resume', resumeFile);
-//         const response = await axios.post(`${API_PYTHON_BASE_URL}/upload_resume`, formData, {
-//             headers: {
-//                 'Content-Type': 'multipart/form-data',
-//             },
-//         });
-//         const arrayQuestions = parseQuestions(response.data.questions);
-//         console.log(arrayQuestions);
-
-//         return arrayQuestions; // מחזירים את השאלות
-//     }
-// );
-
-// function parseQuestions(questionsString) {
-//     // המרת המחרוזת לאובייקט JSON
-//     const parsedQuestions = JSON.parse(questionsString);
-
-//     // ניקוי השאלות ממרחבים נוספים
-//     const questions = parsedQuestions.map(question => question.trim());
-
-//     // יצירת אובייקט שמכיל את השאלות
-//     return questions;
-// }
 // Async thunk to check answer
-
-
 export const checkAnswer: any = createAsyncThunk(
     'interview/checkAnswer',
-    async ({ question, answer }: { question: string; answer: string }) => {
-        const response = await axios.post(`${API_PYTHON_BASE_URL}/check_answer`, {
-            question,
-            answer,
-        });
-        return response.data.feedback; // מחזירים את הפידבק
+    async ({ question, answer }: { question: string; answer: string }, { rejectWithValue }) => {
+        try {
+            const response = await API.post('/interview/checkAnswer', {
+                question,
+                answer,
+            });
+            return response.data.feedback; // Return the feedback from the API
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Failed to check answer');
+        }
     }
 );
 
-
 export const fetchInterviewFeedback: any = createAsyncThunk(
     'interview/fetchInterviewFeedback',
-    async () => {
-        const response = await axios.get(`${API_PYTHON_BASE_URL}/interview_feedback`);
-        return response.data.feedback; // Return the feedback from the API
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await API.get('/interview/resultOfInterview');
+            return response.data.feedback; // Return the feedback from the API
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Failed to fetch interview feedback');
+        }
     }
 );
 
 export const createInterview: any = createAsyncThunk(
     'interview/createInterview',
-    async ({ userId, interviewLevel = 'mid', token }: { userId: number; interviewLevel?: string; token: string }, { rejectWithValue }) => {
+    async ({ userId, interviewLevel = 'mid' }: { userId: number; interviewLevel?: string }, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${API_BASE_URL}/createInterview`, {
+            const response = await API.get('/createInterview', {
                 params: { userId, interviewLevel },
-                headers: {
-                    Authorization: `Bearer ${token}`, // Send the token in the Authorization header
-                },
             });
             return response.data; // Return the array of questions
         } catch (error: any) {
@@ -88,34 +62,48 @@ const interviewSlice = createSlice({
     initialState,
     reducers: {
         resetInterview: (state) => {
-            state=initialState
+            state = initialState;
         },
         nextQuestion: (state) => {
             if (state.currentQuestionIndex < state.questions.length - 1) {
-                state.currentQuestionIndex += 1; // עובר לשאלה הבאה
+                state.currentQuestionIndex += 1; // Move to the next question
             }
         },
         saveAnswer: (state, action) => {
-            state.questions[state.currentQuestionIndex].answer = action.payload.answer; // שומר את התשובה בשאלה הנוכחית
+            state.questions[state.currentQuestionIndex].answer = action.payload.answer; // Save the answer for the current question
         },
         saveFeedbackQuestion: (state, action) => {
-            state.questions[state.currentQuestionIndex].feedback = action.payload.feedback; // שומר את הפידבק בשאלה הנוכחית
-        }
+            state.questions[state.currentQuestionIndex].feedback = action.payload.feedback; // Save the feedback for the current question
+        },
     },
     extraReducers: (builder) => {
         builder
             .addCase(checkAnswer.fulfilled, (state, action) => {
-                state.questions[state.currentQuestionIndex].feedback=action.payload;
+                state.questions[state.currentQuestionIndex].feedback = action.payload; // Save feedback for the current question
             })
             .addCase(fetchInterviewFeedback.fulfilled, (state, action) => {
-                state.feedback = action.payload; // Store the feedback in the state
+                state.feedback = action.payload; // Store the overall feedback in the state
+            })
+            .addCase(checkAnswer.rejected, (state, action) => {
+                state.error = action.payload || 'Failed to check answer';
+            })
+            .addCase(fetchInterviewFeedback.rejected, (state, action) => {
+                state.error = action.payload || 'Failed to fetch interview feedback';
             })
             .addCase(createInterview.pending, (state) => {
                 state.status = 'loading';
             })
             .addCase(createInterview.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.questions = action.payload; // Save the questions in the state
+                // Map the response into an array of Question objects
+                state.questions = action.payload.map((q: string, index: number) => ({
+                    id: index + 1, // Assign a unique ID to each question
+                    question: q,
+                    answer: '', // Initialize with an empty answer
+                    feedback: '', // Initialize with empty feedback
+                    mark: 0, // Initialize with a default mark
+                    time: 0, // Initialize with default time
+                }));
             })
             .addCase(createInterview.rejected, (state, action) => {
                 state.status = 'failed';
