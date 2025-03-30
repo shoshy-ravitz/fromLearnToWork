@@ -4,6 +4,7 @@ using FromLearningToWorking.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FromLearningToWorking.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250327002350_migration-1")]
+    partial class migration1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -204,14 +207,24 @@ namespace FromLearningToWorking.Data.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("RoleId");
-
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("RoleUser", b =>
+                {
+                    b.Property<int>("RolesId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RolesId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("RoleUser");
                 });
 
             modelBuilder.Entity("FromLearningToWorking.Core.Entities.Interview", b =>
@@ -254,15 +267,19 @@ namespace FromLearningToWorking.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("FromLearningToWorking.Core.Entities.User", b =>
+            modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("FromLearningToWorking.Core.Entities.Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
+                    b.HasOne("FromLearningToWorking.Core.Entities.Role", null)
+                        .WithMany()
+                        .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Role");
+                    b.HasOne("FromLearningToWorking.Core.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FromLearningToWorking.Core.Entities.Interview", b =>
@@ -273,8 +290,6 @@ namespace FromLearningToWorking.Data.Migrations
             modelBuilder.Entity("FromLearningToWorking.Core.Entities.Role", b =>
                 {
                     b.Navigation("Permissions");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("FromLearningToWorking.Core.Entities.User", b =>

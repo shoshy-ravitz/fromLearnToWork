@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Core.InterfaceRepository
 {
-    public interface IUserRepository:IRepository<User>
+    public interface IRoleRepository:IRepository<Role>
     {
-         Task<User?> GetByEmailAsync(string email);
+         Task<Role?> GetByNameAsync(string roleName);
     }
 }

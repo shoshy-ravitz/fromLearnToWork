@@ -11,7 +11,7 @@ namespace FromLearningToWorking.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize(Policy = "User")]
     public class ResumeController : ControllerBase
     {
         private readonly IResumeService _resumeService;

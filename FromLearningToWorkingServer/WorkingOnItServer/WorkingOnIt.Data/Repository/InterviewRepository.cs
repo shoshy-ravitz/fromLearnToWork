@@ -13,5 +13,6 @@ namespace FromLearningToWorking.Data.Repository
         public InterviewRepository(DataContext context) : base(context)
         {
         }
+
     }
 }

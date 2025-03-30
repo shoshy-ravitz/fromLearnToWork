@@ -26,7 +26,11 @@ const Navbar: React.FC = () => {
                         Register
                     </Button>
                     <Button color="inherit" component={Link} to="upload">
-                        uploud1
+                        uploud resume
+                    </Button>
+
+                    <Button color="inherit" component={Link} to="interview">
+                        start interview 
                     </Button>
                 </Box>
             </Toolbar>

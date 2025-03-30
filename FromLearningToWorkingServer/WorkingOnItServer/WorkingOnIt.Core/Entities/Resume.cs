@@ -18,6 +18,5 @@ namespace FromLearningToWorking.Core.Entities
         // קשרים
         public int UserId { get; set; }
         public User User { get; set; }
-
     }
 }

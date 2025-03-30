@@ -15,79 +15,91 @@ using Microsoft.Extensions.Configuration;
 using FromLearningToWorking.Core.DTOs;
 namespace FromLearningToWorking.Service.Services
 {
-    public class AuthService (IRepositoryManager repositoryManager, IMapper mapper) : IAuthService
+    public class AuthService(IRepositoryManager repositoryManager, IMapper mapper) : IAuthService
     {
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
         private readonly IMapper _mapper = mapper;
-        private readonly string _secretKey= Environment.GetEnvironmentVariable("Jwt:Key");
+
+
+
+        private string GenerateJwtToken(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
+
+            // Add roles to the JWT claims
+            
+            if(user.Role!=null)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, user.Role.RoleName));
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("Jwt:Key")));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                Environment.GetEnvironmentVariable("Jwt:Issuer"),
+                Environment.GetEnvironmentVariable("Jwt:Audience"),claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
         public async Task<AuthResponseModel> Register(RegisterModel userRegister)
         {
-            var existingUser =await _repositoryManager._userRepository.GetAllAsync();
-            var exist=existingUser.FirstOrDefault(u => u.Email == userRegister.Email);
+            var existingUser = await _repositoryManager._userRepository.GetAllAsync();
+            var exist = existingUser.FirstOrDefault(u => u.Email == userRegister.Email);
             if (exist != null)
             {
                 throw new Exception("User already exists.");
             }
-
+           
             var user = _mapper.Map<User>(userRegister);
-            user =await _repositoryManager._userRepository.AddAsync(user);
-            if (user != null)
-                _repositoryManager.SaveAsync();
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenKey = Encoding.ASCII.GetBytes(_secretKey);
 
-            var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Email, user.Email)
-    };
 
-            var tokenDescriptor = new SecurityTokenDescriptor
+
+
+            var defaultRole = await _repositoryManager._roleRepository.GetByNameAsync("user");
+
+            if (defaultRole == null)
             {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = Environment.GetEnvironmentVariable("Jwt:Issuer"),
-                Audience = Environment.GetEnvironmentVariable("Jwt:Audience"),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
-            };
+                throw new Exception("Default role 'user' not found.");
+            }
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return new AuthResponseModel { User = user, Token = tokenHandler.WriteToken(token) };
+            user.Role= defaultRole;
+
+
+            var token = GenerateJwtToken(user);
+            user = await _repositoryManager._userRepository.AddAsync(user);
+
+            if (user != null)
+            {
+                Console.WriteLine("----------------save------------");
+                await _repositoryManager.SaveAsync();
+                Console.WriteLine("-------after---------save----------------");
+            }
+            var userDTO = _mapper.Map<UserDTO>(user);
+            return new AuthResponseModel { User = userDTO, Token =token };
         }
 
         public async Task<AuthResponseModel> Login(LoginModel userLogin)
         {
-            var exist = await _repositoryManager._userRepository.GetAllAsync();
-             var  existingUser = exist.FirstOrDefault(u => u.Email == userLogin.Email && u.Password == userLogin.Password);
-            if (existingUser == null)
+            var user = await _repositoryManager._userRepository.GetByEmailAsync(userLogin.Email);
+            //var user = exist.FirstOrDefault(u => u.Email == userLogin.Email && u.Password == userLogin.Password);
+            if (user == null)
             {
                 throw new UnauthorizedAccessException("Invalid credentials");
             }
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenKey = Encoding.ASCII.GetBytes(_secretKey);
-
-            var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Email, existingUser.Email)
-    };
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = Environment.GetEnvironmentVariable("Jwt:Issuer"),
-                Audience = Environment.GetEnvironmentVariable("Jwt:Audience"),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return new AuthResponseModel { User = existingUser, Token = tokenHandler.WriteToken(token) };
+            var userDTO = _mapper.Map<UserDTO>(user);
+            var token = GenerateJwtToken(user);
+            return new AuthResponseModel { User = userDTO, Token = token };
         }
-
-      
-
     }
 }
-
-

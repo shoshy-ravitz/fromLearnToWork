@@ -41,13 +41,24 @@ builder.Services.AddScoped<IResumeRepository, ResumeRepository>();
 builder.Services.AddScoped<IInterviewQuestionRepository, InterviewQuestionRepository>();
 builder.Services.AddScoped<IInterviewRepository, InterviewRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
-builder.Services.AddHttpClient(); 
+builder.Services.AddHttpClient();
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("User", policy => policy.RequireRole("User"));
+    options.AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
+});
+
 
 // Add services to the container.
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0)))); // Change to the appropriate version
+
 
 builder.Services.AddControllers();
 
@@ -117,6 +128,30 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+//using (var scope = app.Services.CreateScope())
+//{
+//    Console.WriteLine("------------------------------");
+//    var services = scope.ServiceProvider;
+//    try
+//    {
+//        var repositoryManager = services.GetRequiredService<IRepositoryManager>();
+
+//        // יצירת מופע של DatabaseInitializer
+//        var databaseInitializer = new DatabaseInitializer(repositoryManager);
+
+//        // קריאה ל-SeedData
+//        await databaseInitializer.SeedData();
+
+//        Console.WriteLine("------------------------------");
+//        Console.WriteLine("Data seeding completed.");
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine($"An error occurred seeding the DB: {ex.Message}");
+//    }
+//}
+
+
 app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthentication();
@@ -135,120 +170,3 @@ app.MapControllers();
 
 app.Run();
 
-
-//builder.Services.AddAutoMapper(typeof(MappingProfile));
-
-//builder.Services.AddScoped<IUserService, UserService>();
-//builder.Services.AddScoped<IInterviewQuestionService, InterviewQuestionService>();
-//builder.Services.AddScoped<IInterviewService, InterviewService>();
-//builder.Services.AddScoped<IResumeService, ResumeService>();
-//builder.Services.AddScoped<IManagerService, ManagerService>();
-//builder.Services.AddScoped<IAuthService, AuthService>();
-
-//builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
-//builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-//builder.Services.AddScoped<IResumeRepository, ResumeRepository>();
-//builder.Services.AddScoped<IInterviewQuestionRepository, InterviewQuestionRepository>();
-//builder.Services.AddScoped<IInterviewRepository, InterviewRepository>();
-//builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-//// Add services to the container.
-
-//var conctionString = "server = biwasykyb0xjwqlspjlq-mysql.services.clever-cloud.com;port=3306; database = biwasykyb0xjwqlspjlq; user = uzyg9lm4st0ea9dt; password = mtkv1c6JMTmmc4oi9CBn;";
-//builder.Services.AddDbContext<DataContext>( options =>options.UseMySql(conctionString,
-//        new MySqlServerVersion(new Version(8, 0, 0)))); // שנה לגרסה המתאימה
-//builder.Services.AddControllers();
-
-
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//})
-//    .AddJwtBearer(options =>
-//    {
-//        options.TokenValidationParameters = new TokenValidationParameters
-//        {
-//            ValidateIssuer = true,
-//            ValidateAudience = true,
-//            ValidateLifetime = true,
-//            ValidateIssuerSigningKey = true,
-//            ValidIssuer = builder.Configuration["JWT:Issuer"],
-//            ValidAudience = builder.Configuration["JWT:Audience"],
-//            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
-//        };
-//    });
-
-//DotEnv.Load();
-
-
-//builder.Services.AddSwaggerGen(options =>
-//{
-//    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-//    {
-//        Scheme = "Bearer",
-//        BearerFormat = "JWT",
-//        In = ParameterLocation.Header,
-//        Name = "Authorization",
-//        Description = "Bearer Authentication with JWT Token",
-//        Type = SecuritySchemeType.Http
-//    });
-//    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-//    {
-//        {
-//            new OpenApiSecurityScheme
-//            {
-//                Reference = new OpenApiReference
-//                {
-//                    Id = "Bearer",
-//                    Type = ReferenceType.SecurityScheme
-//                }
-//            },
-//            new List<string>()
-//        }
-//    });
-//});
-
-
-//builder.Services.AddAWSService<IAmazonS3>();
-
-//builder.Services.Configure<AWSOptions>(options =>
-//{
-//    options.Credentials = new BasicAWSCredentials(
-//        builder.Configuration["AWS:AccessKey"],
-//        builder.Configuration["AWS:SecretKey"]
-//    );
-//});
-
-
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowSpecificOrigin",
-//        builder => builder.WithOrigins("http://localhost:5173")
-//                          .AllowAnyMethod()
-//                          .AllowAnyHeader());
-//});
-
-
-//var app = builder.Build();
-
-//app.UseCors("AllowSpecificOrigin");
-
-//app.UseAuthentication();
-
-//app.UseAuthorization();
-//// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.UseHttpsRedirection();
-
-////app.UseAuthorization();
-
-//app.MapControllers();
-
-//app.Run();

@@ -9,6 +9,8 @@ namespace FromLearningToWorking.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "Admin")]
+
     public class ManagerController : ControllerBase
     {
         private readonly IManagerService _managerService;

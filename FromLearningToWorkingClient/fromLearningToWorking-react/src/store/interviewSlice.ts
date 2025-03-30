@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_PYTHON_BASE_URL } from '../config';
-import { interviewState } from '../models/interview.model';
+import { InterviewState } from '../models/interview.model';
 import { API_BASE_URL } from '../config';
 
 // Async thunk to upload resume and fetch questions
@@ -22,17 +22,19 @@ import { API_BASE_URL } from '../config';
 //     }
 // );
 
-function parseQuestions(questionsString) {
-    // המרת המחרוזת לאובייקט JSON
-    const parsedQuestions = JSON.parse(questionsString);
+// function parseQuestions(questionsString) {
+//     // המרת המחרוזת לאובייקט JSON
+//     const parsedQuestions = JSON.parse(questionsString);
 
-    // ניקוי השאלות ממרחבים נוספים
-    const questions = parsedQuestions.map(question => question.trim());
+//     // ניקוי השאלות ממרחבים נוספים
+//     const questions = parsedQuestions.map(question => question.trim());
 
-    // יצירת אובייקט שמכיל את השאלות
-    return questions;
-}
+//     // יצירת אובייקט שמכיל את השאלות
+//     return questions;
+// }
 // Async thunk to check answer
+
+
 export const checkAnswer: any = createAsyncThunk(
     'interview/checkAnswer',
     async ({ question, answer }: { question: string; answer: string }) => {
@@ -53,7 +55,24 @@ export const fetchInterviewFeedback: any = createAsyncThunk(
     }
 );
 
-export const initialState: interviewState = {
+export const createInterview: any = createAsyncThunk(
+    'interview/createInterview',
+    async ({ userId, interviewLevel = 'mid', token }: { userId: number; interviewLevel?: string; token: string }, { rejectWithValue }) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/createInterview`, {
+                params: { userId, interviewLevel },
+                headers: {
+                    Authorization: `Bearer ${token}`, // Send the token in the Authorization header
+                },
+            });
+            return response.data; // Return the array of questions
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Failed to create interview');
+        }
+    }
+);
+
+export const initialState: InterviewState = {
     questions: [],
     currentQuestionIndex: 0,
     mark: 0,
@@ -85,22 +104,22 @@ const interviewSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(uploadResume.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(uploadResume.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                state.questions = action.payload;
-            })
-            .addCase(uploadResume.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
-            })
             .addCase(checkAnswer.fulfilled, (state, action) => {
-                state.feedbacks.push(action.payload);
+                state.questions[state.currentQuestionIndex].feedback=action.payload;
             })
             .addCase(fetchInterviewFeedback.fulfilled, (state, action) => {
-                state.interviewFeedback = action.payload; // Store the feedback in the state
+                state.feedback = action.payload; // Store the feedback in the state
+            })
+            .addCase(createInterview.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(createInterview.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.questions = action.payload; // Save the questions in the state
+            })
+            .addCase(createInterview.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload || 'Failed to create interview';
             });
     },
 });

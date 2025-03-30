@@ -39,7 +39,7 @@ namespace FromLearningToWorking.Api.Controllers
         {
             try
             {
-                var authResponse = _authService.Login(user);
+                var authResponse =await _authService.Login(user);
                 return Ok(authResponse);
             }
             catch (UnauthorizedAccessException)

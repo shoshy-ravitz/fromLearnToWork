@@ -1,7 +1,7 @@
-import { question } from "./question.model";
+import { Question } from "./question.model";
 
 export interface InterviewState {
-    questions: question[],
+    questions: Question[],
     currentQuestionIndex: number,
     mark: number,
     feedback: string | null,

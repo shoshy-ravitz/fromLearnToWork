@@ -9,7 +9,7 @@ namespace FromLearningToWorking.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "User")]
     public class InterviewQuestionController : ControllerBase
     {
         private readonly IInterviewQuestionService _interviewQuestionService;

@@ -5,6 +5,7 @@ import Register from './components/Register';
 import Navbar from './components/Navbar';
 import { createBrowserRouter, Outlet } from 'react-router-dom';
 import ResumeUpload from './components/ResumeUpload';
+import Interview from './components/Interview';
 
 
 export const router = createBrowserRouter([
@@ -14,7 +15,8 @@ export const router = createBrowserRouter([
             { path: 'home', element: <Home /> },
             { path: 'login', element: <Login /> },
             { path: 'register', element: <Register /> },
-            { path: 'upload', element: <ResumeUpload /> }
+            { path: 'upload', element: <ResumeUpload /> },
+            { path: 'interview', element: <Interview /> },
 
         ]
 

@@ -12,7 +12,7 @@ namespace FromLearningToWorking.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy ="User")]
         public class InterviewController : ControllerBase
         {
             private readonly IInterviewService _interviewService;

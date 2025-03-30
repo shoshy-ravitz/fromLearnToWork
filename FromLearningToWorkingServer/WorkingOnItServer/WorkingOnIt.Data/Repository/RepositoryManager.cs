@@ -13,16 +13,19 @@ namespace FromLearningToWorking.Data.Repository
     public class RepositoryManager: IRepositoryManager
 
     {
-        DataContext _dataContext;
+        private readonly DataContext _dataContext;
         public IUserRepository _userRepository { get; }
         public IResumeRepository _resumeRepository { get; }
         public IInterviewQuestionRepository _interviewQuestionRepository { get; }
         public IInterviewRepository _interviewRepository { get; }
         public IRepository<Manager> _managerRepository { get; }
+        public IRoleRepository _roleRepository { get; }
+        public IRepository<Permission> _permissinRepository { get; }
 
-       
 
-        public RepositoryManager(DataContext dataContext, IUserRepository userRepository,IResumeRepository resumeRepository,IInterviewQuestionRepository interviewQuestionRepository,IInterviewRepository interviewRepository,IRepository<Manager> managerRepository)
+
+
+        public RepositoryManager(DataContext dataContext, IUserRepository userRepository,IResumeRepository resumeRepository,IInterviewQuestionRepository interviewQuestionRepository,IInterviewRepository interviewRepository,IRepository<Manager> managerRepository, IRoleRepository roleRepository, IRepository<Permission> permisstionRepository)
         {
             _dataContext = dataContext;
             _userRepository = userRepository;
@@ -30,11 +33,13 @@ namespace FromLearningToWorking.Data.Repository
             _interviewQuestionRepository = interviewQuestionRepository;
             _interviewRepository = interviewRepository;
             _managerRepository = managerRepository;
+            _roleRepository = roleRepository;
+            _permissinRepository = permisstionRepository;
         }
 
         public async Task SaveAsync()
         {
-            _dataContext.SaveChangesAsync();
+          await  _dataContext.SaveChangesAsync();
         }
     }
 }

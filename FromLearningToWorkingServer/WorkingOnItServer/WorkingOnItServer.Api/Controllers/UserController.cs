@@ -10,7 +10,6 @@ namespace FromLearningToWorking.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -24,6 +23,7 @@ namespace FromLearningToWorking.Api.Controllers
 
         // GET: api/user
         [HttpGet]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<ActionResult<IEnumerable<UserDTO>>> Get()
         {
             var users = await _userService.GetAllAsync();
@@ -32,6 +32,7 @@ namespace FromLearningToWorking.Api.Controllers
 
         // GET api/user/5
         [HttpGet("{id}")]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<ActionResult<UserDTO>> Get(int id)
         {
             var user = await _userService.GetByIdAsync(id);
@@ -44,6 +45,7 @@ namespace FromLearningToWorking.Api.Controllers
 
         // POST api/user
         [HttpPost]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<ActionResult<UserDTO>> Post([FromBody] UserDTO userDTO)
         {
             var createdUser = await _userService.AddAsync(userDTO);
@@ -52,6 +54,7 @@ namespace FromLearningToWorking.Api.Controllers
 
         // PUT api/user/5
         [HttpPut("{id}")]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<ActionResult<UserDTO>> Put(int id, [FromBody] UserDTO userDTO)
         {
             var updatedUser = await _userService.UpdateAsync(id, userDTO);
@@ -64,6 +67,7 @@ namespace FromLearningToWorking.Api.Controllers
 
         // DELETE api/user/5
         [HttpDelete("{id}")]
+        [Authorize(Policy = "Admin")]
         public async Task<ActionResult> Delete(int id)
         {
             var result = await _userService.DeleteAsync(id);

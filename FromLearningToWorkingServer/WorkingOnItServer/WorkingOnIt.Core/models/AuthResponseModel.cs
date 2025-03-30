@@ -1,4 +1,5 @@
-﻿using FromLearningToWorking.Core.Entities;
+﻿using FromLearningToWorking.Core.DTOs;
+using FromLearningToWorking.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace FromLearningToWorking.Core.models
 {
     public class AuthResponseModel
     {
-        public User User { get; set; }
+        public UserDTO User { get; set; }
         public string Token { get; set; }
     }
 }
