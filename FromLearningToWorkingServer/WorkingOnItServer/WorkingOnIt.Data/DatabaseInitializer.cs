@@ -32,7 +32,7 @@ namespace FromLearningToWorking.Data
                     Description = "Full access to the system.",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
-                    Permissions = new List<Permission>() // Initialize Permissions list
+          
                 };
 
                 // Create User role
@@ -43,35 +43,14 @@ namespace FromLearningToWorking.Data
                     Description = "Limited access.",
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
-                    Permissions = new List<Permission>() // Initialize Permissions list
+               
                 };
 
-                // Create permissions
-                var createPermission = new Permission
-                {
-                    PermissionName = "Files.Create",
-                    Description = "Permission to create files."
-                };
+      
 
-                var deletePermission = new Permission
-                {
-                    PermissionName = "Users.Delete",
-                    Description = "Permission to delete users."
-                };
-
-                var editPermission = new Permission
-                {
-                    PermissionName = "Content.Edit",
-                    Description = "Permission to edit content."
-                };
 
                 // Add permissions to the roles
-                adminRole.Permissions.Add(createPermission);
-                adminRole.Permissions.Add(deletePermission);
-                adminRole.Permissions.Add(editPermission);
 
-                userRole.Permissions.Add(createPermission);
-                userRole.Permissions.Add(editPermission);
 
                 // Add roles and permissions to the system
                 await repositoryManager._roleRepository.AddAsync(adminRole);

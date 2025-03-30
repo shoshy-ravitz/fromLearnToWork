@@ -16,7 +16,6 @@ namespace FromLearningToWorking.Data
         public DbSet<InterviewQuestion> InterviewQuestions { get; set; }
         public DbSet<Manager> Managers { get; set; }
         public DbSet<Role> Roles { get; set; }
-        public DbSet<Permission> Permissions { get; set; }
 
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)

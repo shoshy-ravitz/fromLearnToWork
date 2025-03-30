@@ -53,17 +53,13 @@ namespace FromLearningToWorking.Service.Services
 
         public async Task<AuthResponseModel> Register(RegisterModel userRegister)
         {
-            var existingUser = await _repositoryManager._userRepository.GetAllAsync();
-            var exist = existingUser.FirstOrDefault(u => u.Email == userRegister.Email);
-            if (exist != null)
+            var existingUser = await _repositoryManager._userRepository.GetByEmailAsync(userRegister.Email);          
+            if (existingUser != null)
             {
                 throw new Exception("User already exists.");
             }
            
             var user = _mapper.Map<User>(userRegister);
-
-
-
 
 
             var defaultRole = await _repositoryManager._roleRepository.GetByNameAsync("user");
@@ -81,9 +77,7 @@ namespace FromLearningToWorking.Service.Services
 
             if (user != null)
             {
-                Console.WriteLine("----------------save------------");
                 await _repositoryManager.SaveAsync();
-                Console.WriteLine("-------after---------save----------------");
             }
             var userDTO = _mapper.Map<UserDTO>(user);
             return new AuthResponseModel { User = userDTO, Token =token };
@@ -92,7 +86,6 @@ namespace FromLearningToWorking.Service.Services
         public async Task<AuthResponseModel> Login(LoginModel userLogin)
         {
             var user = await _repositoryManager._userRepository.GetByEmailAsync(userLogin.Email);
-            //var user = exist.FirstOrDefault(u => u.Email == userLogin.Email && u.Password == userLogin.Password);
             if (user == null)
             {
                 throw new UnauthorizedAccessException("Invalid credentials");
