@@ -25,6 +25,7 @@ namespace FromLearningToWorking.Service.Services
         private readonly IAmazonS3 _s3Client;
         private readonly string _bucketName;
         private readonly string _bucketUrl;
+        private readonly UrlForAwsService _urlForAwsService;
 
         public ResumeService(IRepositoryManager iManager, IMapper mapper)
         {
@@ -96,33 +97,6 @@ namespace FromLearningToWorking.Service.Services
             return $"{file.FileName}"; // Return the URL of the file
         }
 
-
-        public string GeneratePresignedUrl(string bucketName, string objectKey, int expirationInMinutes)
-        {
-            // קריאת נתוני AWS מקובץ .env
-            var accessKey = Environment.GetEnvironmentVariable("AWS:AccessKey");
-            var secretKey = Environment.GetEnvironmentVariable("AWS:SecretKey");
-            var region = Environment.GetEnvironmentVariable("AWS:Region") ?? "us-east-1"; // ברירת מחדל ל-us-east-1
-
-            // יצירת לקוח S3 עם נתוני AWS
-            var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
-
-            // יצירת בקשה ל-URL חתום
-            var request = new GetPreSignedUrlRequest
-            {
-                BucketName = bucketName,
-                Key = objectKey, // כאן צריך להיות רק שם הקובץ או הנתיב היחסי בתוך ה-Bucket
-                Expires = DateTime.UtcNow.AddMinutes(expirationInMinutes)
-            };
-
-            var presignedUrl = s3Client.GetPreSignedURL(request);
-
-            // הדפסת ה-URL החתום לצורך בדיקה
-            Console.WriteLine($"Generated Presigned URL: {presignedUrl}");
-
-            return presignedUrl;
-        }
-
         public async Task<byte[]> DownloadResumeAsync(int userId)
         {
             // חיפוש קורות החיים של המשתמש
@@ -140,8 +114,7 @@ namespace FromLearningToWorking.Service.Services
             }
 
             // יצירת URL חתום
-            var bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
-            var presignedUrl = GeneratePresignedUrl(bucketName, resume.FilePath, 15); // תוקף של 15 דקות
+            var presignedUrl = _urlForAwsService.GeneratePresignedUrl(_bucketName, resume.FilePath, 15); // תוקף של 15 דקות
 
             try
             {
@@ -165,45 +138,5 @@ namespace FromLearningToWorking.Service.Services
                 throw new Exception($"שגיאה כללית בהורדת קובץ קורות החיים: {ex.Message}", ex);
             }
         }
-
-        //public async Task<byte[]> DownloadResumeAsync(int userId)
-        //{
-        //    // חיפוש קורות החיים של המשתמש
-        //    var resume = await _iRepositoryManager._resumeRepository.GetAllAsync()
-        //        .ContinueWith(task => task.Result.FirstOrDefault(r => r.UserId == userId));
-        //    if (resume == null)
-        //    {
-        //        throw new Exception("קורות חיים לא נמצאו עבור המשתמש.");
-        //    }
-
-        //    // בדיקה אם ה-URL של קובץ קורות החיים תקין
-        //    if (string.IsNullOrEmpty(resume.FilePath))
-        //    {
-        //        throw new Exception("כתובת קובץ קורות החיים אינה תקינה.");
-        //    }
-
-        //    try
-        //    {
-        //        using (var client = new HttpClient())
-        //        {
-
-        //            // הורדת הקובץ כ-Byte Array
-        //            var fileBytes = await client.GetByteArrayAsync(_bucketUrl+resume.FilePath);
-        //            if (fileBytes == null || fileBytes.Length == 0)
-        //            {
-        //                throw new Exception("הקובץ שהורד ריק.");
-        //            }
-        //            return fileBytes;
-        //        }
-        //    }
-        //    catch (HttpRequestException ex)
-        //    {
-        //        throw new Exception($"שגיאה בהורדת קובץ קורות החיים: {ex.Message}", ex);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception($"שגיאה כללית בהורדת קובץ קורות החיים: {ex.Message}", ex);
-        //    }
-        //}
     }
 }
