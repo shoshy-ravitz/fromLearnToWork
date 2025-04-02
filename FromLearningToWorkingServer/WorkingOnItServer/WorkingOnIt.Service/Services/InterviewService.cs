@@ -1,4 +1,6 @@
 ﻿using Amazon.Runtime;
+using Amazon.S3.Model;
+using Amazon.S3;
 using AutoMapper;
 using FromLearningToWorking.Core.DTOs;
 using FromLearningToWorking.Core.Entities;
@@ -13,6 +15,8 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
+using Amazon;
 
 namespace FromLearningToWorking.Service.Services
 {
@@ -21,6 +25,7 @@ namespace FromLearningToWorking.Service.Services
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
         private readonly IMapper _mapper = mapper;
         private readonly HttpClient _httpClient = httpClient;
+        private readonly IConfiguration _configuration = configuration;
 
             public async Task<InterviewDTO> AddAsync(InterviewDTO interviewDTO)
             {
@@ -70,33 +75,76 @@ namespace FromLearningToWorking.Service.Services
                     await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
                 return _mapper.Map<InterviewDTO>(updatedInterview);
             }
+
+
+
+        public string GeneratePresignedUrl(string bucketName, string objectKey, int expirationInMinutes)
+        {
+            // קריאת נתוני AWS מקובץ .env
+            var accessKey = Environment.GetEnvironmentVariable("AWS:AccessKey");
+            var secretKey = Environment.GetEnvironmentVariable("AWS:SecretKey");
+            var region = Environment.GetEnvironmentVariable("AWS:Region") ?? "us-east-1"; // ברירת מחדל ל-us-east-1
+
+            // יצירת לקוח S3 עם נתוני AWS
+            var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
+
+            // יצירת בקשה ל-URL חתום
+            var request = new GetPreSignedUrlRequest
+            {
+                BucketName = bucketName,
+                Key = objectKey, // כאן צריך להיות רק שם הקובץ או הנתיב היחסי בתוך ה-Bucket
+                Expires = DateTime.UtcNow.AddMinutes(expirationInMinutes)
+            };
+
+            var presignedUrl = s3Client.GetPreSignedURL(request);
+
+            // הדפסת ה-URL החתום לצורך בדיקה
+            Console.WriteLine($"Generated Presigned URL: {presignedUrl}");
+
+            return presignedUrl;
+        }
+
         public async Task<string[]> CreateInterview(int userId, string interviewLevel)
         {
             // חיפוש המשתמש בבסיס הנתונים
             var user = await _repositoryManager._userRepository.GetByIdAsync(userId);
-            if (user == null || user.Resume == null)
+            if (user == null)
             {
-                throw new Exception("User or resume not found.");
+                throw new Exception("User not found.");
             }
 
-            var resumeUrl = user.Resume.FilePath;
+            var resume = await _repositoryManager._resumeRepository.GetByUserIdAsync(user.Id);
+            if (resume == null)
+            {
+                throw new Exception("Resume not found.");
+            }
+
+            // יצירת URL חתום
+            var bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
+            var resumeKey = resume.FilePath; // Key של הקובץ ב-S3
+            var presignedUrl = GeneratePresignedUrl(bucketName, resumeKey, 15); // תוקף של 15 דקות
 
             var requestBody = new
             {
-                resume_url = resumeUrl
+                resume_url = presignedUrl
             };
 
             var json = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            // השתמש ב-PYTHON_API כאן
-            var response = await _httpClient.PostAsync($"{configuration["PYTHON_API"]}/upload_resume", content);
+            var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
+            if (string.IsNullOrEmpty(pythonApiUrl))
+            {
+                throw new Exception("PYTHON_API is not configured properly.");
+            }
+
+            var response = await _httpClient.PostAsync($"{pythonApiUrl}/create_interview", content);
 
             if (response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                var questions = JsonSerializer.Deserialize<string[]>(responseBody);
-                return questions;
+                var responseDict = JsonSerializer.Deserialize<Dictionary<string, string[]>>(responseBody);
+                return responseDict["questions"];
             }
             else
             {

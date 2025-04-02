@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Core.InterfaceRepository
 {
-    public interface IResumeRepository:IRepository<Resume>
+    public interface IResumeRepository : IRepository<Resume>
     {
-     
-
+        Task<Resume> GetByUserIdAsync(int id);
     }
 }

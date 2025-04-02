@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 namespace FromLearningToWorking.Data.Repository
 {
@@ -19,8 +20,12 @@ namespace FromLearningToWorking.Data.Repository
             {
  
             }
+        public async Task<Resume> GetByUserIdAsync(int id)
+        {
+            return await _dbSet.FirstAsync(resume=>resume.UserId==id);
+        }
 
 
-        
+
     }
 }

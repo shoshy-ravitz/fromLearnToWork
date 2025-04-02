@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class InteviewAIService(IConfiguration configuration):IInterviewAIService
+    public class InterviewAIService(IConfiguration configuration):IInterviewAIService
     {
         public async Task<string> CheckAnswer(CheckAnswerRequest request)
         {

@@ -17,7 +17,7 @@ namespace FromLearningToWorking.Api.Controllers
         private readonly IInterviewQuestionService _interviewQuestionService;
         private readonly IInterviewAIService _interviewAIService;
 
-        public InterviewQuestionController(IInterviewQuestionService interviewQuestionService,IInterviewAIService interviewAIService)
+        public InterviewQuestionController(IInterviewQuestionService interviewQuestionService, IInterviewAIService interviewAIService)
         {
             _interviewQuestionService = interviewQuestionService;
             _interviewAIService = interviewAIService;
@@ -69,16 +69,16 @@ namespace FromLearningToWorking.Api.Controllers
 
 
         [HttpPost("checkAnswer")]
-
         public async Task<ActionResult<string>> CheckAnswer([FromBody] CheckAnswerRequest request)
         {
-            var feedback=await _interviewAIService.CheckAnswer(request);
-            if (feedback!=null)
+            var feedback = await _interviewAIService.CheckAnswer(request);
+            if (feedback != null)
             {
                 return Ok(feedback);
             }
             return BadRequest();
         }
+
     }
 }
 
