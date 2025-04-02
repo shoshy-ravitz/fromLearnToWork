@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { checkAnswer, saveAnswer } from '../store/interviewSlice';
 
-const Question = ({ question }) => {
+const Question = ({index, question }) => {
     const [answer, setAnswer] = useState('');
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
+
+    const [feedback,setFeedback]=useState('')
 
     const handleAnswerChange = (e) => {
         setAnswer(e.target.value);
@@ -20,7 +22,8 @@ const Question = ({ question }) => {
             dispatch(saveAnswer({answer}));
 
             // שליחת התשובה לשרת וקבלת פידבק
-            const feedback = await dispatch(checkAnswer({ question, answer })).unwrap();
+            const feedbackAnswer = await dispatch(checkAnswer({ question, answer })).unwrap();
+            setFeedback(feedbackAnswer)
             setAnswer('');
         } catch (error) {
             console.error('Error checking answer:', error);
@@ -31,6 +34,7 @@ const Question = ({ question }) => {
 
     return (
         <div>
+            question namber : {index}
             <h2>{question}</h2>
             <form onSubmit={handleSubmit}>
                 <input
@@ -43,6 +47,7 @@ const Question = ({ question }) => {
                     {loading ? 'שולח...' : 'שלח תשובה'}
                 </button>
             </form>
+            <div>  {feedback}</div>   
         </div>
     );
 };

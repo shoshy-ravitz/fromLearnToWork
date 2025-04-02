@@ -10,7 +10,7 @@ const Interview = () => {
     const dispatch = useDispatch();
     const questions = useSelector((state: StoreType) => state.interview.questions);
     const currentQuestionIndex = useSelector((state: StoreType) => state.interview.currentQuestionIndex);
-    const [file, setFile] = React.useState('');
+    // const [file, setFile] = React.useState('');
 
     // const handleChange = (e) => {
     //     if (e.target.files && e.target.files[0]) {
@@ -31,11 +31,12 @@ const Interview = () => {
         <div>
             <h2>ראיון</h2>
             <CreateInterview />
-
+fdas
             {questions.map((question, index) => (
                 <Question
-                    key={index}
+                    // key={index}
                     question={question}
+                    index={index}
                 />
             ))}
         </div>

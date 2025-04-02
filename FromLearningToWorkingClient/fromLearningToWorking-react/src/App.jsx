@@ -17,7 +17,7 @@ function App() {
     <>
       <Provider store={store}>
         <RouterProvider router={router} />
-        <Interview/>
+        {/* <Interview/> */}
         ------------------
         {/* <Navbar/> */}
         {/* <RouterProvider router={router} /> */}

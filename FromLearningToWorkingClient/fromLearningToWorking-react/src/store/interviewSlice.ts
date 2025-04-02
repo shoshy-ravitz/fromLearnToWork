@@ -36,7 +36,8 @@ export const createInterview: any = createAsyncThunk(
     'interview/createInterview',
     async ({ userId, interviewLevel = 'mid' }: { userId: number; interviewLevel?: string }, { rejectWithValue }) => {
         try {
-            const response = await API.get('/createInterview', {
+            
+            const response = await API.get('/interview/createInterview', {
                 params: { userId, interviewLevel },
             });
             return response.data; // Return the array of questions
@@ -112,6 +113,6 @@ const interviewSlice = createSlice({
     },
 });
 
-export const { resetInterview, nextQuestion, saveAnswer } = interviewSlice.actions;
+export const { resetInterview, nextQuestion, saveAnswer ,saveFeedbackQuestion} = interviewSlice.actions;
 
 export default interviewSlice.reducer;

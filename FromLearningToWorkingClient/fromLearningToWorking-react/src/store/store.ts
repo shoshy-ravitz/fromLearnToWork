@@ -8,6 +8,7 @@ const store = configureStore({
         auth: authSlice,
         resumeSlice,
         interview:interviewSlice,
+        
     }),
 });
 
