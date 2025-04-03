@@ -1,44 +1,39 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import Question from './Question';
-import { checkAnswer, createInterview, nextQuestion } from '../store/interviewSlice';
 import { StoreType } from '../store/store';
+import { createInterview, nextQuestion } from '../store/interviewSlice';
 import CreateInterview from './createInterview';
-
 
 const Interview = () => {
     const dispatch = useDispatch();
     const questions = useSelector((state: StoreType) => state.interview.questions);
     const currentQuestionIndex = useSelector((state: StoreType) => state.interview.currentQuestionIndex);
-    // const [file, setFile] = React.useState('');
 
-    // const handleChange = (e) => {
-    //     if (e.target.files && e.target.files[0]) {
-    //         setFile(e.target.files[0]);
-    //     }
-    // };
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-    //     dispatch(uploadResume(file));
-    // };
+    useEffect(() => {
+        
+        const userId = localStorage.getItem('userId')
+        dispatch(createInterview({ userId: userId }))
+    }, [])
 
-    const handleFeedbackReceived = (feedback) => {
-        dispatch(checkAnswer({ question: questions[currentQuestionIndex], answer: feedback }));
-        dispatch(nextQuestion()); // מעדכן את currentQuestionIndex
+    const handleNextQuestion = () => {
+        dispatch(nextQuestion());
     };
+
+    if (questions.length === 0) {
+        return <p>No questions available. Please start an interview.</p>;
+    }
 
     return (
         <div>
-            <h2>ראיון</h2>
-            <CreateInterview />
-fdas
-            {questions.map((question, index) => (
-                <Question
-                    // key={index}
-                    question={question}
-                    index={index}
-                />
-            ))}
+            {/* <CreateInterview /> */}
+            <h2>Interview</h2>
+            <Question
+                key={questions[currentQuestionIndex].id}
+                question={questions[currentQuestionIndex].question}
+                index={currentQuestionIndex + 1}
+                onNext={handleNextQuestion} // Pass the callback to move to the next question
+            />
         </div>
     );
 };

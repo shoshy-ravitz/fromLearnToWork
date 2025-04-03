@@ -25,7 +25,6 @@ namespace FromLearningToWorking.Service.Services
         private readonly IAmazonS3 _s3Client;
         private readonly string _bucketName;
         private readonly string _bucketUrl;
-        private readonly UrlForAwsService _urlForAwsService;
 
         public ResumeService(IRepositoryManager iManager, IMapper mapper)
         {
@@ -114,7 +113,7 @@ namespace FromLearningToWorking.Service.Services
             }
 
             // יצירת URL חתום
-            var presignedUrl = _urlForAwsService.GeneratePresignedUrl(_bucketName, resume.FilePath, 15); // תוקף של 15 דקות
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(_bucketName, resume.FilePath, 15); // תוקף של 15 דקות
 
             try
             {

@@ -11,7 +11,7 @@ namespace FromLearningToWorking.Service.Services
 {
     public class UrlForAwsService
     {
-        public string GeneratePresignedUrl(string bucketName, string objectKey, int expirationInMinutes)
+        public static string GeneratePresignedUrl(string bucketName, string objectKey, int expirationInMinutes)
         {
             // קריאת נתוני AWS מקובץ .env
             var accessKey = Environment.GetEnvironmentVariable("AWS:AccessKey");

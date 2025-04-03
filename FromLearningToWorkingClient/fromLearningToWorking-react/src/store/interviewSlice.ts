@@ -7,11 +7,13 @@ import API from '../axios.interceptor'; // Import the interceptor
 // Async thunk to check answer
 export const checkAnswer: any = createAsyncThunk(
     'interview/checkAnswer',
-    async ({ question, answer }: { question: string; answer: string }, { rejectWithValue }) => {
+    async ({  question, answer, time, interviewId }: { question: string; answer: string ,time:number,interviewId:number}, { rejectWithValue }) => {
         try {
-            const response = await API.post('/interview/checkAnswer', {
+            const response = await API.post('/InterviewQuestion/checkAnswer', {
                 question,
                 answer,
+                time,
+                interviewId,
             });
             return response.data.feedback; // Return the feedback from the API
         } catch (error: any) {

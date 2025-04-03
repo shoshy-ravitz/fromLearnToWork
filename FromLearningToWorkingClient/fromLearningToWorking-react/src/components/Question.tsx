@@ -1,13 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { checkAnswer, saveAnswer } from '../store/interviewSlice';
 
-const Question = ({index, question }) => {
+const Question = ({ index, question, onNext }) => {
     const [answer, setAnswer] = useState('');
     const [loading, setLoading] = useState(false);
+    const [feedback, setFeedback] = useState('');
+    const [elapsedTime, setElapsedTime] = useState(0); // זמן שחלף
     const dispatch = useDispatch();
 
-    const [feedback,setFeedback]=useState('')
+    useEffect(() => {
+        // התחל טיימר כאשר השאלה מוצגת
+        setElapsedTime(0);
+        const timer = setInterval(() => {
+            setElapsedTime((prevTime) => prevTime + 1);
+        }, 1000);
+
+        // נקה את הטיימר כאשר הקומפוננטה מתנתקת
+        return () => clearInterval(timer);
+    }, [question]);
 
     const handleAnswerChange = (e) => {
         setAnswer(e.target.value);
@@ -19,12 +30,23 @@ const Question = ({index, question }) => {
 
         try {
             // שמירת התשובה ב-Redux
-            dispatch(saveAnswer({answer}));
+            dispatch(saveAnswer({ answer }));
 
-            // שליחת התשובה לשרת וקבלת פידבק
-            const feedbackAnswer = await dispatch(checkAnswer({ question, answer })).unwrap();
-            setFeedback(feedbackAnswer)
+            // שליחת התשובה לשרת יחד עם הזמן שחלף
+            const feedbackAnswer = await dispatch(
+                checkAnswer({
+                    question,
+                    answer,
+                    time: elapsedTime, // הזמן שחלף
+                    interviewId: 5, // מזהה ראיון לדוגמה
+                })
+            ).unwrap();
+
+            setFeedback(feedbackAnswer);
             setAnswer('');
+
+            // מעבר לשאלה הבאה
+            onNext();
         } catch (error) {
             console.error('Error checking answer:', error);
         } finally {
@@ -34,8 +56,9 @@ const Question = ({index, question }) => {
 
     return (
         <div>
-            question namber : {index}
+            <h3>Question {index}</h3>
             <h2>{question}</h2>
+            <p>Time Elapsed: {elapsedTime} seconds</p> {/* הצגת הזמן שחלף */}
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"
@@ -47,7 +70,7 @@ const Question = ({index, question }) => {
                     {loading ? 'שולח...' : 'שלח תשובה'}
                 </button>
             </form>
-            <div>  {feedback}</div>   
+            {feedback && <div>Feedback: {feedback}</div>}
         </div>
     );
 };
