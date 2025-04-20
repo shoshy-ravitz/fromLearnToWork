@@ -20,7 +20,7 @@ const Question = ({ index, question, onNext }) => {
         return () => clearInterval(timer);
     }, [question]);
 
-    const handleAnswerChange = (e) => {
+    const handleAnswerChange = (e) => {     
         setAnswer(e.target.value);
     };
 

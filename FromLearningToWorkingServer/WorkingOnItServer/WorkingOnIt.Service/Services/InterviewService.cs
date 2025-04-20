@@ -20,61 +20,60 @@ using Amazon;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class InterviewService(IRepositoryManager repositoryManager, IMapper mapper,HttpClient httpClient,IConfiguration configuration) : IInterviewService
+    public class InterviewService(IRepositoryManager repositoryManager, IMapper mapper, HttpClient httpClient, IConfiguration configuration) : IInterviewService
     {
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
         private readonly IMapper _mapper = mapper;
         private readonly HttpClient _httpClient = httpClient;
         private readonly IConfiguration _configuration = configuration;
-            public async Task<InterviewDTO> AddAsync(InterviewDTO interviewDTO)
+        public async Task<InterviewDTO> AddAsync(InterviewDTO interviewDTO)
+        {
+            // Validate the interview date
+            if (interviewDTO.InterviewDate < DateTime.Now)
             {
-                // Validate the interview date
-                if (interviewDTO.InterviewDate < DateTime.Now)
-                {
-                    throw new ArgumentException("תאריך הראיון לא יכול להיות בעבר.");
-                }
+                throw new ArgumentException("תאריך הראיון לא יכול להיות בעבר.");
+            }
 
-                var interview = _mapper.Map<Interview>(interviewDTO);
-                await _repositoryManager._interviewRepository.AddAsync(interview);
+            var interview = _mapper.Map<Interview>(interviewDTO);
+            await _repositoryManager._interviewRepository.AddAsync(interview);
+            await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+            return _mapper.Map<InterviewDTO>(interview);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var result = await _repositoryManager._interviewRepository.DeleteAsync(id);
+            if (result)
                 await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
-                return _mapper.Map<InterviewDTO>(interview);
-            }
+            return result;
+        }
 
-            public async Task<bool> DeleteAsync(int id)
+        public async Task<IEnumerable<InterviewDTO>> GetAllAsync()
+        {
+            var interviews = await _repositoryManager._interviewRepository.GetAllAsync();
+            return _mapper.Map<List<InterviewDTO>>(interviews);
+        }
+
+        public async Task<InterviewDTO?> GetByIdAsync(int id)
+        {
+            var interview = await _repositoryManager._interviewRepository.GetByIdAsync(id);
+            return _mapper.Map<InterviewDTO>(interview);
+        }
+
+        public async Task<InterviewDTO> UpdateAsync(int id, InterviewDTO interviewDTO)
+        {
+            // Validate the interview date
+            if (interviewDTO.InterviewDate < DateTime.Now)
             {
-                var result = await _repositoryManager._interviewRepository.DeleteAsync(id);
-                if (result)
-                    await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
-                return result;
+                throw new ArgumentException("תאריך הראיון לא יכול להיות בעבר.");
             }
 
-            public async Task<IEnumerable<InterviewDTO>> GetAllAsync()
-            {
-                var interviews = await _repositoryManager._interviewRepository.GetAllAsync();
-                return _mapper.Map<List<InterviewDTO>>(interviews);
-            }
-
-            public async Task<InterviewDTO?> GetByIdAsync(int id)
-            {
-                var interview = await _repositoryManager._interviewRepository.GetByIdAsync(id);
-                return _mapper.Map<InterviewDTO>(interview);
-            }
-
-            public async Task<InterviewDTO> UpdateAsync(int id, InterviewDTO interviewDTO)
-            {
-                // Validate the interview date
-                if (interviewDTO.InterviewDate < DateTime.Now)
-                {
-                    throw new ArgumentException("תאריך הראיון לא יכול להיות בעבר.");
-                }
-
-                var interview = _mapper.Map<Interview>(interviewDTO);
-                var updatedInterview = await _repositoryManager._interviewRepository.UpdateAsync(id, interview);
-                if (updatedInterview != null)
-                    await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
-                return _mapper.Map<InterviewDTO>(updatedInterview);
-            }
-
+            var interview = _mapper.Map<Interview>(interviewDTO);
+            var updatedInterview = await _repositoryManager._interviewRepository.UpdateAsync(id, interview);
+            if (updatedInterview != null)
+                await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+            return _mapper.Map<InterviewDTO>(updatedInterview);
+        }
         public async Task<string[]> CreateInterview(int userId, string interviewLevel)
         {
             // חיפוש המשתמש בבסיס הנתונים
@@ -93,7 +92,7 @@ namespace FromLearningToWorking.Service.Services
             // יצירת URL חתום
             var bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
             var resumeKey = resume.FilePath; // Key של הקובץ ב-S3
-            var presignedUrl =UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey,15); // תוקף של 15 דקות
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey, 15); // תוקף של 15 דקות
 
             var requestBody = new
             {
@@ -114,8 +113,22 @@ namespace FromLearningToWorking.Service.Services
             if (response.IsSuccessStatusCode)
             {
                 var responseBody = await response.Content.ReadAsStringAsync();
-                var responseDict = JsonSerializer.Deserialize<Dictionary<string, string[]>>(responseBody);
-                return responseDict["questions"];
+
+                // המרת התגובה למערך של מחרוזות
+                var responseDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(responseBody);
+                if (responseDict != null && responseDict.ContainsKey("questions"))
+                {
+                    // עיבוד השאלות להסרת מרכאות מיותרות
+                    var questions = responseDict["questions"]
+                        .Select(q => q.Trim().Trim('"',',')) // הסרת רווחים ומרכאות
+                        .ToArray();
+
+                    return questions;
+                }
+                else
+                {
+                    throw new Exception("Invalid response format from Python API.");
+                }
             }
             else
             {
@@ -124,7 +137,7 @@ namespace FromLearningToWorking.Service.Services
             }
         }
     }
-}
+    }
 
 
 

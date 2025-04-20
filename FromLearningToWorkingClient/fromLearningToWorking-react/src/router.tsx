@@ -17,7 +17,6 @@ export const router = createBrowserRouter([
             { path: 'register', element: <Register /> },
             { path: 'upload', element: <ResumeUpload /> },
             { path: 'interview', element: <Interview /> },
-
         ]
 
     },

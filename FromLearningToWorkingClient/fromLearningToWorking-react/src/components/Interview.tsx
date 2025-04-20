@@ -10,8 +10,7 @@ const Interview = () => {
     const questions = useSelector((state: StoreType) => state.interview.questions);
     const currentQuestionIndex = useSelector((state: StoreType) => state.interview.currentQuestionIndex);
 
-    useEffect(() => {
-        
+    useEffect(() => {    
         const userId = localStorage.getItem('userId')
         dispatch(createInterview({ userId: userId }))
     }, [])
