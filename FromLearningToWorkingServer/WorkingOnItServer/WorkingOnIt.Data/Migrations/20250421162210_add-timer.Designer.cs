@@ -4,6 +4,7 @@ using FromLearningToWorking.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FromLearningToWorking.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250421162210_add-timer")]
+    partial class addtimer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,17 +33,11 @@ namespace FromLearningToWorking.Data.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Feedback")
-                        .HasColumnType("longtext");
-
                     b.Property<DateTime>("InterviewDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int?>("Mark")
+                    b.Property<int?>("Score")
                         .HasColumnType("int");
-
-                    b.Property<TimeOnly?>("Time")
-                        .HasColumnType("time(6)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

@@ -7,7 +7,7 @@ import API from '../axios.interceptor'; // Import the interceptor
 // Async thunk to check answer
 export const checkAnswer: any = createAsyncThunk(
     'interview/checkAnswer',
-    async ({  question, answer, time, interviewId }: { question: string; answer: string ,time:number,interviewId:number}, { rejectWithValue }) => {
+    async ({ question, answer, time, interviewId }: { question: string; answer: string, time: number, interviewId: number }, { rejectWithValue }) => {
         try {
             const response = await API.post('/InterviewQuestion/checkAnswer', {
                 question,
@@ -15,21 +15,23 @@ export const checkAnswer: any = createAsyncThunk(
                 time,
                 interviewId,
             });
-            return response.data.feedback; // Return the feedback from the API
+            return response.data; // Return the feedback from the API
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to check answer');
         }
     }
 );
 
-export const fetchInterviewFeedback: any = createAsyncThunk(
-    'interview/fetchInterviewFeedback',
-    async (_, { rejectWithValue }) => {
+export const resultOfInterview: any = createAsyncThunk(
+    'interview/resultOfInterview',
+    async ({ feedbackList }: { feedbackList: string[] }, { rejectWithValue }) => {
         try {
-            const response = await API.get('/interview/resultOfInterview');
-            return response.data.feedback; // Return the feedback from the API
+            const response = await API.post('/result_of_interview', {
+                feedback_list: feedbackList, // Send the list of feedback strings
+            });
+            return response.data.result; // Return the result from the API
         } catch (error: any) {
-            return rejectWithValue(error.response?.data || 'Failed to fetch interview feedback');
+            return rejectWithValue(error.response?.data || 'Failed to fetch interview result');
         }
     }
 );
@@ -38,7 +40,7 @@ export const createInterview: any = createAsyncThunk(
     'interview/createInterview',
     async ({ userId, interviewLevel = 'mid' }: { userId: number; interviewLevel?: string }, { rejectWithValue }) => {
         try {
-            
+
             const response = await API.get('/interview/createInterview', {
                 params: { userId, interviewLevel },
             });
@@ -78,20 +80,28 @@ const interviewSlice = createSlice({
         saveFeedbackQuestion: (state, action) => {
             state.questions[state.currentQuestionIndex].feedback = action.payload.feedback; // Save the feedback for the current question
         },
+        saveFeedbackAndMark: (state, action) => {
+            const { feedback, mark } = action.payload;
+            const currentQuestion = state.questions[state.currentQuestionIndex];
+            if (currentQuestion) {
+                currentQuestion.feedback = feedback;
+                currentQuestion.mark = mark;
+            }
+        },
     },
     extraReducers: (builder) => {
         builder
             .addCase(checkAnswer.fulfilled, (state, action) => {
                 state.questions[state.currentQuestionIndex].feedback = action.payload; // Save feedback for the current question
             })
-            .addCase(fetchInterviewFeedback.fulfilled, (state, action) => {
-                state.feedback = action.payload; // Store the overall feedback in the state
+            .addCase(resultOfInterview.fulfilled, (state, action) => {
+                state.feedback = action.payload; // Store the result summary in the state
+            })
+            .addCase(resultOfInterview.rejected, (state, action) => {
+                state.error = action.payload || 'Failed to fetch interview result';
             })
             .addCase(checkAnswer.rejected, (state, action) => {
                 state.error = action.payload || 'Failed to check answer';
-            })
-            .addCase(fetchInterviewFeedback.rejected, (state, action) => {
-                state.error = action.payload || 'Failed to fetch interview feedback';
             })
             .addCase(createInterview.pending, (state) => {
                 state.status = 'loading';
@@ -115,6 +125,6 @@ const interviewSlice = createSlice({
     },
 });
 
-export const { resetInterview, nextQuestion, saveAnswer ,saveFeedbackQuestion} = interviewSlice.actions;
+export const { resetInterview, nextQuestion, saveAnswer, saveFeedbackQuestion, saveFeedbackAndMark } = interviewSlice.actions;
 
 export default interviewSlice.reducer;

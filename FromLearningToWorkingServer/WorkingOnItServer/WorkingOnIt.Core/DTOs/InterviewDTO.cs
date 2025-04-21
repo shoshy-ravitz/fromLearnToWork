@@ -13,6 +13,8 @@ namespace FromLearningToWorking.Core.DTOs
         public DateTime InterviewDate { get; set; }
         public int UserId { get; set; }
 
-        public int?  Score { get; set; } // ציון אופציונלי
+        public int? Mark { get; set; } // ציון אופציונלי
+        public TimeOnly? Time { get; set; }
+        public string? feedbackAI { get; set; }
     }
 }

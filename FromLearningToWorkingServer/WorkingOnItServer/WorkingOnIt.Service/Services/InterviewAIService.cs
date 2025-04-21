@@ -1,4 +1,7 @@
-﻿using FromLearningToWorking.Core.InterfaceService;
+﻿using FromLearningToWorking.Core.DTOs;
+using FromLearningToWorking.Core.Entities;
+using FromLearningToWorking.Core.InterfaceRepository;
+using FromLearningToWorking.Core.InterfaceService;
 using FromLearningToWorking.Core.models;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -12,9 +15,11 @@ using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class InterviewAIService:IInterviewAIService
+    public class InterviewAIService(IRepositoryManager repositoryManager, IInterviewService interviewService) : IInterviewAIService
     {
-        public async Task<string> CheckAnswer(CheckAnswerRequest request)
+        private readonly IRepositoryManager _repositoryManager = repositoryManager;
+        private readonly IInterviewService _interviewService = interviewService;
+        public async Task<ResultQuestionModel> CheckAnswer(CheckAnswerRequest request)
         {
             using (var httpClient = new HttpClient())
             {
@@ -33,11 +38,33 @@ namespace FromLearningToWorking.Service.Services
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
 
-                    // המרת התגובה למילון
-                    var responseDict = JsonSerializer.Deserialize<Dictionary<string, string>>(responseBody);
 
-                    // החזרת הערך של "feedback"
-                    return responseDict["feedback"];
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase // המרת שמות המאפיינים ל-CamelCase
+                    };
+                    var result = JsonSerializer.Deserialize<ResultQuestionModel>(responseBody, options);
+                    // המרת התגובה לאובייקט ResultQuestion
+
+                    if (result == null)
+                    {
+                        throw new Exception("Failed to deserialize response to ResultQuestion.");
+                    }
+
+
+                    var interviewQuestion = new InterviewQuestion
+                    {
+                        
+                        Question = request.Question,
+                        UserAnswer = request.Answer,
+                        AiFeedback = result.Feedback,
+                        InterviewId = request.InterviewId
+                    };
+
+                    await _repositoryManager._interviewQuestionRepository.AddAsync(interviewQuestion);
+                    await _repositoryManager.SaveAsync();
+
+                    return result;
                 }
                 else
                 {
@@ -46,8 +73,9 @@ namespace FromLearningToWorking.Service.Services
                 }
             }
         }
+        
 
-        public async Task<string> ResultOfInterview(ResultOfInterviewRequest request)
+        public async Task<ResultInterviewModel> ResultOfInterview(int id,ResultOfInterviewRequest request)
         {
             using (var httpClient = new HttpClient())
             {
@@ -60,8 +88,27 @@ namespace FromLearningToWorking.Service.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var responseBody = await response.Content.ReadAsStringAsync();
-                    var feedback = JsonSerializer.Deserialize<string>(responseBody);
-                    return feedback;
+
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase // המרת שמות המאפיינים ל-CamelCase
+                    };
+
+                    var result = JsonSerializer.Deserialize<ResultInterviewModel>(responseBody, options);
+
+                    if (result == null)
+                    {
+                        throw new Exception("Failed to deserialize response to ResultInterviewModel.");
+                    }
+
+                    var interviewUpdate = await _interviewService.UpdateResultAsync(id, result);
+
+                    if(interviewUpdate==null)
+                    {
+                        throw new Exception("Faild to Update result of interview");
+                    }
+
+                    return result;
                 }
                 else
                 {
@@ -70,5 +117,86 @@ namespace FromLearningToWorking.Service.Services
                 }
             }
         }
+
+
+        public async Task<string[]> CreateInterview(int userId, string interviewLevel)
+        {
+
+            using (var httpClient = new HttpClient())
+            {
+
+                // חיפוש המשתמש בבסיס הנתונים
+                var user = await _repositoryManager._userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            var resume = await _repositoryManager._resumeRepository.GetByUserIdAsync(user.Id);
+            if (resume == null)
+            {
+                throw new Exception("Resume not found.");
+            }
+
+            // יצירת URL חתום
+            var bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
+            var resumeKey = resume.FilePath; // Key של הקובץ ב-S3
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey, 15); // תוקף של 15 דקות
+
+            var requestBody = new
+            {
+                resume_url = presignedUrl
+            };
+
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
+            if (string.IsNullOrEmpty(pythonApiUrl))
+            {
+                throw new Exception("PYTHON_API is not configured properly.");
+            }
+
+            var response = await httpClient.PostAsync($"{pythonApiUrl}/create_interview", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+                // המרת התגובה למערך של מחרוזות
+                var responseDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(responseBody);
+                if (responseDict != null && responseDict.ContainsKey("questions"))
+                {
+                    // עיבוד השאלות להסרת מרכאות מיותרות
+                    var questions = responseDict["questions"]
+                        .Select(q => q.Trim().Trim('"', ',','}','{')) // הסרת רווחים ומרכאות
+                        .ToArray();
+
+                        // Save interview details to the database
+                        var interview = new Interview
+                        {
+                            UserId = userId,
+                            InterviewDate = DateTime.Now,
+                            Mark = null // Score will be updated later
+                        };
+
+                        interview = await _repositoryManager._interviewRepository.AddAsync(interview);
+                        await _repositoryManager.SaveAsync();
+
+                        return questions;
+                }
+                else
+                {
+                    throw new Exception("Invalid response format from Python API.");
+                }
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error: {errorContent}");
+            }
+           }
+        }
+
     }
 }

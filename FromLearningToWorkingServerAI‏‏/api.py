@@ -59,10 +59,10 @@ def check_answer():
     if not question or not answer:
         return jsonify({"error": "Question and answer must be provided"}), 400
 
-    feedback = check_answer_with_gamini(question, answer)
-    # הנחה היא שהפידבק כולל גם ציון, לדוגמה: "תשובה נכונה. ציון: 10"
-    
-    return jsonify({"feedback": feedback}), 200
+    result = check_answer_with_gamini(question, answer)
+    print("check_answer--------------")
+    print(result)
+    return result, 200
 
 
 @app.route("/result_of_interview", methods=["POST"])

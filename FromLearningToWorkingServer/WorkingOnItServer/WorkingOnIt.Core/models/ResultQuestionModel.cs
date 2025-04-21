@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Core.models
 {
-    public class ResultOfInterviewRequest
+    public class ResultQuestionModel
     {
-        public List<ResultQuestionModel> FeedbackList { get; set; }
+        public string Feedback { get; set; }
+        public int Mark { get; set; }
     }
 }

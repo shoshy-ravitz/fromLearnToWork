@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Core.models
 {
-    public class ResultOfInterviewRequest
+    public class ResultInterviewModel
     {
-        public List<ResultQuestionModel> FeedbackList { get; set; }
+        public int Mark { get; set; }
+        public TimeOnly? Time { get; set; }
+        public string Feedback { get; set; }
     }
 }

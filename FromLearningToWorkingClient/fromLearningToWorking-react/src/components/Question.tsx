@@ -3,9 +3,8 @@ import { useDispatch } from 'react-redux';
 import { checkAnswer, saveAnswer } from '../store/interviewSlice';
 
 const Question = ({ index, question, onNext }) => {
-    const [answer, setAnswer] = useState('');
+    const [answer, setAnswer] = useState(' ');
     const [loading, setLoading] = useState(false);
-    const [feedback, setFeedback] = useState('');
     const [elapsedTime, setElapsedTime] = useState(0); // זמן שחלף
     const dispatch = useDispatch();
 
@@ -42,10 +41,7 @@ const Question = ({ index, question, onNext }) => {
                 })
             ).unwrap();
 
-            setFeedback(feedbackAnswer);
-            setAnswer('');
-
-            // מעבר לשאלה הבאה
+            setAnswer(' ');
             onNext();
         } catch (error) {
             console.error('Error checking answer:', error);
@@ -70,7 +66,6 @@ const Question = ({ index, question, onNext }) => {
                     {loading ? 'שולח...' : 'שלח תשובה'}
                 </button>
             </form>
-            {feedback && <div>Feedback: {feedback}</div>}
         </div>
     );
 };

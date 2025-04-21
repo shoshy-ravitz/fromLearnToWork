@@ -1,4 +1,6 @@
 import base64
+import json  # ייבוא ספריית JSON
+from doctest import debug
 import os
 from google import genai
 from google.genai import types
@@ -61,18 +63,25 @@ def analyze_resume(resume_file_path):
 
 def check_answer_with_gamini(question, answer):
     """
-    פונקציה לדוגמה לבדיקת תשובה באמצעות Gemini
+    פונקציה לבדיקת תשובה באמצעות Gemini
+    מחזירה פידבק מילולי וציון בין 0 ל-10
     """
     client = genai.Client(api_key=gemini_api_key)
     model = "gemini-2.0-flash"
 
-    prompt = f"Check the following answer for the question:\nQuestion: {question}\nAnswer: {answer}\nProvide feedback."
+    # עדכון הפרומפט כדי לכלול גם פידבק מילולי וגם ציון
+    prompt_feedback = (
+        f"Check the following answer for the question:\n"
+        f"Question: {question}\n"
+        f"Answer: {answer}\n"
+        f"Provide feedback in words and give a mark between 0 and 10."
+    )
 
     contents = [
         types.Content(
             role="user",
             parts=[
-                types.Part(text=prompt),
+                types.Part(text=prompt_feedback),
             ],
         ),
     ]
@@ -91,4 +100,20 @@ def check_answer_with_gamini(question, answer):
     ):
         response_text += chunk.text
 
-    return response_text
+    # עיבוד התשובה המתקבלת
+    try:
+        # הנחה שהתשובה המתקבלת היא בפורמט JSON
+        response_data = json.loads(response_text.strip())  # המרת התשובה ל-JSON
+        print("+=================")
+        print(response_data)
+
+        # החזרת הפידבק והציון מתוך התשובה
+        feedback = response_data.get("feedback", "No feedback provided.")
+        mark = response_data.get("mark", 0)
+        print("**8888888")
+        print({"feedback": feedback, "mark": mark})
+        return {"feedback": feedback, "mark": mark}
+    except json.JSONDecodeError as e:
+        return {"error": f"Failed to parse response as JSON: {str(e)}"}
+    except Exception as e:
+        return {"error": f"An unexpected error occurred: {str(e)}"}

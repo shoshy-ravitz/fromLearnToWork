@@ -20,8 +20,11 @@ namespace FromLearningToWorking.Core.Entities
         //public int ResumeId { get; set; }
         //public Resume Resume { get; set; }
 
-        public List<InterviewQuestion> Questions { get; set; } 
+        public List<InterviewQuestion> Questions { get; set; }
         public int?
-            Score { get; set; } // ציון אופציונלי
+            Mark
+        { get; set; } // ציון אופציונלי
+        public TimeOnly? Time { get; set; }
+        public string? Feedback { get; set; }
     }
 }

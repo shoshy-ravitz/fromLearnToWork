@@ -10,7 +10,8 @@ namespace FromLearningToWorking.Core.InterfaceService
 {
     public interface IInterviewAIService
     {
-        Task<string> CheckAnswer(CheckAnswerRequest request);
-        Task<string> ResultOfInterview(ResultOfInterviewRequest request);
+        Task<ResultQuestionModel> CheckAnswer(CheckAnswerRequest request);
+        Task<ResultInterviewModel> ResultOfInterview(int id, ResultOfInterviewRequest request);
+        Task<string[]> CreateInterview(int userId, string interviewLevel);
     }
 }

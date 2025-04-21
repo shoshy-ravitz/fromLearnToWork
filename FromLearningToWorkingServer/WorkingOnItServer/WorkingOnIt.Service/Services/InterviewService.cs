@@ -17,6 +17,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
 using Amazon;
+using FromLearningToWorking.Core.models;
 
 namespace FromLearningToWorking.Service.Services
 {
@@ -74,70 +75,22 @@ namespace FromLearningToWorking.Service.Services
                 await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return _mapper.Map<InterviewDTO>(updatedInterview);
         }
-        public async Task<string[]> CreateInterview(int userId, string interviewLevel)
+
+        public async Task<InterviewDTO> UpdateResultAsync(int id, ResultInterviewModel request)
         {
-            // חיפוש המשתמש בבסיס הנתונים
-            var user = await _repositoryManager._userRepository.GetByIdAsync(userId);
-            if (user == null)
-            {
-                throw new Exception("User not found.");
-            }
+           var interview =await _repositoryManager._interviewRepository.GetByIdAsync(id);
 
-            var resume = await _repositoryManager._resumeRepository.GetByUserIdAsync(user.Id);
-            if (resume == null)
-            {
-                throw new Exception("Resume not found.");
-            }
+            interview.Mark = request.Mark;
+            interview.Time = request.Time;
+            interview.Feedback = request.Feedback;
 
-            // יצירת URL חתום
-            var bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
-            var resumeKey = resume.FilePath; // Key של הקובץ ב-S3
-            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey, 15); // תוקף של 15 דקות
+            var newInterview = _mapper.Map<InterviewDTO>(interview);
+            return await UpdateAsync(id, newInterview);
+           
 
-            var requestBody = new
-            {
-                resume_url = presignedUrl
-            };
-
-            var json = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
-            if (string.IsNullOrEmpty(pythonApiUrl))
-            {
-                throw new Exception("PYTHON_API is not configured properly.");
-            }
-
-            var response = await _httpClient.PostAsync($"{pythonApiUrl}/create_interview", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-
-                // המרת התגובה למערך של מחרוזות
-                var responseDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(responseBody);
-                if (responseDict != null && responseDict.ContainsKey("questions"))
-                {
-                    // עיבוד השאלות להסרת מרכאות מיותרות
-                    var questions = responseDict["questions"]
-                        .Select(q => q.Trim().Trim('"',',')) // הסרת רווחים ומרכאות
-                        .ToArray();
-
-                    return questions;
-                }
-                else
-                {
-                    throw new Exception("Invalid response format from Python API.");
-                }
-            }
-            else
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Error: {errorContent}");
-            }
         }
     }
-    }
+}
 
 
 

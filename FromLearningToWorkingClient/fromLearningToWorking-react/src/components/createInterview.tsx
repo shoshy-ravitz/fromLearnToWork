@@ -10,14 +10,15 @@ import { User } from '../models/user.model';
 const CreateInterview = () => {
     const dispatch = useDispatch();
     // const user :User= useSelector((state: any) => state.auth.user);
-    useEffect(() => {
-        debugger
+    const createNewInterview = () => {
         const userId = localStorage.getItem('userId')
         dispatch(createInterview({ userId: userId }))
-    }, [])
+    }
 
     return (
         <>
+            <Button onClick={() => createNewInterview()}>start interview</Button>
+
             create interview componant
         </>
     );

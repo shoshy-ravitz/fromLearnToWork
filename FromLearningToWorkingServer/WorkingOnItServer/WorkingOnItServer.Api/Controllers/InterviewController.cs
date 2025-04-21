@@ -73,16 +73,16 @@ namespace FromLearningToWorking.Api.Controllers
         [HttpGet("createInterview")]
         public async Task<ActionResult<string[]>> CreateInterview(int userId, string interviewLevel)
         {
-            var question= await _interviewService.CreateInterview(userId,interviewLevel);
+            var question= await _interviewAIService.CreateInterview(userId,interviewLevel);
             if (question != null)
                 return Ok(question);
             return BadRequest();
         }
 
         [HttpPost("resultOfInterview")]
-        public async Task<ActionResult<string>> ResultOfInterview([FromBody] ResultOfInterviewRequest request)
+        public async Task<ActionResult<string>> ResultOfInterview(int id,[FromBody] ResultOfInterviewRequest request)
         {
-            var feedback = await _interviewAIService.ResultOfInterview(request);
+            var feedback = await _interviewAIService.ResultOfInterview(id,request);
             if (feedback != null)
                 return Ok(feedback);
             return BadRequest();
