@@ -1,6 +1,7 @@
 import { Question } from "./question.model";
 
 export interface InterviewState {
+    IdInterview?:number,
     questions: Question[],
     currentQuestionIndex: number,
     mark: number,

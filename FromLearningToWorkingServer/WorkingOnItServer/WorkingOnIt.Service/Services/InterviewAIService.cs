@@ -95,7 +95,7 @@ namespace FromLearningToWorking.Service.Services
                     };
 
                     var result = JsonSerializer.Deserialize<ResultInterviewModel>(responseBody, options);
-
+                    
                     if (result == null)
                     {
                         throw new Exception("Failed to deserialize response to ResultInterviewModel.");
@@ -119,7 +119,7 @@ namespace FromLearningToWorking.Service.Services
         }
 
 
-        public async Task<string[]> CreateInterview(int userId, string interviewLevel)
+        public async Task<CreateInterviewResponse> CreateInterview(int userId, string interviewLevel)
         {
 
             using (var httpClient = new HttpClient())
@@ -181,9 +181,15 @@ namespace FromLearningToWorking.Service.Services
                         };
 
                         interview = await _repositoryManager._interviewRepository.AddAsync(interview);
+                        
                         await _repositoryManager.SaveAsync();
 
-                        return questions;
+                        var result = new CreateInterviewResponse
+                        {
+                            Id = interview.Id,
+                            Questions = questions
+                        };
+                        return result;
                 }
                 else
                 {

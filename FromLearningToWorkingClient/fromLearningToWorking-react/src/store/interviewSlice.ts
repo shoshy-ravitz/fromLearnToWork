@@ -3,6 +3,8 @@ import axios from 'axios';
 import { API_PYTHON_BASE_URL } from '../config';
 import { InterviewState } from '../models/interview.model';
 import API from '../axios.interceptor'; // Import the interceptor
+import { stat } from 'fs';
+import { log } from 'console';
 
 // Async thunk to check answer
 export const checkAnswer: any = createAsyncThunk(
@@ -24,12 +26,12 @@ export const checkAnswer: any = createAsyncThunk(
 
 export const resultOfInterview: any = createAsyncThunk(
     'interview/resultOfInterview',
-    async ({ feedbackList }: { feedbackList: string[] }, { rejectWithValue }) => {
+    async ({ id, feedbackList }: { id: number; feedbackList: { Feedback: string; Mark: number }[] }, { rejectWithValue }) => {
         try {
-            const response = await API.post('/result_of_interview', {
-                feedback_list: feedbackList, // Send the list of feedback strings
+            const response = await API.post(`/resultOfInterview?id=${id}`, {
+                feedbackList, // Send the list of feedback objects
             });
-            return response.data.result; // Return the result from the API
+            return response.data; // Return the ResultInterviewModel from the API
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to fetch interview result');
         }
@@ -38,12 +40,19 @@ export const resultOfInterview: any = createAsyncThunk(
 
 export const createInterview: any = createAsyncThunk(
     'interview/createInterview',
+    
     async ({ userId, interviewLevel = 'mid' }: { userId: number; interviewLevel?: string }, { rejectWithValue }) => {
         try {
-
+            
             const response = await API.get('/interview/createInterview', {
                 params: { userId, interviewLevel },
             });
+            console.log(response.data);
+            console.log(response.data.id);
+            console.log(response.data.questions);
+            
+            
+            
             return response.data; // Return the array of questions
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to create interview');
@@ -52,14 +61,16 @@ export const createInterview: any = createAsyncThunk(
 );
 
 export const initialState: InterviewState = {
+    IdInterview:1,
     questions: [],
     currentQuestionIndex: 0,
     mark: 0,
     feedback: null,
-    summary: '',
+    summary: '', // Store the summary of the interview result
     status: 'idle',
     error: null,
     timeInterview: 0,
+    // result: null, // Add a field to store the ResultInterviewModel
 }
 
 const interviewSlice = createSlice({
@@ -95,7 +106,9 @@ const interviewSlice = createSlice({
                 state.questions[state.currentQuestionIndex].feedback = action.payload; // Save feedback for the current question
             })
             .addCase(resultOfInterview.fulfilled, (state, action) => {
-                state.feedback = action.payload; // Store the result summary in the state
+                state.mark = action.payload.mark; 
+                state.feedback = action.payload.feedback; 
+                state.timeInterview=action.payload.time
             })
             .addCase(resultOfInterview.rejected, (state, action) => {
                 state.error = action.payload || 'Failed to fetch interview result';
@@ -108,15 +121,17 @@ const interviewSlice = createSlice({
             })
             .addCase(createInterview.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                // Map the response into an array of Question objects
-                state.questions = action.payload.map((q: string, index: number) => ({
-                    id: index + 1, // Assign a unique ID to each question
+                state.questions = action.payload.questions.map((q: string, index: number) => ({
+                    id: index + 1, 
                     question: q,
-                    answer: '', // Initialize with an empty answer
-                    feedback: '', // Initialize with empty feedback
-                    mark: 0, // Initialize with a default mark
-                    time: 0, // Initialize with default time
+                    answer: '', 
+                    feedback: '', 
+                    mark: 0, 
+                    time: 0, 
                 }));
+                state.IdInterview=action.payload.id///////////////////////////////if good name
+                console.log(state.IdInterview);
+                
             })
             .addCase(createInterview.rejected, (state, action) => {
                 state.status = 'failed';

@@ -51,8 +51,6 @@ namespace FromLearningToWorking.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
     }
-
 }
 

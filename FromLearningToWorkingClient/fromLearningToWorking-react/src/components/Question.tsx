@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { checkAnswer, saveAnswer } from '../store/interviewSlice';
+import { StoreType } from '../store/store';
 
 const Question = ({ index, question, onNext }) => {
     const [answer, setAnswer] = useState(' ');
     const [loading, setLoading] = useState(false);
     const [elapsedTime, setElapsedTime] = useState(0); // זמן שחלף
     const dispatch = useDispatch();
+    const codeInterview=useSelector(((state: StoreType) => state.interview.IdInterview));
 
     useEffect(() => {
         // התחל טיימר כאשר השאלה מוצגת
@@ -28,16 +30,14 @@ const Question = ({ index, question, onNext }) => {
         setLoading(true);
 
         try {
-            // שמירת התשובה ב-Redux
             dispatch(saveAnswer({ answer }));
 
-            // שליחת התשובה לשרת יחד עם הזמן שחלף
             const feedbackAnswer = await dispatch(
                 checkAnswer({
                     question,
                     answer,
-                    time: elapsedTime, // הזמן שחלף
-                    interviewId: 5, // מזהה ראיון לדוגמה
+                    time: elapsedTime, 
+                    interviewId: codeInterview, 
                 })
             ).unwrap();
 
@@ -54,7 +54,7 @@ const Question = ({ index, question, onNext }) => {
         <div>
             <h3>Question {index}</h3>
             <h2>{question}</h2>
-            <p>Time Elapsed: {elapsedTime} seconds</p> {/* הצגת הזמן שחלף */}
+            {!loading && <p>Time Elapsed: {elapsedTime} seconds</p> }
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"

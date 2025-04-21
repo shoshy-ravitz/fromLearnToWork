@@ -29,7 +29,9 @@ const Interview = () => {
                 index={currentQuestionIndex + 1}
                 onNext={handleNextQuestion} // Pass the callback to move to the next question
             />
+   
         </div>
+        {questions[currentQuestionIndex].question}
         </>
     );
 };

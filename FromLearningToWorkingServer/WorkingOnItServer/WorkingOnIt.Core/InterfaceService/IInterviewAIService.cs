@@ -12,6 +12,6 @@ namespace FromLearningToWorking.Core.InterfaceService
     {
         Task<ResultQuestionModel> CheckAnswer(CheckAnswerRequest request);
         Task<ResultInterviewModel> ResultOfInterview(int id, ResultOfInterviewRequest request);
-        Task<string[]> CreateInterview(int userId, string interviewLevel);
+        Task<CreateInterviewResponse> CreateInterview(int userId, string interviewLevel);
     }
 }
