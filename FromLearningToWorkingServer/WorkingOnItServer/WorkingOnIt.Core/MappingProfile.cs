@@ -23,6 +23,8 @@ namespace FromLearningToWorking.Core
             CreateMap<RegisterModel, User>().ReverseMap();
             CreateMap<LoginModel, User>().ReverseMap();
             CreateMap<Resume, ResumePostModel>().ReverseMap();
+            CreateMap<TotalResultInterview, TotalResultInterviewDTO>().ReverseMap();
+
 
 
 

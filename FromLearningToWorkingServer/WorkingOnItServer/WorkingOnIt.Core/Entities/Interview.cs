@@ -17,10 +17,9 @@ namespace FromLearningToWorking.Core.Entities
         public int UserId { get; set; }
         public User User { get; set; }
 
-        //public int ResumeId { get; set; }
-        //public Resume Resume { get; set; }
-
         public List<InterviewQuestion> Questions { get; set; }
+
+        public List<TotalResultInterview> TotalResultInterview { get; set; }
         public int?
             Mark
         { get; set; } // ציון אופציונלי

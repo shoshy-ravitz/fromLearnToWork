@@ -20,12 +20,11 @@ namespace FromLearningToWorking.Data.Repository
         public IInterviewRepository _interviewRepository { get; }
         public IRepository<Manager> _managerRepository { get; }
         public IRoleRepository _roleRepository { get; }
+        public IRepository<TotalResultInterview> _totalResultInterviewRepository { get; set; }
 
 
 
-
-
-        public RepositoryManager(DataContext dataContext, IUserRepository userRepository,IResumeRepository resumeRepository,IInterviewQuestionRepository interviewQuestionRepository,IInterviewRepository interviewRepository,IRepository<Manager> managerRepository, IRoleRepository roleRepository)
+        public RepositoryManager(DataContext dataContext, IUserRepository userRepository,IResumeRepository resumeRepository,IInterviewQuestionRepository interviewQuestionRepository,IInterviewRepository interviewRepository,IRepository<Manager> managerRepository, IRoleRepository roleRepository,IRepository<TotalResultInterview> totalResultInterview)
         {
             _dataContext = dataContext;
             _userRepository = userRepository;
@@ -34,7 +33,7 @@ namespace FromLearningToWorking.Data.Repository
             _interviewRepository = interviewRepository;
             _managerRepository = managerRepository;
             _roleRepository = roleRepository;
-
+            _totalResultInterviewRepository = totalResultInterview;
         }
 
         public async Task SaveAsync()

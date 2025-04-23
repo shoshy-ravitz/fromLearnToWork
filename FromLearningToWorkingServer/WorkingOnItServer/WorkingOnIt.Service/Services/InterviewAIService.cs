@@ -15,10 +15,12 @@ using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class InterviewAIService(IRepositoryManager repositoryManager, IInterviewService interviewService) : IInterviewAIService
+    public class InterviewAIService(IRepositoryManager repositoryManager, IInterviewService interviewService, ITotalResultInterviewService totalResultInterviewServic) : IInterviewAIService
     {
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
         private readonly IInterviewService _interviewService = interviewService;
+        private readonly ITotalResultInterviewService _totalResultInterviewService = totalResultInterviewServic;
+
         public async Task<ResultQuestionModel> CheckAnswer(CheckAnswerRequest request)
         {
             using (var httpClient = new HttpClient())
@@ -100,11 +102,19 @@ namespace FromLearningToWorking.Service.Services
 
                     var result = JsonSerializer.Deserialize<ResultInterviewModel>(responseBody, options);
                     result.Mark =await _interviewService.CalculateScoreInterview(id);
+
+                    // שמירת התוצאה בבסיס הנתונים
+                    foreach (var totalResult in result.Result)
+                    {
+                        totalResult.InterviewId = id; // קביעת קוד הראיון
+                        await _totalResultInterviewService.AddAsync(totalResult); // שמירה בעזרת TotalResultInterviewService
+                    }
+
                     if (result == null)
                     {
                         throw new Exception("Failed to deserialize response to ResultInterviewModel.");
                     }
-
+                    
                     var interviewUpdate = await _interviewService.UpdateResultAsync(id, result);
 
                     if(interviewUpdate==null)

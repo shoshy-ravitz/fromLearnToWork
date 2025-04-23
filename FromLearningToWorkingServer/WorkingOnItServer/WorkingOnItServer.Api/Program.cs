@@ -34,6 +34,8 @@ builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<IManagerService, ManagerService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IInterviewAIService, InterviewAIService>();
+builder.Services.AddScoped<ITotalResultInterviewService, TotalResultInterviewService>();
+
 
 
 builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
