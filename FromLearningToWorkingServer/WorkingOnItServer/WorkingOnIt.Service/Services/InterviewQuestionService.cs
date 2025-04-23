@@ -32,6 +32,8 @@ namespace FromLearningToWorking.Service.Services
             return _mapper.Map<List<InterviewQuestionDTO>>(questions);
         }
 
+
+
         public async Task<InterviewQuestionDTO?> GetByIdAsync(int id)
         {
             var question = await _repositoryManager._interviewQuestionRepository.GetByIdAsync(id);
@@ -44,7 +46,7 @@ namespace FromLearningToWorking.Service.Services
             var question = _mapper.Map<InterviewQuestion>(interviewQuestionDTO);
             question = await _repositoryManager._interviewQuestionRepository.AddAsync(question);
             if (question != null)
-                await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+                await _repositoryManager.SaveAsync(); 
             return _mapper.Map<InterviewQuestionDTO>(question);
         }
 
@@ -53,7 +55,7 @@ namespace FromLearningToWorking.Service.Services
             var question = _mapper.Map<InterviewQuestion>(interviewQuestionDTO);
             var updatedQuestion = await _repositoryManager._interviewQuestionRepository.UpdateAsync(id, question);
             if (updatedQuestion != null)
-                await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+                await _repositoryManager.SaveAsync(); 
             return _mapper.Map<InterviewQuestionDTO>(updatedQuestion);
         }
 
@@ -61,8 +63,14 @@ namespace FromLearningToWorking.Service.Services
         {
             var res = await _repositoryManager._interviewQuestionRepository.DeleteAsync(id);
             if (res)
-                await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+                await _repositoryManager.SaveAsync(); 
             return res;
+        }
+
+        public async Task<IEnumerable<InterviewQuestionDTO>> GetAllQuestionByInterviewIdAsync(int id)
+        {
+            var questions = await _repositoryManager._interviewQuestionRepository.GetAllQuestionByInterviewIdAsync(id);
+            return _mapper.Map<List<InterviewQuestionDTO>>(questions);
         }
     }
 }

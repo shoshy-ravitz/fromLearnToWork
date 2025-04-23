@@ -64,10 +64,10 @@ namespace FromLearningToWorking.Service.Services
         public async Task<InterviewDTO> UpdateAsync(int id, InterviewDTO interviewDTO)
         {
             // Validate the interview date
-            if (interviewDTO.InterviewDate < DateTime.Now)
-            {
-                throw new ArgumentException("תאריך הראיון לא יכול להיות בעבר.");
-            }
+            //if (interviewDTO.InterviewDate < DateTime.Now)
+            //{
+            //    throw new ArgumentException("תאריך הראיון לא יכול להיות בעבר.");
+            //}
 
             var interview = _mapper.Map<Interview>(interviewDTO);
             var updatedInterview = await _repositoryManager._interviewRepository.UpdateAsync(id, interview);
@@ -78,7 +78,7 @@ namespace FromLearningToWorking.Service.Services
 
         public async Task<InterviewDTO> UpdateResultAsync(int id, ResultInterviewModel request)
         {
-           var interview =await _repositoryManager._interviewRepository.GetByIdAsync(id);
+            var interview = await _repositoryManager._interviewRepository.GetByIdAsync(id);
 
             interview.Mark = request.Mark;
             interview.Time = request.Time;
@@ -86,9 +86,17 @@ namespace FromLearningToWorking.Service.Services
 
             var newInterview = _mapper.Map<InterviewDTO>(interview);
             return await UpdateAsync(id, newInterview);
-           
+
 
         }
+        public async Task<int> CalculateScoreInterview(int id)
+        {
+            var questions = await _repositoryManager._interviewQuestionRepository.GetAllQuestionByInterviewIdAsync(id);
+            int totalScore = questions.Sum(q => q.Mark);
+
+            return totalScore; 
+        }
+
     }
 }
 

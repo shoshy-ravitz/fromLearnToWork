@@ -11,5 +11,12 @@ namespace FromLearningToWorking.Core.models
         public int Mark { get; set; }
         public TimeOnly? Time { get; set; }
         public string Feedback { get; set; }
+        public TotalResult[] Result { get; set; }
+    }
+    public class TotalResult
+    {
+        public string Topic { get; set; }
+        public int Score { get; set; }
+        
     }
 }

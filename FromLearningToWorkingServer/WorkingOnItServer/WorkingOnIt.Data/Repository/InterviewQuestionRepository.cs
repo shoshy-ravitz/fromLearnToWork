@@ -1,5 +1,7 @@
-﻿using FromLearningToWorking.Core.Entities;
+﻿using FromLearningToWorking.Core.DTOs;
+using FromLearningToWorking.Core.Entities;
 using FromLearningToWorking.Core.InterfaceRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +14,13 @@ namespace FromLearningToWorking.Data.Repository
     {
         public InterviewQuestionRepository(DataContext context) : base(context)
         {
-
+            
+        }
+        public async Task<List<InterviewQuestion>> GetAllQuestionByInterviewIdAsync(int interviewId)
+        {
+            return await _dbSet
+                .Where(q => q.InterviewId == interviewId) 
+                .ToListAsync(); 
         }
 
 

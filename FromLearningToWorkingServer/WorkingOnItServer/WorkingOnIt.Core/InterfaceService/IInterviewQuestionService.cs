@@ -18,5 +18,7 @@ namespace FromLearningToWorking.Core.InterfaceService
         Task<InterviewQuestionDTO> UpdateAsync(int id, InterviewQuestionDTO interviewQuestionDTO);
 
         Task<bool> DeleteAsync(int id);
+
+        Task<IEnumerable<InterviewQuestionDTO>> GetAllQuestionByInterviewIdAsync(int id);
     }
 }

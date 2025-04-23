@@ -10,4 +10,5 @@ export interface InterviewState {
     status: 'idle' | 'loading' | 'succeeded' | 'failed'
     error: string | null,
     timeInterview: number
+    result: {topic:string,score:number}[]
 }

@@ -3,7 +3,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import requests
-from functions import encode_file_to_base64, analyze_resume, check_answer_with_gamini
+from functions import encode_file_to_base64, analyze_resume, check_answer_with_gamini, evaluate_interview_with_gemini
 
 # הגדרת Flask
 app = Flask(__name__)
@@ -68,29 +68,46 @@ def check_answer():
 @app.route("/result_of_interview", methods=["POST"])
 def result_of_interview():
     """
-    Calculate the overall result of the interview using Gemini.
+    Evaluate the overall interview using Gemini.
+    Takes a list of questions from the C# application, processes them using Gemini,
+    and returns the overall mark and feedback for the interview.
     """
-    data = request.json
-    feedback_list = data.get("feedback_list")  # List of feedback strings
+    try:
+        # Parse the incoming JSON data
+        data = request.json
+        # if not data or not isinstance(data, list):
+        #     return jsonify({"error": "Invalid input. A list of questions is required."}), 400
 
-    if not feedback_list or not isinstance(feedback_list, list):
-        return jsonify({"error": "Feedback list must be provided as a list"}), 400
+        # Validate the structure of each question
 
-    # Prepare the prompt for Gemini
-    prompt = (
-        "Based on the following feedback from an interview, provide the following:\n"
-        "1. An overall mark for the interview between 0 and 100.\n"
-        "2. A summary of what was good in the interview.\n"
-        "3. A summary of what needs improvement.\n\n"
-        "Feedback:\n"
-    )
-    prompt += "\n".join(f"- {feedback}" for feedback in feedback_list)
+        print("data:",data)
+        for question in data:
+            if not all(key in question for key in ["Question", "UserAnswer", "AiFeedback", "Mark"]):
+                return jsonify({"error": "Each question must include 'question', 'userAnswer', 'aiFeedback', and 'mark'."}), 400
 
-    # Send the prompt to Gemini
-    response_text = analyze_resume(prompt)
+        # Prepare the questions for evaluation
+        questions = [
+            {
+                "question": q["Question"],
+                "answer": q["UserAnswer"],
+                "feedback": q["AiFeedback"],
+                "mark": q["Mark"]
+            }
+            for q in data
+        ]
+        print("questions:",questions)
+        # Use the evaluate_interview_with_gemini function to process the questions
+        result = evaluate_interview_with_gemini(questions)
+        print("result:----------------------------------",result)
+        # Check for errors in the result
+        # if "error" in result:
+        #     return jsonify({"error": result["error"]}), 500
 
-    # Return the response from Gemini
-    return jsonify({"result": response_text}), 200
+        # Return the result
+        return jsonify(result), 200
+
+    except Exception as e:
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 
 if __name__ == '__main__':

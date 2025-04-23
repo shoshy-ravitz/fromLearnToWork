@@ -12,6 +12,7 @@ namespace FromLearningToWorking.Core.DTOs
         public string Question { get; set; }
         public string UserAnswer { get; set; }
         public string AiFeedback { get; set; }
+        public int Mark { get; set; }
         public int InterviewId { get; set; }
 
         public TimeOnly? Time { get; set; }

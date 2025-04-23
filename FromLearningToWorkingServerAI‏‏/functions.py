@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 gemini_api_key = os.getenv('GEMINI_API_KEY', 'AIzaSyA1_-pRQQz89muAzUCFH1AFPDxyNkG5ctI')
+client = genai.Client(api_key=gemini_api_key)
+model = "gemini-2.0-flash"
+
 
 
 def encode_file_to_base64(file_path):
@@ -62,6 +65,7 @@ def analyze_resume(resume_file_path):
 
 
 def check_answer_with_gamini(question, answer):
+
     """
     פונקציה לבדיקת תשובה באמצעות Gemini
     מחזירה פידבק מילולי וציון בין 0 ל-10
@@ -113,6 +117,100 @@ def check_answer_with_gamini(question, answer):
         print("**8888888")
         print({"feedback": feedback, "mark": mark})
         return {"feedback": feedback, "mark": mark}
+    except json.JSONDecodeError as e:
+        return {"error": f"Failed to parse response as JSON: {str(e)}"}
+    except Exception as e:
+        return {"error": f"An unexpected error occurred: {str(e)}"}
+    
+    # Helper function to send a request to Gemini
+def send_request_to_gemini(prompt):
+    contents = [
+        types.Content(
+            role="user",
+            parts=[
+                types.Part(text=prompt),
+            ],
+        ),
+    ]
+
+    generate_content_config = types.GenerateContentConfig(
+            temperature=1,
+            top_p=0.95,
+            top_k=40,
+            max_output_tokens=2048,
+            response_mime_type="application/json",
+        )
+    
+    response_text = ""
+    for chunk in client.models.generate_content_stream(
+        model=model, contents=contents, config=generate_content_config
+    ):
+        response_text += chunk.text
+    return response_text
+
+def evaluate_interview_with_gemini(questions):
+    """
+    Evaluate the overall interview using Gemini.
+    Sends three separate requests to Gemini:
+    1. General feedback summarizing the interview.
+    2. A list of topics covered in the interview and a score (0-100) for each topic.
+    3. An overall mark for the interview.
+    Returns:
+    - General feedback.
+    - A list of topics with scores.
+    - An overall mark.
+    """
+
+    # Prepare the shared part of the prompt
+    questions_prompt = "Questions and Answers:\n"
+    for idx, q in enumerate(questions, start=1):
+        questions_prompt += f"Question {idx}: {q['question']}\n"
+        questions_prompt += f"Answer: {q['answer']}\n"
+        questions_prompt += f"Feedback: {q.get('feedback', '')}\n"
+        questions_prompt += f"Mark: {q.get('mark', 0)}\n\n"
+
+    # Request 1: General feedback
+    feedback_prompt = (
+        "Evaluate the following interview and provide one general feedback that summarizes the interview, i.e. a final outcome of the interview.\n\n"
+        + questions_prompt
+        +"Answer should include only the general feedback text without the questions and mark in numbers in format string -not object.\n"
+        +"Example format: 'The candidate demonstrated strong technical skills and a good understanding of the subject. It is worth paying attention to the following points:... ,To be better prepared for the real-time interview to improve on:.......'"
+    )
+    feedback_response = send_request_to_gemini(feedback_prompt)
+    print("Feedback Response111111111111111111111111111:", feedback_response)
+
+    # Request 2: Topics and scores
+    topics_prompt = (
+        "Analyze the following interview and provide a list of topics/subjects asked in the interview and give a weighted score for each topic"
+        "The answer format will include an array of topic name and score"
+        "Example of format:[{'topic': 'topic_name', 'score': 85}, {'topic': 'another_topic', 'score': 90}]"
+        + questions_prompt
+    )
+    topics_response = send_request_to_gemini(topics_prompt)
+    print("Topics Response:", topics_response)
+
+    # Request 3: Overall mark
+    mark_prompt = (
+        "Evaluate the following interview and provide an overall mark for the interview (0-100).\n\n"
+        + questions_prompt
+    )
+    mark_response = send_request_to_gemini(mark_prompt)
+    print("Mark Response:", mark_response)
+
+    # Process the responses
+    try:
+        feedback = json.loads(feedback_response.strip())
+        topics_scores = json.loads(topics_response.strip())
+        overall_mark = json.loads(mark_response.strip())
+        print("feedback:", feedback)
+        print("topics_scores:", topics_scores)
+        # print("overall_mark:", overall_mark)
+
+        return {
+            "feedback": feedback[0],
+            "result": topics_scores,
+            # "mark": mark_response,
+        }
     except json.JSONDecodeError as e:
         return {"error": f"Failed to parse response as JSON: {str(e)}"}
     except Exception as e:

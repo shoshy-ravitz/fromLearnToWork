@@ -26,12 +26,10 @@ export const checkAnswer: any = createAsyncThunk(
 
 export const resultOfInterview: any = createAsyncThunk(
     'interview/resultOfInterview',
-    async ({ id, feedbackList }: { id: number; feedbackList: { Feedback: string; Mark: number }[] }, { rejectWithValue }) => {
+    async ({ id }: { id: number; feedbackList: { Feedback: string; Mark: number }[] }, { rejectWithValue }) => {
         try {
-            const response = await API.post(`/resultOfInterview?id=${id}`, {
-                feedbackList, // Send the list of feedback objects
-            });
-            return response.data; // Return the ResultInterviewModel from the API
+            const response = await API.post(`/Interview/resultOfInterview/resultOfInterview?id=${id}`);
+            return response.data;
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to fetch interview result');
         }
@@ -47,15 +45,33 @@ export const createInterview: any = createAsyncThunk(
             const response = await API.get('/interview/createInterview', {
                 params: { userId, interviewLevel },
             });
-            console.log(response.data);
-            console.log(response.data.id);
-            console.log(response.data.questions);
-            
-            
-            
             return response.data; // Return the array of questions
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to create interview');
+        }
+    }
+);
+
+export const getQuestionsByInterviewId: any = createAsyncThunk(
+    'interview/getQuestionsByInterviewId',
+    async (id: number, { rejectWithValue }) => {
+        try {
+            const response = await API.get(`/interviewQuestion/byInterview/${id}`);
+            return response.data; // Return the list of questions
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Failed to fetch questions');
+        }
+    }
+);
+
+export const getResultOfInterview: any = createAsyncThunk(
+    'interview/getResultOfInterview',
+    async (id: number, { rejectWithValue }) => {
+        try {
+            const response = await API.post(`/Interview/resultOfInterview/${id}`);
+            return response.data; // Return the result of the interview
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Failed to fetch interview result');
         }
     }
 );
@@ -70,7 +86,7 @@ export const initialState: InterviewState = {
     status: 'idle',
     error: null,
     timeInterview: 0,
-    // result: null, // Add a field to store the ResultInterviewModel
+    result: [], // Add a field to store the ResultInterviewModel
 }
 
 const interviewSlice = createSlice({
@@ -129,13 +145,44 @@ const interviewSlice = createSlice({
                     mark: 0, 
                     time: 0, 
                 }));
-                state.IdInterview=action.payload.id///////////////////////////////if good name
-                console.log(state.IdInterview);
-                
+                state.IdInterview=action.payload.id
             })
             .addCase(createInterview.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload || 'Failed to create interview';
+            })
+            .addCase(getQuestionsByInterviewId.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(getQuestionsByInterviewId.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.questions = action.payload; // Update the questions in the state
+                console.log(state.questions);
+                
+            })
+            .addCase(getQuestionsByInterviewId.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload || 'Failed to fetch questions';
+            })
+            .addCase(getResultOfInterview.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(getResultOfInterview.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.mark = action.payload.mark;
+                state.feedback = action.payload.feedback;
+                state.timeInterview = action.payload.time;
+                state.result = action.payload.result; // Update the result of the interview
+                console.log(state.result);
+                console.log(state.mark);
+                console.log(action.payload.mark);
+                
+                
+                // state.questions = action.payload.questions; // Update questions with detailed feedback
+            })
+            .addCase(getResultOfInterview.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload || 'Failed to fetch interview result';
             });
     },
 });

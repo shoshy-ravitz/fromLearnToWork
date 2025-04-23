@@ -14,6 +14,7 @@ namespace FromLearningToWorking.Core.Entities
         public string Question { get; set; } 
         public string UserAnswer { get; set; } 
         public string AiFeedback { get; set; }
+        public int Mark { get; set; }
         public TimeOnly? Time { get; set; }
 
         // קשרים

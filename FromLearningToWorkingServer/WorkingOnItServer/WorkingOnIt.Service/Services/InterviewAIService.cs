@@ -50,7 +50,7 @@ namespace FromLearningToWorking.Service.Services
                     {
                         throw new Exception("Failed to deserialize response to ResultQuestion.");
                     }
-
+                    
 
                     var interviewQuestion = new InterviewQuestion
                     {
@@ -58,6 +58,7 @@ namespace FromLearningToWorking.Service.Services
                         Question = request.Question,
                         UserAnswer = request.Answer,
                         AiFeedback = result.Feedback,
+                        Mark = result.Mark,
                         InterviewId = request.InterviewId
                     };
 
@@ -75,14 +76,17 @@ namespace FromLearningToWorking.Service.Services
         }
         
 
-        public async Task<ResultInterviewModel> ResultOfInterview(int id,ResultOfInterviewRequest request)
+        public async Task<ResultInterviewModel> ResultOfInterview(int id)
         {
             using (var httpClient = new HttpClient())
             {
-                var json = JsonSerializer.Serialize(request);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var questions =await _repositoryManager._interviewQuestionRepository.GetAllQuestionByInterviewIdAsync(id);
+                var questionsJson = JsonSerializer.Serialize(questions);
 
                 var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
+
+                var content = new StringContent(questionsJson, Encoding.UTF8, "application/json");
+              
                 var response = await httpClient.PostAsync($"{pythonApiUrl}/result_of_interview", content);
 
                 if (response.IsSuccessStatusCode)
@@ -95,7 +99,7 @@ namespace FromLearningToWorking.Service.Services
                     };
 
                     var result = JsonSerializer.Deserialize<ResultInterviewModel>(responseBody, options);
-                    
+                    result.Mark =await _interviewService.CalculateScoreInterview(id);
                     if (result == null)
                     {
                         throw new Exception("Failed to deserialize response to ResultInterviewModel.");
@@ -117,6 +121,7 @@ namespace FromLearningToWorking.Service.Services
                 }
             }
         }
+
 
 
         public async Task<CreateInterviewResponse> CreateInterview(int userId, string interviewLevel)

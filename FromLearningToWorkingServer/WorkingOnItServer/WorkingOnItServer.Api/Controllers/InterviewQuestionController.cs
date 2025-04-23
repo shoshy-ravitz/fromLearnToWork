@@ -40,6 +40,14 @@ namespace FromLearningToWorking.Api.Controllers
             return Ok(question);
         }
 
+
+        [HttpGet("byInterview/{id}")]
+        public async Task<ActionResult<InterviewQuestionDTO>> GetByInterviewId(int id)
+        {
+            var question = await _interviewQuestionService.GetAllQuestionByInterviewIdAsync(id);
+            if (question == null) return NotFound();
+            return Ok(question);
+        }
         // POST api/interviewquestion
         [HttpPost]
         public async Task<ActionResult<InterviewQuestionDTO>> Post([FromBody] InterviewQuestionDTO questionDTO)
