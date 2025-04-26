@@ -44,7 +44,7 @@ namespace FromLearningToWorking.Service.Services
             var token = new JwtSecurityToken(
                 Environment.GetEnvironmentVariable("Jwt:Issuer"),
                 Environment.GetEnvironmentVariable("Jwt:Audience"),claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: credentials
             );
 

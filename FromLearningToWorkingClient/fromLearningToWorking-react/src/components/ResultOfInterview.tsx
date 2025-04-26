@@ -1,22 +1,29 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { getResultOfInterview } from '../store/interviewSlice';
+import { resultOfInterview } from '../store/interviewSlice';
 import { StoreType } from '../store/store';
 import { Card, CardContent, Typography, CircularProgress, List, ListItem, ListItemText } from '@mui/material';
+import SketchOfInterviewResults from './sketchOfInterviewResults';
+import QuestionsResult from './QuestionsResult';
 
 const ResultOfInterview = () => {
-    const { id } = useParams<{ id: string }>(); // Get the interview ID from the route parameters
+    const { id: idParam } = useParams<{ id: string }>(); // Get the interview ID from the route parameters
+    const id = idParam ? Number(idParam) : undefined; // Convert id to a number
     const dispatch = useDispatch();
     const { mark, feedback, timeInterview, questions, status, error } = useSelector(
         (state: StoreType) => state.interview
     );
 
     useEffect(() => {
+        console.log("id", id);
+        debugger
         if (id) {
-            dispatch(getResultOfInterview(Number(id))); // Fetch the result of the interview
+            console.log("in result");
+            
+            dispatch(resultOfInterview(Number(id))); // Fetch the result of the interview
         }
-    }, [id, dispatch]);
+    }, []);
 
     if (status === 'loading') {
         return <CircularProgress style={{ display: 'block', margin: '20px auto' }} />;
@@ -36,19 +43,21 @@ const ResultOfInterview = () => {
                 <Typography variant="h4" gutterBottom>
                     Interview Result
                 </Typography>
-                <Typography variant="h6" color="textSecondary">
-                    Total Mark:{(mark !== undefined && mark !== null) ? mark : 'N/A'}
-                </Typography>
+                {/* <Typography variant="h6" color="textSecondary">
+                    Total Mark: {(mark !== undefined && mark !== null) ? mark : 'N/A'}
+                </Typography> */}
                 <Typography variant="h6" color="textSecondary">
                     Total Time: {timeInterview || 'N/A'} seconds
                 </Typography>
-                <Typography variant="h6" gutterBottom>
-                    Feedback Summary:
-                </Typography>
-                <Typography variant="body1" style={{ marginBottom: '20px' }}>
-                    {feedback || 'No feedback provided.'}
-                </Typography>
-               
+                {/* <Typography variant="body1" style={{ marginBottom: '20px' }}>
+                    {typeof feedback === 'object' ? JSON.stringify(feedback) : feedback || 'No feedback provided.'}
+                </Typography> */}
+                {id !== undefined &&
+                    <>
+                        <SketchOfInterviewResults interviewId={id} />
+                        <QuestionsResult interviewId={id} />
+                    </>}
+
             </CardContent>
         </Card>
     );

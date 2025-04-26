@@ -20,6 +20,7 @@ namespace FromLearningToWorking.Service.Services
             _mapper = mapper;
         }
 
+
         public async Task<TotalResultInterviewDTO> AddAsync(TotalResultInterviewDTO totalResultInterviewDTO)
         {
             var totalResultInterview = _mapper.Map<TotalResultInterview>(totalResultInterviewDTO);
@@ -56,6 +57,14 @@ namespace FromLearningToWorking.Service.Services
             if (response != null)
                 await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return _mapper.Map<TotalResultInterviewDTO>(response);
+        }
+
+
+        
+        public async Task<IEnumerable<TotalResultInterviewDTO>> GetAllTotalResultByInterviewIdAsync(int id)
+        {
+            var questions = await _iRepositoryManager._totalResultInterviewRepository.GetAllTotalResultByInterviewIdAsync(id);
+            return _mapper.Map<List<TotalResultInterviewDTO>>(questions);
         }
     }
 }

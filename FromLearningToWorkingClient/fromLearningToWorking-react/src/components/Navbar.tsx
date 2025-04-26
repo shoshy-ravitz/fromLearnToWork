@@ -33,9 +33,9 @@ const Navbar: React.FC = () => {
                         start interview 
                     </Button>
 
-                    <Button color="inherit" component={Link} to="resultInterview/12">
+                    {/* <Button color="inherit" component={Link} to="resultInterview/22">
                         result interview
-                    </Button>
+                    </Button> */}
 
                     {/* <Button color="inherit" component={Link} to="interviewdetails/1">
                          interview details

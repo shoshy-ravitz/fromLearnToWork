@@ -10,9 +10,10 @@ namespace FromLearningToWorking.Core.models
 {
     public class ResultInterviewModel
     {
-        public int Mark { get; set; }
+        public int? Mark { get; set; }
         public TimeOnly? Time { get; set; }
         public string Feedback { get; set; }
         public TotalResultInterviewDTO[] Result { get; set; }
+
     }
 }

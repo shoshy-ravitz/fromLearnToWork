@@ -46,6 +46,8 @@ builder.Services.AddScoped<IInterviewQuestionRepository, InterviewQuestionReposi
 builder.Services.AddScoped<IInterviewRepository, InterviewRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<ITotalResultInterviewRepository, TotalResultInterviewRepository>();
+
 
 builder.Services.AddHttpClient();
 

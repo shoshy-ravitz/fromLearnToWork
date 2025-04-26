@@ -5,14 +5,14 @@ import { getQuestionsByInterviewId } from '../store/interviewSlice';
 import { StoreType } from '../store/store';
 import { Card, CardContent, Typography, CircularProgress, List, ListItem, ListItemText } from '@mui/material';
 
-const InterviewDetails = () => {
+const  InterviewDetails= () => {
     const { id } = useParams<{ id: string }>(); // Get the interview ID from the route parameters
     const dispatch = useDispatch();
     const { questions, status, error } = useSelector((state: StoreType) => state.interview);
 
     useEffect(() => {
         if (id) {
-            dispatch(getQuestionsByInterviewId(Number(id)));
+            // dispatch(getQuestionsByInterviewId(Number(id)));
         }
     }, [id, dispatch]);
 

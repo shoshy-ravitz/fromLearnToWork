@@ -18,8 +18,6 @@ const CreateInterview = () => {
     return (
         <>
             <Button onClick={() => createNewInterview()}>start interview</Button>
-
-            create interview componant
         </>
     );
 };

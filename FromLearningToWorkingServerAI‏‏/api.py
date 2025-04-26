@@ -82,15 +82,15 @@ def result_of_interview():
 
         print("data:",data)
         for question in data:
-            if not all(key in question for key in ["Question", "UserAnswer", "AiFeedback", "Mark"]):
-                return jsonify({"error": "Each question must include 'question', 'userAnswer', 'aiFeedback', and 'mark'."}), 400
+            if not all(key in question for key in ["Question", "Answer", "Feedback", "Mark"]):
+                return jsonify({"error": "Each question must include 'question', 'Answer', 'Feedback', and 'mark'."}), 400
 
         # Prepare the questions for evaluation
         questions = [
             {
                 "question": q["Question"],
-                "answer": q["UserAnswer"],
-                "feedback": q["AiFeedback"],
+                "answer": q["Answer"],
+                "feedback": q["Feedback"],
                 "mark": q["Mark"]
             }
             for q in data

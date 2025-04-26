@@ -21,9 +21,13 @@ using FromLearningToWorking.Core.models;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class InterviewService(IRepositoryManager repositoryManager, IMapper mapper, HttpClient httpClient, IConfiguration configuration) : IInterviewService
+    public class InterviewService(IRepositoryManager repositoryManager, IMapper mapper, HttpClient httpClient, IConfiguration configuration,IInterviewAIService interviewAIService, ITotalResultInterviewService totalResultInterviewService) : IInterviewService
     {
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
+        private readonly IInterviewAIService _interviewAIService = interviewAIService;
+        private readonly ITotalResultInterviewService _totalResultInterviewService = totalResultInterviewService;
+
+
         private readonly IMapper _mapper = mapper;
         private readonly HttpClient _httpClient = httpClient;
         private readonly IConfiguration _configuration = configuration;
@@ -48,19 +52,16 @@ namespace FromLearningToWorking.Service.Services
                 await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return result;
         }
-
         public async Task<IEnumerable<InterviewDTO>> GetAllAsync()
         {
             var interviews = await _repositoryManager._interviewRepository.GetAllAsync();
             return _mapper.Map<List<InterviewDTO>>(interviews);
         }
-
         public async Task<InterviewDTO?> GetByIdAsync(int id)
         {
             var interview = await _repositoryManager._interviewRepository.GetByIdAsync(id);
             return _mapper.Map<InterviewDTO>(interview);
         }
-
         public async Task<InterviewDTO> UpdateAsync(int id, InterviewDTO interviewDTO)
         {
             // Validate the interview date
@@ -75,7 +76,6 @@ namespace FromLearningToWorking.Service.Services
                 await _repositoryManager.SaveAsync(); // Assuming SaveAsync is defined
             return _mapper.Map<InterviewDTO>(updatedInterview);
         }
-
         public async Task<InterviewDTO> UpdateResultAsync(int id, ResultInterviewModel request)
         {
             var interview = await _repositoryManager._interviewRepository.GetByIdAsync(id);
@@ -96,11 +96,48 @@ namespace FromLearningToWorking.Service.Services
 
             return totalScore; 
         }
+        public async Task<ResultInterviewModel> GetResultInterview(int id)
+        {
+            var interview = await GetByIdAsync(id);
+            if (interview.Mark == null)
+            {
+                var result = await _interviewAIService.ResultOfInterview(id);
 
+                // שמירת התוצאה בבסיס הנתונים
+                foreach (var totalResult in result.Result)
+                {
+                    totalResult.InterviewId = id; // קביעת קוד הראיון
+                    var totalResultAdd = await _totalResultInterviewService.AddAsync(totalResult);
+                    if (totalResultAdd == null)
+                    {
+                        throw new Exception("Failed to add  totalResult object.");
+                    }
+                }
+                result.Mark =await CalculateScoreInterview(id);
+
+                var interviewUpdate = await UpdateResultAsync(id, result);
+
+                if (interviewUpdate == null)
+                {
+                    throw new Exception("Faild to Update result of interview");
+                }
+
+                return result;
+            }
+            else
+            {
+                var totalResult = await _repositoryManager._totalResultInterviewRepository.GetAllTotalResultByInterviewIdAsync(id);
+                var result = _mapper.Map<TotalResultInterviewDTO[]>(totalResult);
+                var resultInterview = new ResultInterviewModel
+                {
+                    Feedback = interview.feedback,
+                    Mark = interview.Mark,
+                    Time = interview.Time,
+                    Result = result,
+
+                };
+                return resultInterview;
+            }
+        }
     }
 }
-
-
-
-
-

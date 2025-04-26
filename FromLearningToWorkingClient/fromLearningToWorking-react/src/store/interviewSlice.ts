@@ -3,8 +3,7 @@ import axios from 'axios';
 import { API_PYTHON_BASE_URL } from '../config';
 import { InterviewState } from '../models/interview.model';
 import API from '../axios.interceptor'; // Import the interceptor
-import { stat } from 'fs';
-import { log } from 'console';
+
 
 // Async thunk to check answer
 export const checkAnswer: any = createAsyncThunk(
@@ -20,18 +19,6 @@ export const checkAnswer: any = createAsyncThunk(
             return response.data; // Return the feedback from the API
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to check answer');
-        }
-    }
-);
-
-export const resultOfInterview: any = createAsyncThunk(
-    'interview/resultOfInterview',
-    async ({ id }: { id: number; feedbackList: { Feedback: string; Mark: number }[] }, { rejectWithValue }) => {
-        try {
-            const response = await API.post(`/Interview/resultOfInterview/resultOfInterview?id=${id}`);
-            return response.data;
-        } catch (error: any) {
-            return rejectWithValue(error.response?.data || 'Failed to fetch interview result');
         }
     }
 );
@@ -64,11 +51,11 @@ export const getQuestionsByInterviewId: any = createAsyncThunk(
     }
 );
 
-export const getResultOfInterview: any = createAsyncThunk(
-    'interview/getResultOfInterview',
+export const resultOfInterview: any = createAsyncThunk(
+    'interview/resultOfInterview',
     async (id: number, { rejectWithValue }) => {
         try {
-            const response = await API.post(`/Interview/resultOfInterview/${id}`);
+            const response = await API.get(`/Interview/resultOfInterview/${id}`);
             return response.data; // Return the result of the interview
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to fetch interview result');
@@ -121,14 +108,6 @@ const interviewSlice = createSlice({
             .addCase(checkAnswer.fulfilled, (state, action) => {
                 state.questions[state.currentQuestionIndex].feedback = action.payload; // Save feedback for the current question
             })
-            .addCase(resultOfInterview.fulfilled, (state, action) => {
-                state.mark = action.payload.mark; 
-                state.feedback = action.payload.feedback; 
-                state.timeInterview=action.payload.time
-            })
-            .addCase(resultOfInterview.rejected, (state, action) => {
-                state.error = action.payload || 'Failed to fetch interview result';
-            })
             .addCase(checkAnswer.rejected, (state, action) => {
                 state.error = action.payload || 'Failed to check answer';
             })
@@ -164,26 +143,20 @@ const interviewSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.payload || 'Failed to fetch questions';
             })
-            .addCase(getResultOfInterview.pending, (state) => {
+            .addCase(resultOfInterview.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(getResultOfInterview.fulfilled, (state, action) => {
+            .addCase(resultOfInterview.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.mark = action.payload.mark;
                 state.feedback = action.payload.feedback;
                 state.timeInterview = action.payload.time;
                 state.result = action.payload.result; // Update the result of the interview
-                console.log(state.result);
-                console.log(state.mark);
-                console.log(action.payload.mark);
-                
-                
-                // state.questions = action.payload.questions; // Update questions with detailed feedback
             })
-            .addCase(getResultOfInterview.rejected, (state, action) => {
+            .addCase(resultOfInterview.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.payload || 'Failed to fetch interview result';
-            });
+            })
     },
 });
 

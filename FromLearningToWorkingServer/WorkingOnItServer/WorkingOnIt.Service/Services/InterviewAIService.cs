@@ -15,10 +15,11 @@ using System.Threading.Tasks;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class InterviewAIService(IRepositoryManager repositoryManager, IInterviewService interviewService, ITotalResultInterviewService totalResultInterviewServic) : IInterviewAIService
+    public class InterviewAIService(IRepositoryManager repositoryManager, ITotalResultInterviewService totalResultInterviewServic,IInterviewQuestionService interviewQuestionService) : IInterviewAIService
     {
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
-        private readonly IInterviewService _interviewService = interviewService;
+        private readonly IInterviewQuestionService _interviewQuestionService = interviewQuestionService;
+
         private readonly ITotalResultInterviewService _totalResultInterviewService = totalResultInterviewServic;
 
         public async Task<ResultQuestionModel> CheckAnswer(CheckAnswerRequest request)
@@ -58,13 +59,13 @@ namespace FromLearningToWorking.Service.Services
                     {
                         
                         Question = request.Question,
-                        UserAnswer = request.Answer,
-                        AiFeedback = result.Feedback,
+                        Answer = request.Answer,
+                        Feedback = result.Feedback,
                         Mark = result.Mark,
                         InterviewId = request.InterviewId
                     };
 
-                    await _repositoryManager._interviewQuestionRepository.AddAsync(interviewQuestion);
+                  var interviewQuestionAdd =  await _repositoryManager._interviewQuestionRepository.AddAsync(interviewQuestion);
                     await _repositoryManager.SaveAsync();
 
                     return result;
@@ -76,13 +77,11 @@ namespace FromLearningToWorking.Service.Services
                 }
             }
         }
-        
-
         public async Task<ResultInterviewModel> ResultOfInterview(int id)
         {
             using (var httpClient = new HttpClient())
             {
-                var questions =await _repositoryManager._interviewQuestionRepository.GetAllQuestionByInterviewIdAsync(id);
+                var questions =await _interviewQuestionService.GetAllQuestionByInterviewIdAsync(id);
                 var questionsJson = JsonSerializer.Serialize(questions);
 
                 var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
@@ -101,25 +100,12 @@ namespace FromLearningToWorking.Service.Services
                     };
 
                     var result = JsonSerializer.Deserialize<ResultInterviewModel>(responseBody, options);
-                    result.Mark =await _interviewService.CalculateScoreInterview(id);
+     
 
-                    // שמירת התוצאה בבסיס הנתונים
-                    foreach (var totalResult in result.Result)
-                    {
-                        totalResult.InterviewId = id; // קביעת קוד הראיון
-                        await _totalResultInterviewService.AddAsync(totalResult); // שמירה בעזרת TotalResultInterviewService
-                    }
 
                     if (result == null)
                     {
                         throw new Exception("Failed to deserialize response to ResultInterviewModel.");
-                    }
-                    
-                    var interviewUpdate = await _interviewService.UpdateResultAsync(id, result);
-
-                    if(interviewUpdate==null)
-                    {
-                        throw new Exception("Faild to Update result of interview");
                     }
 
                     return result;
@@ -131,9 +117,6 @@ namespace FromLearningToWorking.Service.Services
                 }
             }
         }
-
-
-
         public async Task<CreateInterviewResponse> CreateInterview(int userId, string interviewLevel)
         {
 
@@ -142,50 +125,50 @@ namespace FromLearningToWorking.Service.Services
 
                 // חיפוש המשתמש בבסיס הנתונים
                 var user = await _repositoryManager._userRepository.GetByIdAsync(userId);
-            if (user == null)
-            {
-                throw new Exception("User not found.");
-            }
-
-            var resume = await _repositoryManager._resumeRepository.GetByUserIdAsync(user.Id);
-            if (resume == null)
-            {
-                throw new Exception("Resume not found.");
-            }
-
-            // יצירת URL חתום
-            var bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
-            var resumeKey = resume.FilePath; // Key של הקובץ ב-S3
-            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey, 15); // תוקף של 15 דקות
-
-            var requestBody = new
-            {
-                resume_url = presignedUrl
-            };
-
-            var json = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
-            if (string.IsNullOrEmpty(pythonApiUrl))
-            {
-                throw new Exception("PYTHON_API is not configured properly.");
-            }
-
-            var response = await httpClient.PostAsync($"{pythonApiUrl}/create_interview", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-
-                // המרת התגובה למערך של מחרוזות
-                var responseDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(responseBody);
-                if (responseDict != null && responseDict.ContainsKey("questions"))
+                if (user == null)
                 {
-                    // עיבוד השאלות להסרת מרכאות מיותרות
-                    var questions = responseDict["questions"]
-                        .Select(q => q.Trim().Trim('"', ',','}','{')) // הסרת רווחים ומרכאות
-                        .ToArray();
+                    throw new Exception("User not found.");
+                }
+
+                var resume = await _repositoryManager._resumeRepository.GetByUserIdAsync(user.Id);
+                if (resume == null)
+                {
+                    throw new Exception("Resume not found.");
+                }
+
+                // יצירת URL חתום
+                var bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
+                var resumeKey = resume.FilePath; // Key של הקובץ ב-S3
+                var presignedUrl = UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey, 15); // תוקף של 15 דקות
+
+                var requestBody = new
+                {
+                    resume_url = presignedUrl
+                };
+
+                var json = JsonSerializer.Serialize(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
+                if (string.IsNullOrEmpty(pythonApiUrl))
+                {
+                    throw new Exception("PYTHON_API is not configured properly.");
+                }
+
+                var response = await httpClient.PostAsync($"{pythonApiUrl}/create_interview", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseBody = await response.Content.ReadAsStringAsync();
+
+                    // המרת התגובה למערך של מחרוזות
+                    var responseDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(responseBody);
+                    if (responseDict != null && responseDict.ContainsKey("questions"))
+                    {
+                        // עיבוד השאלות להסרת מרכאות מיותרות
+                        var questions = responseDict["questions"]
+                            .Select(q => q.Trim().Trim('"', ',', '}', '{')) // הסרת רווחים ומרכאות
+                            .ToArray();
 
                         // Save interview details to the database
                         var interview = new Interview
@@ -196,7 +179,7 @@ namespace FromLearningToWorking.Service.Services
                         };
 
                         interview = await _repositoryManager._interviewRepository.AddAsync(interview);
-                        
+
                         await _repositoryManager.SaveAsync();
 
                         var result = new CreateInterviewResponse
@@ -205,18 +188,18 @@ namespace FromLearningToWorking.Service.Services
                             Questions = questions
                         };
                         return result;
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid response format from Python API.");
+                    }
                 }
                 else
                 {
-                    throw new Exception("Invalid response format from Python API.");
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Error: {errorContent}");
                 }
             }
-            else
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Error: {errorContent}");
-            }
-           }
         }
 
     }

@@ -79,12 +79,21 @@ namespace FromLearningToWorking.Api.Controllers
             return BadRequest();
         }
 
-        [HttpPost("resultOfInterview/{id}")]
-        public async Task<ActionResult<ResultInterviewModel>> ResultOfInterview(int id)
+        //[HttpPost("resultOfInterview/{id}")]
+        //public async Task<ActionResult<ResultInterviewModel>> ResultOfInterview(int id)
+        //{
+        //    var resultInterview = await _interviewAIService.ResultOfInterview(id);
+        //    if (resultInterview != null)
+        //        return Ok(resultInterview);
+        //    return BadRequest();
+        //}
+
+        [HttpGet("resultOfInterview/{id}")]
+        public async Task<ActionResult<ResultInterviewModel>> GetResultOfInterview(int id)
         {
-            var feedback = await _interviewAIService.ResultOfInterview(id);
-            if (feedback != null)
-                return Ok(feedback);
+            var resultInterview = await _interviewService.GetResultInterview(id);
+            if (resultInterview != null)
+                return Ok(resultInterview);
             return BadRequest();
         }
     }

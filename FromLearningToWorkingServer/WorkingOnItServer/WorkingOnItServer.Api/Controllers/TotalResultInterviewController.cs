@@ -11,7 +11,7 @@ namespace FromLearningToWorking.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Policy = "Admin")]
+    [Authorize(Policy = "UserOrAdmin")]
     public class TotalResultInterviewController : ControllerBase
     {
         private readonly ITotalResultInterviewService _totalResultInterviewService;
@@ -61,6 +61,15 @@ namespace FromLearningToWorking.Api.Controllers
         {
             if (!await _totalResultInterviewService.DeleteAsync(id)) return NotFound();
             return NoContent();
+        }
+
+
+        [HttpGet("byInterview/{id}")]
+        public async Task<ActionResult<TotalResultInterviewDTO>> GetByInterviewId(int id)
+        {
+            var question = await _totalResultInterviewService.GetAllTotalResultByInterviewIdAsync(id);
+            if (question == null) return NotFound();
+            return Ok(question);
         }
     }
 }

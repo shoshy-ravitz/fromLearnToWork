@@ -20,11 +20,11 @@ namespace FromLearningToWorking.Data.Repository
         public IInterviewRepository _interviewRepository { get; }
         public IRepository<Manager> _managerRepository { get; }
         public IRoleRepository _roleRepository { get; }
-        public IRepository<TotalResultInterview> _totalResultInterviewRepository { get; set; }
+        public ITotalResultInterviewRepository _totalResultInterviewRepository { get; set; }
 
 
 
-        public RepositoryManager(DataContext dataContext, IUserRepository userRepository,IResumeRepository resumeRepository,IInterviewQuestionRepository interviewQuestionRepository,IInterviewRepository interviewRepository,IRepository<Manager> managerRepository, IRoleRepository roleRepository,IRepository<TotalResultInterview> totalResultInterview)
+        public RepositoryManager(DataContext dataContext, IUserRepository userRepository,IResumeRepository resumeRepository,IInterviewQuestionRepository interviewQuestionRepository,IInterviewRepository interviewRepository,IRepository<Manager> managerRepository, IRoleRepository roleRepository, ITotalResultInterviewRepository totalResultInterview)
         {
             _dataContext = dataContext;
             _userRepository = userRepository;

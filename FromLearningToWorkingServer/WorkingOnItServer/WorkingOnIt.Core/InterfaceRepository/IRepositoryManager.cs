@@ -16,7 +16,7 @@ namespace FromLearningToWorking.Core.InterfaceRepository
         IInterviewRepository _interviewRepository { get; }
         IRepository<Manager> _managerRepository { get; }
         IRoleRepository _roleRepository { get; }
-        IRepository<TotalResultInterview> _totalResultInterviewRepository { get; set; }
+        ITotalResultInterviewRepository _totalResultInterviewRepository { get; set; }
         //Imanager 
 
         Task SaveAsync();
