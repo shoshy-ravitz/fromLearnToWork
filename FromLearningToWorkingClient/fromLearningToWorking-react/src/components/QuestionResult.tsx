@@ -7,10 +7,10 @@ interface QuestionResultProps {
 }
 
 const QuestionResult: React.FC<QuestionResultProps> = ({ question }) => {
-    // useEffect(() => {
-    //     console.log(question);
-    // }
-    // , []);
+    useEffect(() => {
+        console.log(question);
+    }
+    , []);
         
     return (
         <Card style={{ marginBottom: '15px' }}>

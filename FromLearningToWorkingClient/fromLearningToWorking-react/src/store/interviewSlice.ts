@@ -106,7 +106,7 @@ const interviewSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(checkAnswer.fulfilled, (state, action) => {
-                state.questions[state.currentQuestionIndex].feedback = action.payload; // Save feedback for the current question
+                state.questions[state.currentQuestionIndex].feedback = action.payload.feedback; // Save feedback for the current question
             })
             .addCase(checkAnswer.rejected, (state, action) => {
                 state.error = action.payload || 'Failed to check answer';
