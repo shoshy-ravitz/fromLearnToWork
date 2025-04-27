@@ -21,8 +21,8 @@ const Interview = () => {
 
     const handleFinishInterview = () => {
         // debugger
-        navigate('/login');
-        // navigate(`/resultInterview/${interviewId}`); // Navigate to the result page
+        // navigate('/login');
+        navigate(`/resultInterview/${interviewId}`); // Navigate to the result page
         console.log("finish interview");
 
     }
@@ -43,7 +43,7 @@ const Interview = () => {
                     index={currentQuestionIndex + 1}
                     onNext={handleNextQuestion} // Pass the callback to move to the next question
                 />}
-                {isLastQuestion && (
+                { (
                     <Button
                         variant="contained"
                         color="primary"

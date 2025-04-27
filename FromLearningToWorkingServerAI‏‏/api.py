@@ -15,7 +15,7 @@ def create_interview():
     """
     הורדת קובץ מ-AWS, ניתוחו באמצעות Gemini, והחזרת 10 שאלות.
     """
-    print("create_interview")
+ 
     
     data = request.json
     resume_url = data.get("resume_url")  # URL של קובץ ה-AWS
@@ -37,7 +37,8 @@ def create_interview():
 
         # ניתוח הקובץ באמצעות Gemini
         questions = analyze_resume(temp_path)
-
+        print("type of question:",type(questions))
+        print("questions::::::::::::::::",questions)
         # החזרת התוצאה
         return jsonify({"questions": questions}), 200
 
@@ -60,8 +61,7 @@ def check_answer():
         return jsonify({"error": "Question and answer must be provided"}), 400
 
     result = check_answer_with_gamini(question, answer)
-    print("check_answer--------------")
-    print(result)
+
     return result, 200
 
 
@@ -80,7 +80,6 @@ def result_of_interview():
 
         # Validate the structure of each question
 
-        print("data:",data)
         for question in data:
             if not all(key in question for key in ["Question", "Answer", "Feedback", "Mark"]):
                 return jsonify({"error": "Each question must include 'question', 'Answer', 'Feedback', and 'mark'."}), 400
@@ -95,10 +94,10 @@ def result_of_interview():
             }
             for q in data
         ]
-        print("questions:",questions)
+   
         # Use the evaluate_interview_with_gemini function to process the questions
         result = evaluate_interview_with_gemini(questions)
-        print("result:----------------------------------",result)
+   
         # Check for errors in the result
         # if "error" in result:
         #     return jsonify({"error": result["error"]}), 500

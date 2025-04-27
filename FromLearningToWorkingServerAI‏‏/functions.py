@@ -20,13 +20,11 @@ def encode_file_to_base64(file_path):
 
 
 def analyze_resume(resume_file_path):
-    client = genai.Client(api_key=gemini_api_key)
-    model = "gemini-2.0-flash"
-
+ 
     encoded_resume = encode_file_to_base64(resume_file_path)
 
-    prompt = "נתח את קובץ קורות החיים המצורף וספק רשימה של 4 שאלות על הידיעות בחומר שיש בקורות חיים."
-
+    prompt = " נתח את קובץ קורות החיים המצורף וספק רשימה של 4 שאלות על הידיעות בחומר שיש בקורות חיים."
+    prompt += " התשובה צריכה להיות בפורמט JSON של רשימה של שאלות. לדוגמה: ['שאלה 1', 'שאלה 2', 'שאלה 3', 'שאלה 4']"
     contents = [
         types.Content(
             role="user",
@@ -108,14 +106,12 @@ def check_answer_with_gamini(question, answer):
     try:
         # הנחה שהתשובה המתקבלת היא בפורמט JSON
         response_data = json.loads(response_text.strip())  # המרת התשובה ל-JSON
-        print("+=================")
-        print(response_data)
+      
 
         # החזרת הפידבק והציון מתוך התשובה
         feedback = response_data.get("feedback", "No feedback provided.")
         mark = response_data.get("mark", 0)
-        print("**8888888")
-        print({"feedback": feedback, "mark": mark})
+      
         return {"feedback": feedback, "mark": mark}
     except json.JSONDecodeError as e:
         return {"error": f"Failed to parse response as JSON: {str(e)}"}
@@ -177,8 +173,7 @@ def evaluate_interview_with_gemini(questions):
         +"Example format: 'The candidate demonstrated strong technical skills and a good understanding of the subject. It is worth paying attention to the following points:... ,To be better prepared for the real-time interview to improve on:.......'"
     )
     feedback_response = send_request_to_gemini(feedback_prompt)
-    print("Feedback Response111111111111111111111111111:", feedback_response)
-
+  
     # Request 2: Topics and scores
     topics_prompt = (
         "Analyze the following interview and provide a list of topics/subjects asked in the interview and give a weighted score for each topic"
@@ -187,24 +182,20 @@ def evaluate_interview_with_gemini(questions):
         + questions_prompt
     )
     topics_response = send_request_to_gemini(topics_prompt)
-    print("Topics Response:", topics_response)
-
+  
     # Request 3: Overall mark
     mark_prompt = (
         "Evaluate the following interview and provide an overall mark for the interview (0-100).\n\n"
         + questions_prompt
     )
     mark_response = send_request_to_gemini(mark_prompt)
-    print("Mark Response:", mark_response)
-
+ 
     # Process the responses
     try:
         feedback = json.loads(feedback_response.strip())
         topics_scores = json.loads(topics_response.strip())
         overall_mark = json.loads(mark_response.strip())
-        print("feedback:", feedback)
-        print("topics_scores:", topics_scores)
-        # print("overall_mark:", overall_mark)
+      
 
         return {
             "feedback": feedback[0],

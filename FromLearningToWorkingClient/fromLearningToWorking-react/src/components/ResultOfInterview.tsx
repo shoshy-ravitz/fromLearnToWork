@@ -17,7 +17,7 @@ const ResultOfInterview = () => {
 
     useEffect(() => {
         console.log("id", id);
-        debugger
+        // debugger
         if (id) {
             console.log("in result");
             
@@ -38,28 +38,29 @@ const ResultOfInterview = () => {
     }
 
     return (
-        <Card style={{ maxWidth: 800, margin: '20px auto', padding: '20px' }}>
-            <CardContent>
-                <Typography variant="h4" gutterBottom>
-                    Interview Result
-                </Typography>
-                {/* <Typography variant="h6" color="textSecondary">
-                    Total Mark: {(mark !== undefined && mark !== null) ? mark : 'N/A'}
-                </Typography> */}
-                <Typography variant="h6" color="textSecondary">
-                    Total Time: {timeInterview || 'N/A'} seconds
-                </Typography>
-                {/* <Typography variant="body1" style={{ marginBottom: '20px' }}>
-                    {typeof feedback === 'object' ? JSON.stringify(feedback) : feedback || 'No feedback provided.'}
-                </Typography> */}
-                {id !== undefined &&
-                    <>
-                        <SketchOfInterviewResults interviewId={id} />
-                        <QuestionsResult interviewId={id} />
-                    </>}
+        <>result of interview</>
+        // <Card style={{ maxWidth: 800, margin: '20px auto', padding: '20px' }}>
+        //     <CardContent>
+        //         <Typography variant="h4" gutterBottom>
+        //             Interview Result
+        //         </Typography>
+        //         {/* <Typography variant="h6" color="textSecondary">
+        //             Total Mark: {(mark !== undefined && mark !== null) ? mark : 'N/A'}
+        //         </Typography> */}
+        //         <Typography variant="h6" color="textSecondary">
+        //             Total Time: {timeInterview || 'N/A'} seconds
+        //         </Typography>
+        //         {/* <Typography variant="body1" style={{ marginBottom: '20px' }}>
+        //             {typeof feedback === 'object' ? JSON.stringify(feedback) : feedback || 'No feedback provided.'}
+        //         </Typography> */}
+        //         {/* {id !== undefined &&
+        //             <>
+        //                 <SketchOfInterviewResults interviewId={id} />
+        //                 <QuestionsResult interviewId={id} />
+        //             </>} */}
 
-            </CardContent>
-        </Card>
+        //     </CardContent>
+        // </Card>
     );
 };
 
