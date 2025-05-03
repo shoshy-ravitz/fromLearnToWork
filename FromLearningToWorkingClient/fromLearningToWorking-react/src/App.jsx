@@ -5,6 +5,7 @@ import { router } from './router';
 import store from './store/store';
 import { AppBar, Toolbar, Typography, Container, Box } from '@mui/material';
 
+
 function App() {
   return (
     <Provider store={store}>

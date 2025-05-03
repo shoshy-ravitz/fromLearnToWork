@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { resultOfInterview } from '../store/interviewSlice';
 import { StoreType } from '../store/store';
-import { Card, CardContent, Typography, CircularProgress, List, ListItem, ListItemText } from '@mui/material';
+import { Card, CardContent, Typography, CircularProgress } from '@mui/material';
 import SketchOfInterviewResults from './sketchOfInterviewResults';
 import QuestionsResult from './QuestionsResult';
 
@@ -11,19 +11,15 @@ const ResultOfInterview = () => {
     const { id: idParam } = useParams<{ id: string }>(); // Get the interview ID from the route parameters
     const id = idParam ? Number(idParam) : undefined; // Convert id to a number
     const dispatch = useDispatch();
-    const { mark, feedback, timeInterview, questions, status, error } = useSelector(
+    const { mark, feedback, timeInterview, status, error } = useSelector(
         (state: StoreType) => state.interview
     );
 
     useEffect(() => {
-        console.log("id", id);
-        // debugger
         if (id) {
-            console.log("in result");
-            
             dispatch(resultOfInterview(Number(id))); // Fetch the result of the interview
         }
-    }, []);
+    }, [dispatch, id]);
 
     if (status === 'loading') {
         return <CircularProgress style={{ display: 'block', margin: '20px auto' }} />;
@@ -38,7 +34,6 @@ const ResultOfInterview = () => {
     }
 
     return (
-        // <>result of interview</>
         <Card style={{ maxWidth: 800, margin: '20px auto', padding: '20px' }}>
             <CardContent>
                 <Typography variant="h4" gutterBottom>
@@ -58,7 +53,6 @@ const ResultOfInterview = () => {
                         <SketchOfInterviewResults interviewId={id} />
                         <QuestionsResult interviewId={id} />
                     </>}
-
             </CardContent>
         </Card>
     );

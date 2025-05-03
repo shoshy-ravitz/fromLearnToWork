@@ -14,7 +14,7 @@ namespace FromLearningToWorking.Api.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Policy ="User")]
-        public class InterviewController : ControllerBase
+    public class InterviewController : ControllerBase
         {
             private readonly IInterviewService _interviewService;
             private readonly IInterviewAIService _interviewAIService;
@@ -58,15 +58,26 @@ namespace FromLearningToWorking.Api.Controllers
                 var updatedInterview = await _interviewService.UpdateAsync(id, interviewDTO);
                 if (updatedInterview == null) return NotFound();
                 return Ok(updatedInterview);
-            }
+        }
 
-            // DELETE api/interview/{id}
-            [HttpDelete("{id}")]
-            public async Task<ActionResult> Delete(int id)
+        // DELETE api/interview/{id}
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            if (!await _interviewService.DeleteAsync(id)) return NotFound();
+            return NoContent();
+        }
+
+        [HttpGet("byUserId/{id}")]
+        public async Task<ActionResult<List<InterviewDTO>>> GetAllByUserId(int id)
+        {
+            var interviews =await _interviewService.GetAllByUserIdAsync(id);
+            if (interviews != null)
             {
-                if (!await _interviewService.DeleteAsync(id)) return NotFound();
-                return NoContent();
+                return Ok(interviews);
             }
+            return NotFound();
+        }
 
 
 

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../store/authSlice';
 import { StoreType } from '../store/store';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -9,8 +11,9 @@ const Login: React.FC = () => {
     const dispatch = useDispatch();
     const { loading, error } = useSelector((state: StoreType) => state.auth);
 
-    const handleLogin = (event: React.FormEvent) => {
+    const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
+
         dispatch(loginUser({ email, password }));
     };
 

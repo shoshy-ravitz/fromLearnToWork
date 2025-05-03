@@ -11,7 +11,6 @@ interface QuestionsResultProps {
 }
 
 const QuestionsResult: React.FC<QuestionsResultProps> = ({ interviewId }) => {
-    // const { id } = useParams<{ id: string }>(); // Get the interview ID from the route parameters
     const dispatch = useDispatch();
     const { questions, status, error } = useSelector((state: StoreType) => state.interview);
     

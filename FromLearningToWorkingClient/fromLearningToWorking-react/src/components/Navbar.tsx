@@ -33,13 +33,9 @@ const Navbar: React.FC = () => {
                         start interview 
                     </Button>
 
-                    {/* <Button color="inherit" component={Link} to="resultInterview/22">
-                        result interview
-                    </Button> */}
-
-                    {/* <Button color="inherit" component={Link} to="interviewdetails/1">
-                         interview details
-                    </Button> */}
+                    <Button color="inherit" component={Link} to="histoyInterview">
+                        my history in interview
+                    </Button>
                 </Box>
             </Toolbar>
         </AppBar>

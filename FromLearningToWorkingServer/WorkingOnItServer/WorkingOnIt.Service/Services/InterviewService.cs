@@ -21,16 +21,13 @@ using FromLearningToWorking.Core.models;
 
 namespace FromLearningToWorking.Service.Services
 {
-    public class InterviewService(IRepositoryManager repositoryManager, IMapper mapper, HttpClient httpClient, IConfiguration configuration,IInterviewAIService interviewAIService, ITotalResultInterviewService totalResultInterviewService) : IInterviewService
+    public class InterviewService(IRepositoryManager repositoryManager, IMapper mapper,IInterviewAIService interviewAIService, ITotalResultInterviewService totalResultInterviewService) : IInterviewService
     {
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
         private readonly IInterviewAIService _interviewAIService = interviewAIService;
         private readonly ITotalResultInterviewService _totalResultInterviewService = totalResultInterviewService;
-
-
         private readonly IMapper _mapper = mapper;
-        private readonly HttpClient _httpClient = httpClient;
-        private readonly IConfiguration _configuration = configuration;
+
         public async Task<InterviewDTO> AddAsync(InterviewDTO interviewDTO)
         {
             // Validate the interview date
@@ -94,7 +91,7 @@ namespace FromLearningToWorking.Service.Services
             var questions = await _repositoryManager._interviewQuestionRepository.GetAllQuestionByInterviewIdAsync(id);
             int totalScore = questions.Sum(q => q.Mark);
 
-            return totalScore; 
+            return totalScore;
         }
         public async Task<ResultInterviewModel> GetResultInterview(int id)
         {
@@ -113,7 +110,7 @@ namespace FromLearningToWorking.Service.Services
                         throw new Exception("Failed to add  totalResult object.");
                     }
                 }
-                result.Mark =await CalculateScoreInterview(id);
+                result.Mark = await CalculateScoreInterview(id);
 
                 var interviewUpdate = await UpdateResultAsync(id, result);
 
@@ -138,6 +135,11 @@ namespace FromLearningToWorking.Service.Services
                 };
                 return resultInterview;
             }
+        }
+        public async Task<List<InterviewDTO>> GetAllByUserIdAsync(int id)
+        {
+            var interviews =await _repositoryManager._interviewRepository.GetAllByUserIdAsync(id);
+            return _mapper.Map<List<InterviewDTO>>(interviews);
         }
     }
 }

@@ -16,5 +16,9 @@ namespace FromLearningToWorking.Core.DTOs
         public int? Mark { get; set; } // ציון אופציונלי
         public TimeOnly? Time { get; set; }
         public string? feedback { get; set; }
+
+        
+
     }
+    
 }

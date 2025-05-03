@@ -1,5 +1,7 @@
-﻿using FromLearningToWorking.Core.Entities;
+﻿using FromLearningToWorking.Core.DTOs;
+using FromLearningToWorking.Core.Entities;
 using FromLearningToWorking.Core.InterfaceRepository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,9 @@ namespace FromLearningToWorking.Data.Repository
         public InterviewRepository(DataContext context) : base(context)
         {
         }
-
+        public async Task<List<Interview>> GetAllByUserIdAsync(int id)
+        {
+           return await _dbSet.Where(i => i.UserId == id).ToListAsync();
+        }
     }
 }

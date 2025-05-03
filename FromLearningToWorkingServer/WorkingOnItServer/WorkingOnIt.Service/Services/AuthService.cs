@@ -30,10 +30,10 @@ namespace FromLearningToWorking.Service.Services
                 new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Email, user.Email),
             };
-
-            // Add roles to the JWT claims
             
-            if(user.Role!=null)
+            // Add roles to the JWT claims
+
+            if (user.Role!=null)
             {
                 claims.Add(new Claim(ClaimTypes.Role, user.Role.RoleName));
             }

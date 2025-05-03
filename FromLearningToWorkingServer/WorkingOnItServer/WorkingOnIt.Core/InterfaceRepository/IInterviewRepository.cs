@@ -9,5 +9,6 @@ namespace FromLearningToWorking.Core.InterfaceRepository
 {
     public  interface IInterviewRepository:IRepository<Interview>
     {
+        Task<List<Interview>> GetAllByUserIdAsync(int id);
     }
 }

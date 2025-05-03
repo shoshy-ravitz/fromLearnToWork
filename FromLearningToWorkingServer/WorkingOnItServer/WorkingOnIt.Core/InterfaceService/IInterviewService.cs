@@ -25,5 +25,6 @@ namespace FromLearningToWorking.Core.InterfaceService
         Task<int> CalculateScoreInterview(int id);
 
         Task<ResultInterviewModel> GetResultInterview(int id);
+        Task<List<InterviewDTO>> GetAllByUserIdAsync(int id);
     }
 }
