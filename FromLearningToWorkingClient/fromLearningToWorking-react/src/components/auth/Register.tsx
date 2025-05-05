@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { registerUser } from '../store/authSlice';
-import { StoreType } from '../store/store';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import { Link } from 'react-router-dom';
+import { StoreType } from '../../store/store';
+import { registerUser } from '../../store/slices/authSlice';
 
 const style = {
     position: 'absolute' as 'absolute',

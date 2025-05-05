@@ -1,17 +1,19 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import authSlice from "./authSlice";
-import resumeSlice from "./resumeSlice";
-import interviewSlice from "./interviewSlice";
-import totalResultSlice from "./totalResultSlice"; // Import the new slice
-import userInterviewsSlice from "./userInterviewsSlice";
+import authSlice from "./slices/authSlice";
+import resumeSlice from "./slices/resumeSlice";
+import interviewSlice from "./slices/interviewSlice";
+import totalResultSlice from "./slices/totalResultSlice"; // Import the new slice
+import userInterviewsSlice from "./slices/userInterviewsSlice";
+import userSlice from "./slices/userSlice";
 
 const store = configureStore({
     reducer: combineReducers({
         auth: authSlice,
-        resumeSlice,
+        resume:resumeSlice,
         interview: interviewSlice,
         totalResult: totalResultSlice, 
         userInterviews:userInterviewsSlice,
+        user:userSlice,
     }),
 });
 

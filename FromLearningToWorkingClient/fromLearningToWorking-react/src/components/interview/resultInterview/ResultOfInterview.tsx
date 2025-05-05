@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { resultOfInterview } from '../store/interviewSlice';
-import { StoreType } from '../store/store';
+import { resultOfInterview } from '../../../store/slices/interviewSlice';
+import { StoreType } from '../../../store/store';
 import { Card, CardContent, Typography, CircularProgress } from '@mui/material';
 import SketchOfInterviewResults from './sketchOfInterviewResults';
 import QuestionsResult from './QuestionsResult';

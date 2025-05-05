@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { checkAnswer, saveAnswer } from '../store/interviewSlice';
-import { StoreType } from '../store/store';
+import { checkAnswer, saveAnswer } from '../../../store/slices/interviewSlice';
+import { StoreType } from '../../../store/store';
 
 const Question = ({ index, question, onNext }) => {
     const [answer, setAnswer] = useState(' ');
     const [loading, setLoading] = useState(false);
-    const [elapsedTime, setElapsedTime] = useState(0); // זמן שחלף
+    const [elapsedTime, setElapsedTime] = useState(0);
     const dispatch = useDispatch();
     const codeInterview=useSelector(((state: StoreType) => state.interview.IdInterview));
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addResume } from '../store/resumeSlice';
-import { StoreType } from '../store/store';
+import { addResume } from '../../store/slices/resumeSlice';
+import { StoreType } from '../../store/store';
 
 const ResumeUpload: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);

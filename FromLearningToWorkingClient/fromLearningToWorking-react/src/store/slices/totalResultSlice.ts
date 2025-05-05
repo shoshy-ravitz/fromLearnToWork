@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import API from '../axios.interceptor';
-import { TotalResultInterviewDTO } from '../models/totalResultInterview.model';
+import API from '../../services/axios.interceptor';
+import { TotalResultInterviewDTO } from '../../models/totalResultInterview.model';
 
 // Define the initial state
 interface TotalResultState {

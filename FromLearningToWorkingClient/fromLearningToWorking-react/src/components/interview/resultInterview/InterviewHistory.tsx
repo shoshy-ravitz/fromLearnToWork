@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { fetchUserInterviews } from '../store/userInterviewsSlice';
-import { StoreType } from '../store/store';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { fetchUserInterviews } from '../../../store/slices/userInterviewsSlice';
+import { StoreType } from '../../../store/store';
 import {
     Drawer,
     List,
@@ -14,11 +14,13 @@ import {
     IconButton,
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import GeneralFeedbackForInterviews from './GeneralFeedbackForInterviews';
 
 const InterviewHistory = () => {
     const userId = localStorage.getItem('userId'); // Get the user ID from localStorage
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation(); // Get the current location
     const listInterviews = useSelector((state: StoreType) => state.userInterviews.interviews);
 
     const [isOpen, setIsOpen] = useState(true); // Sidebar starts open by default
@@ -100,7 +102,12 @@ const InterviewHistory = () => {
                     },
                 }}
             >
-                <Outlet />
+                {/* Show GeneralFeedbackForInterviews if no interview is selected */}
+                {location.pathname === '/histoyInterview' ? (
+                    <GeneralFeedbackForInterviews />
+                ) : (
+                    <Outlet />
+                )}
             </Box>
         </div>
     );

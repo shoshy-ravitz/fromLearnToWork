@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { getQuestionsByInterviewId } from '../store/interviewSlice';
+import { getQuestionsByInterviewId } from '../store/slices/interviewSlice';
 import { StoreType } from '../store/store';
 import { Card, CardContent, Typography, CircularProgress, List, ListItem, ListItemText } from '@mui/material';
 

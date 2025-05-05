@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Resume, ResumeState } from '../models/resume.model';
-import API from '../axios.interceptor'; // Import the interceptor
+import { Resume, ResumeState } from '../../models/resume.model';
+import API from '../../services/axios.interceptor'; // Import the interceptor
 
 const initialState: ResumeState = {
     resumes: [],
@@ -39,7 +39,7 @@ export const addResume: any = createAsyncThunk(
     }
 );
 
-export const updateResume = createAsyncThunk(`resumes/update`, async ({ id, resume }: { id: string; resume: Resume }) => {
+export const updateResume:any = createAsyncThunk(`resumes/update`, async ({ id, resume }: { id: string; resume: Resume }) => {
     const response = await API.put<Resume>(`/Resume/${id}`, resume);
     return response.data;
 });

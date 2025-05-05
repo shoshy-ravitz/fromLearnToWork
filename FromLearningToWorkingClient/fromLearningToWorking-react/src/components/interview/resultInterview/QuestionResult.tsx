@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Card, CardContent, Typography } from '@mui/material';
-import { Question } from '../models/question.model';
+import { Question } from '../../../models/question.model';
 
 interface QuestionResultProps {
     question: Question;

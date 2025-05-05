@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL } from '../../config/config';
 
 // Async thunk for user registration
 export const registerUser: any = createAsyncThunk(
@@ -52,7 +52,9 @@ const authSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.token = null;
-            localStorage.removeItem('token'); // Remove token from localStorage
+            localStorage.removeItem('token'); 
+            localStorage.removeItem('userId'); 
+            localStorage.removeItem('user'); 
         },
     },
     extraReducers: (builder) => {
@@ -71,7 +73,7 @@ const authSlice = createSlice({
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                state.error = action.payload ;
             })
             // Login user
             .addCase(loginUser.pending, (state) => {

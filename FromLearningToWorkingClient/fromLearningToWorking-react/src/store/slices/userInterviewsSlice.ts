@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import API from '../axios.interceptor';
+import API from '../../services/axios.interceptor';
 
 // Async thunk to fetch all interviews by user ID
 export const fetchUserInterviews:any = createAsyncThunk(

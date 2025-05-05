@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { getQuestionsByInterviewId } from '../store/interviewSlice';
-import { StoreType } from '../store/store';
+import { getQuestionsByInterviewId } from '../../../store/slices/interviewSlice';
+import { StoreType } from '../../../store/store';
 import { CircularProgress, Typography } from '@mui/material';
 import QuestionResult from './QuestionResult';
 

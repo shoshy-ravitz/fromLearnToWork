@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchTotalResultsByInterviewId } from '../store/totalResultSlice';
-import { StoreType } from '../store/store';
+import { fetchTotalResultsByInterviewId } from '../../../store/slices/totalResultSlice';
+import { StoreType } from '../../../store/store';
 import { CircularProgress, Typography } from '@mui/material';
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 

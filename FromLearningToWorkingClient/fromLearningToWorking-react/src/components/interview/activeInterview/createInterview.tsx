@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Question from './Question';
-import { checkAnswer, createInterview, nextQuestion } from '../store/interviewSlice';
-import { StoreType } from '../store/store';
+import { checkAnswer, createInterview, nextQuestion } from '../../../store/slices/interviewSlice';
+import { StoreType } from '../../../store/store';
 import { Button } from '@mui/material';
-import { User } from '../models/user.model';
+import { User } from '../../../models/user.model';
 
 
 const CreateInterview = () => {
