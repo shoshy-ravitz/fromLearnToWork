@@ -1,6 +1,7 @@
 import base64
 import json  # ייבוא ספריית JSON
 from doctest import debug
+from math import exp
 import os
 from google import genai
 from google.genai import types
@@ -206,3 +207,4 @@ def evaluate_interview_with_gemini(questions):
         return {"error": f"Failed to parse response as JSON: {str(e)}"}
     except Exception as e:
         return {"error": f"An unexpected error occurred: {str(e)}"}
+
