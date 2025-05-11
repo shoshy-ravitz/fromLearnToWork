@@ -1,7 +1,6 @@
 import io
 from flask import Flask, request, jsonify, send_file
 import os
-from numpy import full, number
 from pyparsing import col
 from reportlab.lib.colors import red, green, yellow, black
 from PyPDF2 import PdfReader
