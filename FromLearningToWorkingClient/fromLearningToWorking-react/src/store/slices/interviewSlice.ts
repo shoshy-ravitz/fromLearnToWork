@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { API_PYTHON_BASE_URL } from '../../config/config';
 import { InterviewState } from '../../models/interview.model';
 import API from '../../services/axios.interceptor'; // Import the interceptor
 

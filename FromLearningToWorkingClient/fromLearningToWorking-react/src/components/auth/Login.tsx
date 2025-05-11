@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../../store/slices/authSlice';
 import { StoreType } from '../../store/store';
-import axios from 'axios';
-import { API_BASE_URL } from '../../config/config';
+
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');

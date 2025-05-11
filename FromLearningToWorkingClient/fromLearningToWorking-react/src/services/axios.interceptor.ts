@@ -1,11 +1,10 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config/config';
-import { toast } from 'react-toastify'; // Import a library for showing messages (optional)
-import { useNavigate } from 'react-router-dom'; // For navigation
+
 
 // Create an Axios instance
 const API = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: API_BASE_URL
 });
 
 // Add request interceptor

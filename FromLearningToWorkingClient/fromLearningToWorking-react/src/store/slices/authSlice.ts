@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { API_BASE_URL } from '../../config/config';
+import { API_BASE_URL } from '../../config/config'; // Adjust the import path as necessary
+
+
+
+
 
 // Async thunk for user registration
 export const registerUser: any = createAsyncThunk(
