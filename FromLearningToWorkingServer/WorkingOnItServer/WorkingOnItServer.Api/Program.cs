@@ -81,9 +81,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = Environment.GetEnvironmentVariable("JWT:Issuer"),
-        ValidAudience = Environment.GetEnvironmentVariable("JWT:Audience"),
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT:Key")))
+        ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
+        ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")))
     };
 });
 
@@ -119,8 +119,8 @@ builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.Configure<AWSOptions>(options =>
 {
     options.Credentials = new BasicAWSCredentials(
-        Environment.GetEnvironmentVariable("AWS:AccessKey"),
-        Environment.GetEnvironmentVariable("AWS:SecretKey")
+        Environment.GetEnvironmentVariable("AWS_ACCESS_KEY"),
+        Environment.GetEnvironmentVariable("AWS_SECRET_KEY")
     );
 });
 

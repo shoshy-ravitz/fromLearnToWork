@@ -30,9 +30,9 @@ namespace FromLearningToWorking.Service.Services
         {
             _iRepositoryManager = iManager;
             _mapper = mapper;
-            var accessKey = Environment.GetEnvironmentVariable("AWS:AccessKey");
-            var secretKey = Environment.GetEnvironmentVariable("AWS:SecretKey");
-            _bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
+            var accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY");
+            var secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_KEY");
+            _bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
             _s3Client = new AmazonS3Client(credentials, Amazon.RegionEndpoint.USEast1);

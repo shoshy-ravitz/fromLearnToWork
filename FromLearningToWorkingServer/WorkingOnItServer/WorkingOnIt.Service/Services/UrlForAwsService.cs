@@ -14,9 +14,9 @@ namespace FromLearningToWorking.Service.Services
         public static string GeneratePresignedUrl(string bucketName, string objectKey, int expirationInMinutes)
         {
             // קריאת נתוני AWS מקובץ .env
-            var accessKey = Environment.GetEnvironmentVariable("AWS:AccessKey");
-            var secretKey = Environment.GetEnvironmentVariable("AWS:SecretKey");
-            var region = Environment.GetEnvironmentVariable("AWS:Region") ?? "us-east-1"; // ברירת מחדל ל-us-east-1
+            var accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY");
+            var secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_KEY");
+            var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1"; // ברירת מחדל ל-us-east-1
 
             // יצירת לקוח S3 עם נתוני AWS
             var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));

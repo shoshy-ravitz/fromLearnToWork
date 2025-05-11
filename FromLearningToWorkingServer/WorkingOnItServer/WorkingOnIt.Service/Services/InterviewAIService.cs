@@ -137,7 +137,7 @@ namespace FromLearningToWorking.Service.Services
                 }
 
                 // יצירת URL חתום
-                var bucketName = Environment.GetEnvironmentVariable("AWS:BucketName");
+                var bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
                 var resumeKey = resume.FilePath; // Key של הקובץ ב-S3
                 var presignedUrl = UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey, 15); // תוקף של 15 דקות
 

@@ -38,12 +38,12 @@ namespace FromLearningToWorking.Service.Services
                 claims.Add(new Claim(ClaimTypes.Role, user.Role.RoleName));
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("Jwt:Key")));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                Environment.GetEnvironmentVariable("Jwt:Issuer"),
-                Environment.GetEnvironmentVariable("Jwt:Audience"),claims,
+                Environment.GetEnvironmentVariable("JWT_ISSUER"),
+                Environment.GetEnvironmentVariable("JWT_AUDIENCE"),claims,
                 expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: credentials
             );
