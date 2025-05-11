@@ -11,6 +11,11 @@ app = Flask(__name__)
 CORS(app)
 load_dotenv()
 
+
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({"message": "Welcome to the API. Use the appropriate endpoints to interact with the service."}), 200
+
 @app.route("/create_interview", methods=["POST"])
 def create_interview():
     """
