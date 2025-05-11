@@ -1,21 +1,22 @@
-import io
-from flask import Flask, request, jsonify, send_file
 import os
-from pyparsing import col
-from reportlab.lib.colors import red, green, yellow, black
-from PyPDF2 import PdfReader
 import json
-from doctest import debug
-import os
+from PyPDF2 import PdfReader
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
-import fitz  # PyMuPDF 
+import fitz  # PyMuPDF
 
-gemini_api_key = os.getenv('GEMINI_API_KEY', 'AIzaSyA1_-pRQQz89muAzUCFH1AFPDxyNkG5ctI')
+
+# טוען משתני סביבה
+load_dotenv()
+
+# קבלת מפתח ה-API מ-GEMINI
+gemini_api_key = os.getenv('GEMINI_API_KEY')
+if not gemini_api_key:
+    raise EnvironmentError("GEMINI_API_KEY is not set in the environment variables.")
+
 client = genai.Client(api_key=gemini_api_key)
 model = "gemini-2.0-flash"
-
 
 
 def extract_text_from_pdf(pdf_path):

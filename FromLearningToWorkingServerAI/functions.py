@@ -1,17 +1,20 @@
 import base64
-import json  # ייבוא ספריית JSON
-from doctest import debug
-from math import exp
+import json
 import os
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 
+# טוען משתני סביבה
 load_dotenv()
-gemini_api_key = os.getenv('GEMINI_API_KEY', 'AIzaSyA1_-pRQQz89muAzUCFH1AFPDxyNkG5ctI')
+
+# קבלת מפתח ה-API מ-GEMINI
+gemini_api_key = os.getenv('GEMINI_API_KEY')
+if not gemini_api_key:
+    raise EnvironmentError("GEMINI_API_KEY is not set in the environment variables.")
+
 client = genai.Client(api_key=gemini_api_key)
 model = "gemini-2.0-flash"
-
 
 
 def encode_file_to_base64(file_path):

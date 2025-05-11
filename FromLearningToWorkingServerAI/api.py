@@ -3,7 +3,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import requests
-from functions import encode_file_to_base64, analyze_resume, check_answer_with_gamini, evaluate_interview_with_gemini
+from functions import  analyze_resume, check_answer_with_gamini, evaluate_interview_with_gemini
 from result_on_resume import analyze_resume_with_genai, extract_text_from_pdf, highlight_text_in_pdf
 
 # הגדרת Flask
@@ -154,7 +154,3 @@ def result_on_resume():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
