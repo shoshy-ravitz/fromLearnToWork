@@ -88,7 +88,11 @@ namespace FromLearningToWorking.Service.Services
             var user = await _repositoryManager._userRepository.GetByEmailAsync(userLogin.Email);
             if (user == null)
             {
-                throw new UnauthorizedAccessException("Invalid credentials");
+                throw new UnauthorizedAccessException("The user is not registered in the system.");
+            }
+            if(user.Password!=userLogin.Password)
+            {
+                throw new UnauthorizedAccessException("Invalid password");
             }
             var userDTO = _mapper.Map<UserDTO>(user);
             var token = GenerateJwtToken(user);
