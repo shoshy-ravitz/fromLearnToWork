@@ -5,7 +5,6 @@ import { API_BASE_URL } from '../../config/config'; // Adjust the import path as
 
 
 
-
 // Async thunk for user registration
 export const registerUser: any = createAsyncThunk(
     'auth/registerUser',
@@ -28,6 +27,7 @@ export const loginUser: any = createAsyncThunk(
     'auth/loginUser',
     async (userData: { email: string; password: string }, { rejectWithValue }) => {
         try {
+            console.log(`${API_BASE_URL}/Auth/login`)
             const response = await axios.post(`${API_BASE_URL}/Auth/login`, userData, {
                 headers: {
                     'Content-Type': 'application/json',
