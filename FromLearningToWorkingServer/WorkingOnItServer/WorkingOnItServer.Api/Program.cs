@@ -127,37 +127,15 @@ builder.Services.Configure<AWSOptions>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:5173")
+        builder => builder.WithOrigins("http://localhost:5173", "https://fromlearntoworkclient-user.onrender.com")
                           .AllowAnyMethod()
-                            .AllowAnyHeader()
+                           .AllowAnyHeader()
                           .AllowAnyHeader());
 });
 
 
 var app = builder.Build();
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    Console.WriteLine("------------------------------");
-//    var services = scope.ServiceProvider;
-//    try
-//    {
-//        var repositoryManager = services.GetRequiredService<IRepositoryManager>();
-
-//        // יצירת מופע של DatabaseInitializer
-//        var databaseInitializer = new DatabaseInitializer(repositoryManager);
-
-//        // קריאה ל-SeedData
-//        await databaseInitializer.SeedData();
-
-//        Console.WriteLine("------------------------------");
-//        Console.WriteLine("Data seeding completed.");
-//    }
-//    catch (Exception ex)
-//    {
-//        Console.WriteLine($"An error occurred seeding the DB: {ex.Message}");
-//    }
-//}
 
 
 app.UseCors("AllowSpecificOrigin");
