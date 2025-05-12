@@ -176,5 +176,7 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
+app.MapGet("/", () => "applicatoin is running");
+
 app.Run();
 
