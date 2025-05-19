@@ -119,9 +119,9 @@ public class InterviewAIService : IInterviewAIService
                 throw new Exception("Resume not found.");
             }
 
-            var bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
+
             var resumeKey = resume.FilePath;
-            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey, 15);
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl( resumeKey, 15);
 
             var requestBody = new
             {
