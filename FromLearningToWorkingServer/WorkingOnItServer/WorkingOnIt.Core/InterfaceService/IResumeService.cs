@@ -21,8 +21,6 @@ namespace FromLearningToWorking.Core.InterfaceService
 
         Task<bool> DeleteAsync(int id);
 
-        Task<string> UploadFileAsync(IFormFile file);
-
-        Task<byte[]> DownloadResumeAsync(int userId);
+        Task<string> DownloadResumeAsync(int userId);
     }
 }

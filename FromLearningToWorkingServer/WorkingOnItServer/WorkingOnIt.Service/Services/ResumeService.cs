@@ -23,8 +23,6 @@ namespace FromLearningToWorking.Service.Services
         private readonly IRepositoryManager _iRepositoryManager;
         private readonly IMapper _mapper;
         private readonly IAmazonS3 _s3Client;
-        private readonly string _bucketName;
-        private readonly string _bucketUrl;
 
         public ResumeService(IRepositoryManager iManager, IMapper mapper)
         {
@@ -32,30 +30,35 @@ namespace FromLearningToWorking.Service.Services
             _mapper = mapper;
             var accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY");
             var secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_KEY");
-            _bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
 
             var credentials = new BasicAWSCredentials(accessKey, secretKey);
             _s3Client = new AmazonS3Client(credentials, Amazon.RegionEndpoint.USEast1);
-            _bucketUrl = $"https://{_bucketName}.s3.amazonaws.com/";
+       
         }
-
         public async Task<ResumeDTO> AddAsync(ResumePostModel resumePost)
         {
-            var filePath = await UploadFileAsync(resumePost.file); // Upload file to AWS
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl( resumePost.file.FileName, 15);
+
+            if (string.IsNullOrEmpty(presignedUrl))
+            {
+                throw new Exception("Failed to generate presigned URL for upload.");
+            }
+          
             var resume = _mapper.Map<Resume>(resumePost);
-            resume.FilePath = filePath;
+            resume.FilePath = resumePost.file.FileName; 
 
             resume = await _iRepositoryManager._resumeRepository.AddAsync(resume);
             if (resume != null)
-                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+                await _iRepositoryManager.SaveAsync();
             return _mapper.Map<ResumeDTO>(resume);
         }
+
 
         public async Task<bool> DeleteAsync(int id)
         {
             var res = await _iRepositoryManager._resumeRepository.DeleteAsync(id);
             if (res)
-                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+                await _iRepositoryManager.SaveAsync(); 
             return res;
         }
 
@@ -76,66 +79,36 @@ namespace FromLearningToWorking.Service.Services
             var resume = _mapper.Map<Resume>(resumeDTO);
             var response = await _iRepositoryManager._resumeRepository.UpdateAsync(id, resume);
             if (response != null)
-                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+                await _iRepositoryManager.SaveAsync(); 
             return _mapper.Map<ResumeDTO>(response);
         }
 
-        public async Task<string> UploadFileAsync(IFormFile file)
+
+        public async Task<string> DownloadResumeAsync(int userId)
         {
-            var fileTransferUtility = new TransferUtility(_s3Client);
-
-            using (var stream = file.OpenReadStream())
-            {
-                //await fileTransferUtility.UploadAsync(stream, _bucketName, file.FileName);
-
-                await fileTransferUtility.UploadAsync(stream, _bucketName, file.FileName);
-            }
-
-            //return $"{_bucketUrl}{file.FileName}"; // Return the URL of the file
-
-            return $"{file.FileName}"; // Return the URL of the file
-        }
-
-        public async Task<byte[]> DownloadResumeAsync(int userId)
-        {
-            // חיפוש קורות החיים של המשתמש
             var resume = await _iRepositoryManager._resumeRepository.GetAllAsync()
-                .ContinueWith(task => task.Result.FirstOrDefault(r => r.UserId == userId));
+             .ContinueWith(task => task.Result.FirstOrDefault(r => r.UserId == userId));
             if (resume == null)
             {
-                throw new Exception("קורות חיים לא נמצאו עבור המשתמש.");
+                throw new Exception("Resume not found for the user.");
             }
 
-            // בדיקה אם שם הקובץ תקין
             if (string.IsNullOrEmpty(resume.FilePath))
             {
-                throw new Exception("שם קובץ קורות החיים אינו תקין.");
+                throw new Exception("The resume file name is invalid.");
             }
 
-            // יצירת URL חתום
-            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(_bucketName, resume.FilePath, 15); // תוקף של 15 דקות
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(resume.FilePath, 15);
 
-            try
+            if (string.IsNullOrEmpty(presignedUrl))
             {
-                using (var client = new HttpClient())
-                {
-                    // הורדת הקובץ כ-Byte Array
-                    var fileBytes = await client.GetByteArrayAsync(presignedUrl);
-                    if (fileBytes == null || fileBytes.Length == 0)
-                    {
-                        throw new Exception("הקובץ שהורד ריק.");
-                    }
-                    return fileBytes;
-                }
+                throw new Exception("Failed to generate presigned URL.");
             }
-            catch (HttpRequestException ex)
-            {
-                throw new Exception($"שגיאה בהורדת קובץ קורות החיים: {ex.Message}", ex);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"שגיאה כללית בהורדת קובץ קורות החיים: {ex.Message}", ex);
-            }
+
+            Console.WriteLine("presignedUrl from download---------------:",presignedUrl);
+            return presignedUrl;
         }
+
+
     }
 }

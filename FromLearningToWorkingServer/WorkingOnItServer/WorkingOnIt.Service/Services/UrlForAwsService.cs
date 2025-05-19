@@ -11,27 +11,25 @@ namespace FromLearningToWorking.Service.Services
 {
     public class UrlForAwsService
     {
-        public static string GeneratePresignedUrl(string bucketName, string objectKey, int expirationInMinutes)
+        public static string GeneratePresignedUrl(string objectKey, int expirationInMinutes)
         {
-            // קריאת נתוני AWS מקובץ .env
+  
             var accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY");
             var secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_KEY");
-            var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1"; // ברירת מחדל ל-us-east-1
+            var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1"; 
+            var bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
 
-            // יצירת לקוח S3 עם נתוני AWS
             var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
 
-            // יצירת בקשה ל-URL חתום
             var request = new GetPreSignedUrlRequest
             {
                 BucketName = bucketName,
-                Key = objectKey, // כאן צריך להיות רק שם הקובץ או הנתיב היחסי בתוך ה-Bucket
+                Key = objectKey, 
                 Expires = DateTime.UtcNow.AddMinutes(expirationInMinutes)
             };
 
             var presignedUrl = s3Client.GetPreSignedURL(request);
 
-            // הדפסת ה-URL החתום לצורך בדיקה
             Console.WriteLine($"Generated Presigned URL: {presignedUrl}");
 
             return presignedUrl;

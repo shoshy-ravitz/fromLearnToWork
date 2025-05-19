@@ -2,6 +2,7 @@
 using FromLearningToWorking.Core.DTOs;
 using FromLearningToWorking.Core.InterfaceService;
 using FromLearningToWorking.Core.models;
+using FromLearningToWorking.Service.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -68,21 +69,51 @@ namespace FromLearningToWorking.Api.Controllers
             return NoContent();
         }
 
+
+        [HttpPost("upload-url")]
+        public IActionResult GetUploadUrl([FromForm] string fileName)
+        {
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl( fileName, 15);
+            if (string.IsNullOrEmpty(presignedUrl))
+            {
+                return BadRequest("Failed to generate presigned URL.");
+            }
+
+            return Ok(new { uploadUrl = presignedUrl });
+        }
+
+
+
         [HttpGet("download/{userId}")]
         public async Task<IActionResult> DownloadResume(int userId)
         {
             try
             {
-                var fileBytes = await _resumeService.DownloadResumeAsync(userId);
-                var resumes =await _resumeService.GetAllAsync();
-                var resume= resumes.FirstOrDefault(r => r.UserId == userId);
-                return File(fileBytes, "application/octet-stream", resume.FileName);
+                var presignedUrl = await _resumeService.DownloadResumeAsync(userId);
+                return Ok(new { Url = presignedUrl });
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return BadRequest(ex.Message);
             }
         }
+
+
+        //[HttpGet("download/{userId}")]
+        //public async Task<IActionResult> DownloadResume(int userId)
+        //{
+        //    try
+        //    {
+        //        var fileBytes = await _resumeService.DownloadResumeAsync(userId);
+        //        var resumes =await _resumeService.GetAllAsync();
+        //        var resume= resumes.FirstOrDefault(r => r.UserId == userId);
+        //        return File(fileBytes, "application/octet-stream", resume.FileName);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return NotFound(ex.Message);
+        //    }
+        //}
     }
 }
 
