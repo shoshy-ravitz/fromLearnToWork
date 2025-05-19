@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { addResume } from '../../store/slices/resumeSlice';
 import { StoreType } from '../../store/store';
+import useAsyncDispatch from '../../hooks/useAsyncDispatch';
 
-const ResumeUpload: React.FC = () => {
+const AddResume: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const dispatch = useDispatch();
-    //this is דource
-    // שליפת userId וה-token מה-Redux store
+    const { asyncDispatch } = useAsyncDispatch();
     const userId = useSelector((state: StoreType) => state.auth.userId);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
             setFile(event.target.files[0]);
-            setError(null);
         }
     };
 
@@ -22,30 +19,31 @@ const ResumeUpload: React.FC = () => {
         event.preventDefault();
 
         if (!file) {
-            setError('אנא בחר קובץ להעלאה.');
+            asyncDispatch(null, '', 'אנא בחר קובץ להעלאה.');
             return;
         }
 
-
         try {
-            await dispatch(addResume({ userId, file })).unwrap(); // שליחת userId, file, ו-token
-            alert('הקובץ הועלה בהצלחה!');
+            await asyncDispatch(
+                addResume({ userId, file }),
+                'הקובץ הועלה בהצלחה!',
+                'העלאת הקובץ נכשלה. נסה שוב.'
+            );
             setFile(null);
-        } catch (err) {
-            setError('העלאת הקובץ נכשלה. נסה שוב.');
+        } catch (error) {
+            console.error('Error uploading resume:', error);
         }
     };
 
     return (
         <div>
-            <h2>העלאת קורות חיים</h2>
+            <h2>הוספת קורות חיים</h2>
             <form onSubmit={handleSubmit}>
                 <input type="file" onChange={handleFileChange} />
                 <button type="submit">העלה</button>
             </form>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
         </div>
     );
 };
 
-export default ResumeUpload;
+export default AddResume;

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Resume, ResumeState } from '../../models/resume.model';
-import API from '../../services/axios.interceptor'; // Import the interceptor
+import API from '../../services/axios.interceptor';
 
 const initialState: ResumeState = {
     resumes: [],
@@ -9,7 +9,7 @@ const initialState: ResumeState = {
 };
 
 // Async Thunks
-export const fetchResumes = createAsyncThunk('resumes/fetchAll', async () => {
+export const fetchResumes: any = createAsyncThunk('resumes/fetchAll', async () => {
     const response = await API.get<Resume[]>('/resume');
     return response.data;
 });
@@ -23,15 +23,20 @@ export const addResume: any = createAsyncThunk(
     'resumes/add',
     async ({ userId, file }: { userId: number; file: File }, { rejectWithValue }) => {
         try {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('userId', userId.toString());
+            // Step 1: Get a presigned URL from the server
+            const presignedUrlResponse = await API.post<{ url: string }>('/resume/presigned-url', { userId });
+            const presignedUrl = presignedUrlResponse.data.url;
 
-            const response = await API.post<Resume>('/Resume', formData, {
+            // Step 2: Upload the file to the presigned URL
+            await API.put(presignedUrl, file, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                    'Content-Type': file.type,
                 },
             });
+
+            // Step 3: Optionally, save the resume metadata in the database
+            const resumeData = { userId, fileName: file.name }; // Adjust as necessary
+            const response = await API.post<Resume>('/resume', resumeData);
             return response.data;
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to upload resume');
@@ -39,15 +44,35 @@ export const addResume: any = createAsyncThunk(
     }
 );
 
-export const updateResume:any = createAsyncThunk(`resumes/update`, async ({ id, resume }: { id: string; resume: Resume }) => {
-    const response = await API.put<Resume>(`/Resume/${id}`, resume);
-    return response.data;
-});
+export const updateResume: any = createAsyncThunk(
+    'resumes/update',
+    async ({ id, resume }: { id: string; resume: Resume }) => {
+        const response = await API.put<Resume>(`/resume/${id}`, resume);
+        return response.data;
+    }
+);
 
-export const deleteResume = createAsyncThunk(`resumes/delete`, async (id: string) => {
-    await API.delete(`/Resume/${id}`);
+export const deleteResume = createAsyncThunk('resumes/delete', async (id: string) => {
+    await API.delete(`/resume/${id}`);
     return id;
 });
+
+// New Thunk: Download Resume
+export const downloadResume: any = createAsyncThunk(
+    'resumes/download',
+    async (userId: number, { rejectWithValue }) => {
+        try {
+            // Step 1: Request the presigned URL from the server
+            const response = await API.get<{ url: string }>(`/resume/download/${userId}`);
+            const presignedUrl = response.data.url;
+
+            // Step 2: Return the presigned URL for the client to use
+            return presignedUrl;
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Failed to download resume');
+        }
+    }
+);
 
 // Slice
 const resumeSlice = createSlice({
@@ -83,6 +108,9 @@ const resumeSlice = createSlice({
             })
             .addCase(deleteResume.fulfilled, (state, action: PayloadAction<string>) => {
                 state.resumes = state.resumes.filter((resume) => resume.id !== action.payload);
+            })
+            .addCase(downloadResume.fulfilled, (state, action: PayloadAction<string>) => {
+                // No state update needed; the presigned URL is returned directly
             });
     },
 });
