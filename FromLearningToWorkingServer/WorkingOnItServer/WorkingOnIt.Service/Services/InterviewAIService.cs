@@ -1,206 +1,181 @@
-﻿using FromLearningToWorking.Core.DTOs;
-using FromLearningToWorking.Core.Entities;
+﻿using FromLearningToWorking.Core.Entities;
 using FromLearningToWorking.Core.InterfaceRepository;
 using FromLearningToWorking.Core.InterfaceService;
 using FromLearningToWorking.Core.models;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection.Metadata;
-using System.Text;
+using FromLearningToWorking.Service.Services;
 using System.Text.Json;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace FromLearningToWorking.Service.Services
+public class InterviewAIService : IInterviewAIService
 {
-    public class InterviewAIService(IRepositoryManager repositoryManager, ITotalResultInterviewService totalResultInterviewServic,IInterviewQuestionService interviewQuestionService) : IInterviewAIService
+    private readonly IRepositoryManager _repositoryManager;
+    private readonly IInterviewQuestionService _interviewQuestionService;
+    private readonly ITotalResultInterviewService _totalResultInterviewService;
+
+    public InterviewAIService(IRepositoryManager repositoryManager, ITotalResultInterviewService totalResultInterviewService, IInterviewQuestionService interviewQuestionService)
     {
-        private readonly IRepositoryManager _repositoryManager = repositoryManager;
-        private readonly IInterviewQuestionService _interviewQuestionService = interviewQuestionService;
+        _repositoryManager = repositoryManager;
+        _interviewQuestionService = interviewQuestionService;
+        _totalResultInterviewService = totalResultInterviewService;
+    }
 
-        private readonly ITotalResultInterviewService _totalResultInterviewService = totalResultInterviewServic;
-
-        public async Task<ResultQuestionModel> CheckAnswer(CheckAnswerRequest request)
+    public async Task<ResultQuestionModel> CheckAnswer(CheckAnswerRequest request)
+    {
+        using (var httpClient = new HttpClient())
         {
-            using (var httpClient = new HttpClient())
+            var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
+            if (string.IsNullOrEmpty(pythonApiUrl))
             {
-                var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
-                if (string.IsNullOrEmpty(pythonApiUrl))
-                {
-                    throw new Exception("PYTHON_API is not configured properly.");
-                }
-
-                var json = JsonSerializer.Serialize(request);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await httpClient.PostAsync($"{pythonApiUrl}/check_answer", content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-
-
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase // המרת שמות המאפיינים ל-CamelCase
-                    };
-                    var result = JsonSerializer.Deserialize<ResultQuestionModel>(responseBody, options);
-                    // המרת התגובה לאובייקט ResultQuestion
-
-                    if (result == null)
-                    {
-                        throw new Exception("Failed to deserialize response to ResultQuestion.");
-                    }
-                    
-
-                    var interviewQuestion = new InterviewQuestion
-                    {
-                        
-                        Question = request.Question,
-                        Answer = request.Answer,
-                        Feedback = result.Feedback,
-                        Mark = result.Mark,
-                        InterviewId = request.InterviewId
-                    };
-
-                  var interviewQuestionAdd =  await _repositoryManager._interviewQuestionRepository.AddAsync(interviewQuestion);
-                    await _repositoryManager.SaveAsync();
-
-                    return result;
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Error: {errorContent}");
-                }
+                throw new Exception("PYTHON_API is not configured properly.");
             }
-        }
-        public async Task<ResultInterviewModel> ResultOfInterview(int id)
-        {
-            using (var httpClient = new HttpClient())
+
+            var json = JsonSerializer.Serialize(request);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync($"{pythonApiUrl}/check_answer", content);
+
+            if (response.IsSuccessStatusCode)
             {
-                var questions =await _interviewQuestionService.GetAllQuestionByInterviewIdAsync(id);
-                var questionsJson = JsonSerializer.Serialize(questions);
-
-                var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
-
-                var content = new StringContent(questionsJson, Encoding.UTF8, "application/json");
-              
-                var response = await httpClient.PostAsync($"{pythonApiUrl}/result_of_interview", content);
-
-                if (response.IsSuccessStatusCode)
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                var result = JsonSerializer.Deserialize<ResultQuestionModel>(responseBody, options);
 
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase // המרת שמות המאפיינים ל-CamelCase
-                    };
-
-                    var result = JsonSerializer.Deserialize<ResultInterviewModel>(responseBody, options);
-     
-
-
-                    if (result == null)
-                    {
-                        throw new Exception("Failed to deserialize response to ResultInterviewModel.");
-                    }
-
-                    return result;
-                }
-                else
+                if (result == null)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Error: {errorContent}");
-                }
-            }
-        }
-        public async Task<CreateInterviewResponse> CreateInterview(int userId, string interviewLevel)
-        {
-
-            using (var httpClient = new HttpClient())
-            {
-
-                // חיפוש המשתמש בבסיס הנתונים
-                var user = await _repositoryManager._userRepository.GetByIdAsync(userId);
-                if (user == null)
-                {
-                    throw new Exception("User not found.");
+                    throw new Exception("Failed to deserialize response to ResultQuestion.");
                 }
 
-                var resume = await _repositoryManager._resumeRepository.GetByUserIdAsync(user.Id);
-                if (resume == null)
+                var interviewQuestion = new InterviewQuestion
                 {
-                    throw new Exception("Resume not found.");
-                }
-
-                // יצירת URL חתום
-                var bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
-                var resumeKey = resume.FilePath; // Key של הקובץ ב-S3
-                var presignedUrl = UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey, 15); // תוקף של 15 דקות
-
-                var requestBody = new
-                {
-                    resume_url = presignedUrl
+                    Question = request.Question,
+                    Answer = request.Answer,
+                    Feedback = result.Feedback,
+                    Mark = result.Mark,
+                    InterviewId = request.InterviewId
                 };
 
-                var json = JsonSerializer.Serialize(requestBody);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                await _repositoryManager._interviewQuestionRepository.AddAsync(interviewQuestion);
+                await _repositoryManager.SaveAsync();
 
-                var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
-                if (string.IsNullOrEmpty(pythonApiUrl))
+                return result;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error: {errorContent}");
+            }
+        }
+    }
+
+    public async Task<ResultInterviewModel> ResultOfInterview(int id)
+    {
+        using (var httpClient = new HttpClient())
+        {
+            var questions = await _interviewQuestionService.GetAllQuestionByInterviewIdAsync(id);
+            var questionsJson = JsonSerializer.Serialize(questions);
+            var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
+            var content = new StringContent(questionsJson, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync($"{pythonApiUrl}/result_of_interview", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var options = new JsonSerializerOptions
                 {
-                    throw new Exception("PYTHON_API is not configured properly.");
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                var result = JsonSerializer.Deserialize<ResultInterviewModel>(responseBody, options);
+
+                if (result == null)
+                {
+                    throw new Exception("Failed to deserialize response to ResultInterviewModel.");
                 }
 
-                var response = await httpClient.PostAsync($"{pythonApiUrl}/create_interview", content);
+                return result;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error: {errorContent}");
+            }
+        }
+    }
 
-                if (response.IsSuccessStatusCode)
+    public async Task<CreateInterviewResponse> CreateInterview(int userId, string interviewLevel)
+    {
+        using (var httpClient = new HttpClient())
+        {
+            var user = await _repositoryManager._userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            var resume = await _repositoryManager._resumeRepository.GetByUserIdAsync(user.Id);
+            if (resume == null)
+            {
+                throw new Exception("Resume not found.");
+            }
+
+            var bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
+            var resumeKey = resume.FilePath;
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(bucketName, resumeKey, 15);
+
+            var requestBody = new
+            {
+                resume_url = presignedUrl
+            };
+
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
+            if (string.IsNullOrEmpty(pythonApiUrl))
+            {
+                throw new Exception("PYTHON_API is not configured properly.");
+            }
+
+            var response = await httpClient.PostAsync($"{pythonApiUrl}/create_interview", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var responseDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(responseBody);
+                if (responseDict != null && responseDict.ContainsKey("questions"))
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
+                    var questions = responseDict["questions"]
+                        .Select(q => q.Trim().Trim('"', ',', '}', '{'))
+                        .ToArray();
 
-                    // המרת התגובה למערך של מחרוזות
-                    var responseDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(responseBody);
-                    if (responseDict != null && responseDict.ContainsKey("questions"))
+                    var interview = new Interview
                     {
-                        // עיבוד השאלות להסרת מרכאות מיותרות
-                        var questions = responseDict["questions"]
-                            .Select(q => q.Trim().Trim('"', ',', '}', '{')) // הסרת רווחים ומרכאות
-                            .ToArray();
+                        UserId = userId,
+                        InterviewDate = DateTime.Now,
+                        Mark = null
+                    };
 
-                        // Save interview details to the database
-                        var interview = new Interview
-                        {
-                            UserId = userId,
-                            InterviewDate = DateTime.Now,
-                            Mark = null // Score will be updated later
-                        };
+                    interview = await _repositoryManager._interviewRepository.AddAsync(interview);
+                    await _repositoryManager.SaveAsync();
 
-                        interview = await _repositoryManager._interviewRepository.AddAsync(interview);
-
-                        await _repositoryManager.SaveAsync();
-
-                        var result = new CreateInterviewResponse
-                        {
-                            Id = interview.Id,
-                            Questions = questions
-                        };
-                        return result;
-                    }
-                    else
+                    var result = new CreateInterviewResponse
                     {
-                        throw new Exception("Invalid response format from Python API.");
-                    }
+                        Id = interview.Id,
+                        Questions = questions
+                    };
+                    return result;
                 }
                 else
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Error: {errorContent}");
+                    throw new Exception("Invalid response format from Python API.");
                 }
             }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error: {errorContent}");
+            }
         }
-
     }
 }

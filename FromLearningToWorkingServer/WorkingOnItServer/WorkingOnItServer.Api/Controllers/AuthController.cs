@@ -25,12 +25,12 @@ namespace FromLearningToWorking.Api.Controllers
         {
             try
             {
-                var authResponse =await _authService.Register(user);
+                var authResponse = await _authService.Register(user);
                 return Ok(authResponse);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { ErrorType = ex.GetType().Name, ErrorMessage = ex.Message });
             }
         }
 
@@ -39,18 +39,19 @@ namespace FromLearningToWorking.Api.Controllers
         {
             try
             {
-                var authResponse =await _authService.Login(user);
+                var authResponse = await _authService.Login(user);
                 return Ok(authResponse);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized();
+                return Unauthorized(new { ErrorType = ex.GetType().Name, ErrorMessage = ex.Message });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { ErrorType = ex.GetType().Name, ErrorMessage = ex.Message });
             }
         }
+
     }
 }
 
