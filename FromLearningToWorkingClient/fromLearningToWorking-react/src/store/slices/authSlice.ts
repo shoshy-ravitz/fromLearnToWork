@@ -46,6 +46,7 @@ const initialState = {
     token: localStorage.getItem('token') || null, // Load token from localStorage
     loading: false,
     error: null,
+    userId: localStorage.getItem('userId') || null, // Load userId from localStorage
 };
 
 // Auth slice

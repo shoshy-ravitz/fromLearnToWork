@@ -17,13 +17,11 @@ const Interview = () => {
 
     const handleNextQuestion = () => {
         dispatch(nextQuestion());
-    };
+    }
 
     const handleFinishInterview = () => {
-  
         navigate(`/resultInterview/${interviewId}`); 
         console.log("finish interview");
-
     }
 
     if (questions.length === 0) {

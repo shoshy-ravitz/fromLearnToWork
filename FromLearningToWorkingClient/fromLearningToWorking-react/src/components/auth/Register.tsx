@@ -1,13 +1,16 @@
+// filepath: c:\פרויקט\FromLearningToWorkingClient\fromLearningToWorking-react\src\components\auth\Register.tsx
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
-import { Link } from 'react-router-dom';
 import { StoreType } from '../../store/store';
 import { registerUser } from '../../store/slices/authSlice';
+import { useNotification } from '../../context/NotificationContext';
+import useAsyncDispatch from '../../hooks/useAsyncDispatch';
+import { useNavigate } from 'react-router-dom';
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -26,21 +29,29 @@ const Register: React.FC = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const dispatch = useDispatch();
-    const { loading, error } = useSelector((state: StoreType) => state.auth);
+    const { loading } = useSelector((state: StoreType) => state.auth);
+    const { showNotification } = useNotification();
+    const { asyncDispatch } = useAsyncDispatch();
+    const navigate = useNavigate(); // הוספת useNavigate
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        dispatch(registerUser({ email, password, name }));
-        handleClose(); // סגירת המודל לאחר שמירה
+        try {
+            await asyncDispatch(
+                registerUser({ email, password, name }),
+                'Registration successful!',
+                'Registration failed. Please check your details and try again.'
+            );
+            setOpen(false);
+            navigate('/home'); // ניתוב לדף הבית לאחר הצלחה
+        } catch (error) {
+            showNotification('Registration failed. Please check your details and try again.', 'error');
+        }
     };
 
     return (
         <div>
-            <Modal open={open} onClose={handleClose}>
+            <Modal open={open} onClose={() => setOpen(false)}>
                 <Box sx={style}>
                     <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
                         Register
@@ -79,12 +90,11 @@ const Register: React.FC = () => {
                             <Button variant="contained" color="primary" type="submit" disabled={loading}>
                                 {loading ? 'Registering...' : 'Save'}
                             </Button>
-                            <Button variant="outlined" color="secondary" component={Link} to="/" onClick={handleClose}>
+                            <Button variant="outlined" color="secondary" onClick={() => setOpen(false)}>
                                 Cancel
                             </Button>
                         </Box>
                     </form>
-                    {error && <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>}
                 </Box>
             </Modal>
         </div>
