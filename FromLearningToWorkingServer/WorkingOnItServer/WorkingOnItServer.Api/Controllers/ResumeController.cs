@@ -81,7 +81,7 @@ namespace FromLearningToWorking.Api.Controllers
             }
 
             return Ok(new { uploadUrl = presignedUrl });
-        }s
+        }
 
 
 
