@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Amazon.S3;
+using AutoMapper;
 using FromLearningToWorking.Core.DTOs;
 using FromLearningToWorking.Core.InterfaceService;
 using FromLearningToWorking.Core.models;
@@ -73,14 +74,14 @@ namespace FromLearningToWorking.Api.Controllers
         [HttpPost("upload-url")]
         public IActionResult GetUploadUrl([FromForm] string fileName)
         {
-            var presignedUrl = UrlForAwsService.GeneratePresignedUrl( fileName, 15);
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl( fileName, 15, HttpVerb.PUT);
             if (string.IsNullOrEmpty(presignedUrl))
             {
                 return BadRequest("Failed to generate presigned URL.");
             }
 
             return Ok(new { uploadUrl = presignedUrl });
-        }
+        }s
 
 
 

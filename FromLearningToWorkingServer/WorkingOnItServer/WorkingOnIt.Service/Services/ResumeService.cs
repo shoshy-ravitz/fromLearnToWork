@@ -37,13 +37,6 @@ namespace FromLearningToWorking.Service.Services
         }
         public async Task<ResumeDTO> AddAsync(ResumePostModel resumePost)
         {
-            var presignedUrl = UrlForAwsService.GeneratePresignedUrl( resumePost.file.FileName, 15);
-
-            if (string.IsNullOrEmpty(presignedUrl))
-            {
-                throw new Exception("Failed to generate presigned URL for upload.");
-            }
-          
             var resume = _mapper.Map<Resume>(resumePost);
             resume.FilePath = resumePost.file.FileName; 
 
@@ -98,7 +91,7 @@ namespace FromLearningToWorking.Service.Services
                 throw new Exception("The resume file name is invalid.");
             }
 
-            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(resume.FilePath, 15);
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(resume.FilePath, 15, HttpVerb.GET);
 
             if (string.IsNullOrEmpty(presignedUrl))
             {

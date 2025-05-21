@@ -5,6 +5,7 @@ using FromLearningToWorking.Core.models;
 using FromLearningToWorking.Service.Services;
 using System.Text.Json;
 using System.Text;
+using Amazon.S3;
 
 public class InterviewAIService : IInterviewAIService
 {
@@ -118,10 +119,11 @@ public class InterviewAIService : IInterviewAIService
             {
                 throw new Exception("Resume not found.");
             }
-
+          
 
             var resumeKey = resume.FilePath;
-            var presignedUrl = UrlForAwsService.GeneratePresignedUrl( resumeKey, 15);
+            
+           var presignedUrl = UrlForAwsService.GeneratePresignedUrl( resumeKey, 15, HttpVerb.GET);
 
             var requestBody = new
             {
