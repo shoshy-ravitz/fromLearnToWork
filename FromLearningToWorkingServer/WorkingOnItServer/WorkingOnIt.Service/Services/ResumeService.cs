@@ -37,8 +37,16 @@ namespace FromLearningToWorking.Service.Services
         }
         public async Task<ResumeDTO> AddAsync(ResumePostModel resumePost)
         {
+            var userId = _iRepositoryManager._userRepository.GetByIdAsync(resumePost.UserId);
+            ///////////////
+            if(userId==null)
+            {
+                throw new Exception("user id not found");
+            }
+
+
             var resume = _mapper.Map<Resume>(resumePost);
-            resume.FilePath = resumePost.file.FileName; 
+            resume.FilePath = resumePost.fileName; 
 
             resume = await _iRepositoryManager._resumeRepository.AddAsync(resume);
             if (resume != null)
@@ -101,7 +109,5 @@ namespace FromLearningToWorking.Service.Services
             Console.WriteLine("presignedUrl from download---------------:",presignedUrl);
             return presignedUrl;
         }
-
-
     }
 }

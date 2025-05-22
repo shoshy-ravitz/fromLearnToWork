@@ -46,11 +46,15 @@ namespace FromLearningToWorking.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] ResumePostModel resume)
         {
-            if (resume.file == null || resume.file.Length == 0)
-                return BadRequest("No file uploaded.");
-
-            var resumeDTO = await _resumeService.AddAsync(resume);
-            return CreatedAtAction(nameof(GetById), new { id = resumeDTO.Id }, resumeDTO);
+            try
+            {
+                var resumeDTO = await _resumeService.AddAsync(resume);
+                return CreatedAtAction(nameof(GetById), new { id = resumeDTO.Id }, resumeDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // PUT api/resume/{id}
