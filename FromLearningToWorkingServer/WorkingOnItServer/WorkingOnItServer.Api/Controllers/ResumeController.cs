@@ -44,7 +44,7 @@ namespace FromLearningToWorking.Api.Controllers
 
         // POST api/resume
         [HttpPost]
-        public async Task<IActionResult> Post([FromForm] ResumePostModel resume)
+        public async Task<IActionResult> Post([FromBody] ResumePostModel resume)
         {
             try
             {

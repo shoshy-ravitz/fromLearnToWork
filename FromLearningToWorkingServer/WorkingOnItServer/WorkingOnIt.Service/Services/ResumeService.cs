@@ -53,8 +53,6 @@ namespace FromLearningToWorking.Service.Services
                 await _iRepositoryManager.SaveAsync();
             return _mapper.Map<ResumeDTO>(resume);
         }
-
-
         public async Task<bool> DeleteAsync(int id)
         {
             var res = await _iRepositoryManager._resumeRepository.DeleteAsync(id);
