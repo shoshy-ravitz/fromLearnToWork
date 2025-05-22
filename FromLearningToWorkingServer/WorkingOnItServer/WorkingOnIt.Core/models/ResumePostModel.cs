@@ -10,6 +10,6 @@ namespace FromLearningToWorking.Core.models
     public class ResumePostModel
     {
         public int UserId { get; set; }
-        public IFormFile file { get; set; }
+        public string fileName { get; set; }
     }
 }

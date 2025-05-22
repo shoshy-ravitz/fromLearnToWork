@@ -46,7 +46,7 @@ namespace FromLearningToWorking.Service.Services
 
 
             var resume = _mapper.Map<Resume>(resumePost);
-            resume.FilePath = resumePost.fileName; 
+            resume.FilePath = resumePost.fileName;
 
             resume = await _iRepositoryManager._resumeRepository.AddAsync(resume);
             if (resume != null)
