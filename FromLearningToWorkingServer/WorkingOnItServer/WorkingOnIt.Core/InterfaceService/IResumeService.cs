@@ -19,7 +19,7 @@ namespace FromLearningToWorking.Core.InterfaceService
 
         Task<ResumeDTO> UpdateAsync(int id, ResumeDTO resumeDTO);
 
-        Task<ResumeDTO> UpdateFileNameAsync(int userId, string newFileName); 
+        Task<ResumeDTO> UpdateAsync(int userId, string newFileName); 
 
         Task<bool> DeleteAsync(int id);
 

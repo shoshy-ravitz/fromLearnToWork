@@ -57,15 +57,6 @@ namespace FromLearningToWorking.Api.Controllers
             }
         }
 
-        //// PUT api/resume/{id}
-        //[HttpPut("{id}")]
-        //public async Task<ActionResult<ResumeDTO>> Put(int id, [FromBody] ResumeDTO resumeDTO)
-        //{
-        //    var updatedResume = await _resumeService.UpdateAsync(id, resumeDTO);
-        //    if (updatedResume == null) return NotFound();
-        //    return Ok(updatedResume);
-        //}
-
         [HttpPut("update/{userId}")]
         public async Task<IActionResult> UpdateResume(int userId, [FromBody] string fileName)
         {
@@ -116,23 +107,6 @@ namespace FromLearningToWorking.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-
-        //[HttpGet("download/{userId}")]
-        //public async Task<IActionResult> DownloadResume(int userId)
-        //{
-        //    try
-        //    {
-        //        var fileBytes = await _resumeService.DownloadResumeAsync(userId);
-        //        var resumes =await _resumeService.GetAllAsync();
-        //        var resume= resumes.FirstOrDefault(r => r.UserId == userId);
-        //        return File(fileBytes, "application/octet-stream", resume.FileName);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return NotFound(ex.Message);
-        //    }
-        //}
     }
 }
 
