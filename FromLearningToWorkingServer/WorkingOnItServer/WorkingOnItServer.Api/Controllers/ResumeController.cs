@@ -57,13 +57,27 @@ namespace FromLearningToWorking.Api.Controllers
             }
         }
 
-        // PUT api/resume/{id}
-        [HttpPut("{id}")]
-        public async Task<ActionResult<ResumeDTO>> Put(int id, [FromBody] ResumeDTO resumeDTO)
+        //// PUT api/resume/{id}
+        //[HttpPut("{id}")]
+        //public async Task<ActionResult<ResumeDTO>> Put(int id, [FromBody] ResumeDTO resumeDTO)
+        //{
+        //    var updatedResume = await _resumeService.UpdateAsync(id, resumeDTO);
+        //    if (updatedResume == null) return NotFound();
+        //    return Ok(updatedResume);
+        //}
+
+        [HttpPut("update/{userId}")]
+        public async Task<IActionResult> UpdateResume(int userId, [FromBody] string fileName)
         {
-            var updatedResume = await _resumeService.UpdateAsync(id, resumeDTO);
-            if (updatedResume == null) return NotFound();
-            return Ok(updatedResume);
+            try
+            {
+                var updatedResume = await _resumeService.UpdateAsync(userId, fileName);
+                return Ok(updatedResume);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // DELETE api/resume/{id}

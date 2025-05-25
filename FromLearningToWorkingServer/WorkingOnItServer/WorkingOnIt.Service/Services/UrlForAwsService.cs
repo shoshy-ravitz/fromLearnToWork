@@ -34,30 +34,5 @@ namespace FromLearningToWorking.Service.Services
 
             return presignedUrl;
         }
-
-        //public static string GeneratePresignedUrl(string objectKey, int expirationInMinutes)
-        //{
-
-        //    var accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY");
-        //    var secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_KEY");
-        //    var region = Environment.GetEnvironmentVariable("AWS_REGION") ?? "us-east-1"; 
-        //    var bucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME");
-
-        //    var s3Client = new AmazonS3Client(accessKey, secretKey, RegionEndpoint.GetBySystemName(region));
-
-        //    var request = new GetPreSignedUrlRequest
-        //    {
-        //        BucketName = bucketName,
-        //        Key = objectKey,
-        //        Verb = HttpVerb.PUT, // מאפשר העלאה
-        //        Expires = DateTime.UtcNow.AddMinutes(expirationInMinutes)
-        //    };
-
-        //    var presignedUrl = s3Client.GetPreSignedURL(request);
-
-        //    Console.WriteLine($"Generated Presigned URL: {presignedUrl}");
-
-        //    return presignedUrl;
-        //}
     }
 }

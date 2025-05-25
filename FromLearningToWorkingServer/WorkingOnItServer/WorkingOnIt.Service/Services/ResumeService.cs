@@ -27,18 +27,11 @@ namespace FromLearningToWorking.Service.Services
         public ResumeService(IRepositoryManager iManager, IMapper mapper)
         {
             _iRepositoryManager = iManager;
-            _mapper = mapper;
-            var accessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY");
-            var secretKey = Environment.GetEnvironmentVariable("AWS_SECRET_KEY");
-
-            var credentials = new BasicAWSCredentials(accessKey, secretKey);
-            _s3Client = new AmazonS3Client(credentials, Amazon.RegionEndpoint.USEast1);
-       
+            _mapper = mapper;      
         }
         public async Task<ResumeDTO> AddAsync(ResumePostModel resumePost)
         {
             var userId =await _iRepositoryManager._userRepository.GetByIdAsync(resumePost.UserId);
-            ///////////////
             if(userId==null)
             {
                 throw new Exception("user id not found");
@@ -47,6 +40,7 @@ namespace FromLearningToWorking.Service.Services
 
             var resume = _mapper.Map<Resume>(resumePost);
             resume.FilePath = resumePost.fileName;
+            resume.UploadDate = DateTime.Now;
 
             resume = await _iRepositoryManager._resumeRepository.AddAsync(resume);
             if (resume != null)
@@ -83,7 +77,31 @@ namespace FromLearningToWorking.Service.Services
             return _mapper.Map<ResumeDTO>(response);
         }
 
+        public async Task<ResumeDTO> UpdateAsync(int userId, string newFileName)
+        {
+            var existingResume = await _iRepositoryManager._resumeRepository.GetAllAsync()
+                .ContinueWith(task => task.Result.FirstOrDefault(r => r.UserId == userId));
 
+            if (existingResume == null)
+            {
+                throw new Exception("Resume not found for the user.");
+            }
+
+            //// Delete the old file from S3///
+
+
+            existingResume.FilePath = newFileName;
+            existingResume.UploadDate = DateTime.Now;
+            
+            var updatedResume = await _iRepositoryManager._resumeRepository.UpdateAsync(existingResume.Id, existingResume);
+
+            if (updatedResume != null)
+            {
+                await _iRepositoryManager.SaveAsync();
+            }
+
+            return _mapper.Map<ResumeDTO>(updatedResume);
+        }
         public async Task<string> DownloadResumeAsync(int userId)
         {
             var resume = await _iRepositoryManager._resumeRepository.GetAllAsync()
