@@ -15,7 +15,7 @@ namespace FromLearningToWorking.Core.InterfaceService
         Task<IEnumerable<ResumeDTO>> GetAllAsync();
 
         Task<ResumeDTO?> GetByIdAsync(int id);
-        Task<Resume> GetByUserIdAsync(int id);
+        Task<ResumeDTO?> GetByUserIdAsync(int id);
         Task<ResumeDTO> AddAsync(ResumePostModel resumeDTO);
 
         Task<ResumeDTO> UpdateAsync(int id, ResumeDTO resumeDTO);
