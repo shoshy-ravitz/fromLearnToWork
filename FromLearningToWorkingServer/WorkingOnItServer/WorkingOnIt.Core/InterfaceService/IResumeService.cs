@@ -1,4 +1,5 @@
 ﻿using FromLearningToWorking.Core.DTOs;
+using FromLearningToWorking.Core.Entities;
 using FromLearningToWorking.Core.models;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -14,7 +15,7 @@ namespace FromLearningToWorking.Core.InterfaceService
         Task<IEnumerable<ResumeDTO>> GetAllAsync();
 
         Task<ResumeDTO?> GetByIdAsync(int id);
-
+        Task<Resume> GetByUserIdAsync(int id);
         Task<ResumeDTO> AddAsync(ResumePostModel resumeDTO);
 
         Task<ResumeDTO> UpdateAsync(int id, ResumeDTO resumeDTO);

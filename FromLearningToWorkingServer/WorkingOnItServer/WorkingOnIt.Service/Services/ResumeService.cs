@@ -67,6 +67,12 @@ namespace FromLearningToWorking.Service.Services
             var resume = await _iRepositoryManager._resumeRepository.GetByIdAsync(id);
             return _mapper.Map<ResumeDTO>(resume);
         }
+        public async Task<ResumeDTO?> GetByUserIdAsync(int id)
+        {
+            var resume = await _iRepositoryManager._resumeRepository.GetByUserIdAsync(id);
+            return _mapper.Map<ResumeDTO>(resume);
+        }
+
 
         public async Task<ResumeDTO> UpdateAsync(int id, ResumeDTO resumeDTO)
         {

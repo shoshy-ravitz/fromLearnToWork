@@ -16,10 +16,10 @@ namespace FromLearningToWorking.Data.Repository
     {
   
 
-            public ResumeRepository( DataContext context) : base(context)
-            {
+        public ResumeRepository( DataContext context) : base(context)
+        {
  
-            }
+        }
         public async Task<Resume> GetByUserIdAsync(int id)
         {
             return await _dbSet.FirstAsync(resume=>resume.UserId==id);

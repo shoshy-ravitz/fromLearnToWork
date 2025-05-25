@@ -42,6 +42,15 @@ namespace FromLearningToWorking.Api.Controllers
             return Ok(resume);
         }
 
+        [HttpGet("user/{id}")]
+        public async Task<ActionResult<ResumeDTO>> GetByUserId(int id)
+        {
+            var resume = await _resumeService.GetByUserIdAsync(id);
+            if (resume == null) return NotFound();
+            return Ok(resume);
+        }
+
+
         // POST api/resume
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] ResumePostModel resume)
