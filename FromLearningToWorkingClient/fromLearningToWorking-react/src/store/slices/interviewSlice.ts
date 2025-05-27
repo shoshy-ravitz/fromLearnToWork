@@ -33,6 +33,10 @@ export const createInterview: any = createAsyncThunk(
             });
             return response.data; // Return the array of questions
         } catch (error: any) {
+            console.log(error);
+            console.log(typeof error);
+            
+            
             return rejectWithValue(error.response?.data || 'Failed to create interview');
         }
     }
@@ -68,11 +72,11 @@ export const initialState: InterviewState = {
     currentQuestionIndex: 0,
     mark: 0,
     feedback: null,
-    summary: '', // Store the summary of the interview result
+    summary: '',
     status: 'idle',
     error: null,
     timeInterview: 0,
-    result: [], // Add a field to store the ResultInterviewModel
+    result: [], 
 }
 
 const interviewSlice = createSlice({
@@ -91,7 +95,7 @@ const interviewSlice = createSlice({
             state.questions[state.currentQuestionIndex].answer = action.payload.answer; // Save the answer for the current question
         },
         saveFeedbackQuestion: (state, action) => {
-            state.questions[state.currentQuestionIndex].feedback = action.payload.feedback; // Save the feedback for the current question
+            state.questions[state.currentQuestionIndex].feedback = action.payload.feedback; // Save feedback for the current question
         },
         saveFeedbackAndMark: (state, action) => {
             const { feedback, mark } = action.payload;

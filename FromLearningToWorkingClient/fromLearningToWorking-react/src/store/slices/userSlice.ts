@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import API from '../../services/axios.interceptor'; // Import the interceptor
+import API from '../../services/axios.interceptor'; 
 
-// Define the initial state
+
 interface UserState {
    
     user: any | null;
@@ -41,7 +41,7 @@ export const updateUser:any = createAsyncThunk(
 );
 
 
-// Create the slice
+
 const userSlice = createSlice({
     name: 'user',
     initialState,

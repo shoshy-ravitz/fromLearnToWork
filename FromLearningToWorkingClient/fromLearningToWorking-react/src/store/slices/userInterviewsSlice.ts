@@ -7,7 +7,7 @@ export const fetchUserInterviews:any = createAsyncThunk(
     async (userId: number, { rejectWithValue }) => {
         try {
             const response = await API.get(`/interview/byUserId/${userId}`);
-            return response.data; // Return the list of interviews
+            return response.data; 
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to fetch user interviews');
         }
@@ -42,7 +42,7 @@ const userInterviewsSlice = createSlice({
             })
             .addCase(fetchUserInterviews.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.interviews = action.payload; // Update the interviews in the state
+                state.interviews = action.payload; 
                 console.log(state.interviews);
                 
             })

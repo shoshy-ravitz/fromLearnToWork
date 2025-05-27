@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { loginUser } from '../../store/slices/authSlice';
-import { StoreType } from '../../store/store';
-import { useNotification } from '../../context/NotificationContext';
 import useAsyncDispatch from '../../hooks/useAsyncDispatch';
 import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [open, setOpen] = useState(true);
-    const { loading } = useSelector((state: StoreType) => state.auth);
-    const { showNotification } = useNotification();
     const { asyncDispatch } = useAsyncDispatch();
     const navigate = useNavigate();
 
@@ -20,47 +14,38 @@ const Login: React.FC = () => {
         try {
             await asyncDispatch(
                 loginUser({ email, password }),
-                'Login successful!',
-                'Invalid credentials. Please try again.'
+                'התחברת בהצלחה!'
             );
-            setOpen(false);
-            navigate('/home');
+            navigate('/home'); // ניתוב לדף הבית לאחר התחברות מוצלחת
         } catch (error) {
-            
-            showNotification('Invalid credentials. Please try again.', 'error');
+            console.error('Login failed:', error);
         }
     };
 
     return (
         <div>
-            {open && (
+            <h2>התחברות</h2>
+            <form onSubmit={handleLogin}>
                 <div>
-                    <h2>Login</h2>
-                    <form onSubmit={handleLogin}>
-                        <div>
-                            <label>Email:</label>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label>Password:</label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <button type="submit" disabled={loading}>
-                            {loading ? 'Logging in...' : 'Login'}
-                        </button>
-                    </form>
+                    <label>אימייל:</label>
+                    <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
                 </div>
-            )}
+                <div>
+                    <label>סיסמה:</label>
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+                </div>
+                <button type="submit">התחבר</button>
+            </form>
         </div>
     );
 };

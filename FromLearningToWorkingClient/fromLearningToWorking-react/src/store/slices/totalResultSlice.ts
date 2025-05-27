@@ -21,7 +21,7 @@ export const fetchTotalResultsByInterviewId :any= createAsyncThunk(
     async (id: number, { rejectWithValue }) => {
         try {
             const response = await API.get(`/TotalResultInterview/byInterview/${id}`);
-            return response.data; // Return the list of total results
+            return response.data; 
         } catch (error: any) {
             return rejectWithValue(error.response?.data || 'Failed to fetch total results');
         }
@@ -41,7 +41,7 @@ const totalResultSlice = createSlice({
             })
             .addCase(fetchTotalResultsByInterviewId.fulfilled, (state, action) => {
                 state.loading = false;
-                state.results = action.payload; // Update the results in the state
+                state.results = action.payload; 
             })
             .addCase(fetchTotalResultsByInterviewId.rejected, (state, action) => {
                 state.loading = false;

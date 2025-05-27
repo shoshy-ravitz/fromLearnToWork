@@ -22,18 +22,37 @@ const Navbar: React.FC = () => {
                     <Button color="inherit" component={Link} to="login">
                         Login
                     </Button>
+
+                    <Button color="inherit" component={Link} to="logout">
+                        logout
+                    </Button>
+
                     <Button color="inherit" component={Link} to="register">
                         Register
                     </Button>
+
                     <Button color="inherit" component={Link} to="update">
                         update 
                     </Button>
+
                     <Button color="inherit" component={Link} to="upload">
                         uploud resume
                     </Button>
 
+                    <Button color="inherit" component={Link} to="download">
+                        download resume
+                    </Button>
+                    
+                    <Button color="inherit" component={Link} to="download">
+                        download resume
+                    </Button>
+
+                    <Button color="inherit" component={Link} to="updateResume">
+                        update resume
+                    </Button>
+
                     <Button color="inherit" component={Link} to="interview">
-                        start interview 
+                        create interview
                     </Button>
 
                     <Button color="inherit" component={Link} to="histoyInterview">

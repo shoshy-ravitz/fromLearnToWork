@@ -7,8 +7,6 @@ const ResumeUpload: React.FC = () => {
     const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
     const dispatch = useDispatch();
-    //this is דource
-    // שליפת userId וה-token מה-Redux store
     const userId = useSelector((state: StoreType) => state.auth.userId);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {

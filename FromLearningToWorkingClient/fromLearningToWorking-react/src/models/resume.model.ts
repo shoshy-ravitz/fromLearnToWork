@@ -6,7 +6,7 @@ export interface Resume {
     userID: string;
 }
 export interface ResumeState {
-    resumes: Resume[];
+    resume: Resume;
     loading: boolean;
     error: string | null;
 }

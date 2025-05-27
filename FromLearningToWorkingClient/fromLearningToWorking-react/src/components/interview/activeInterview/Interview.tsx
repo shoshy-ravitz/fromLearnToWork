@@ -21,7 +21,6 @@ const Interview = () => {
 
     const handleFinishInterview = () => {
         navigate(`/resultInterview/${interviewId}`); 
-        console.log("finish interview");
     }
 
     if (questions.length === 0) {

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { API_BASE_URL } from '../../config/config'; // Adjust the import path as necessary
+import { API_BASE_URL } from '../../config/config';
 
 
 
@@ -43,10 +43,10 @@ export const loginUser: any = createAsyncThunk(
 // Initial state
 const initialState = {
     user: null,
-    token: localStorage.getItem('token') || null, // Load token from localStorage
+    token: localStorage.getItem('token') || null, 
     loading: false,
     error: null,
-    userId: localStorage.getItem('userId') || null, // Load userId from localStorage
+    userId: localStorage.getItem('userId') || null, 
 };
 
 // Auth slice
@@ -57,6 +57,9 @@ const authSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.token = null;
+            state.userId = null; 
+            state.loading = false;
+            state.error = null;
             localStorage.removeItem('token'); 
             localStorage.removeItem('userId'); 
             localStorage.removeItem('user'); 
@@ -73,6 +76,9 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.token = action.payload.token;
                 state.user = action.payload.user;
+                state.userId = action.payload.user.id; // Save userId to state
+                console.log(action.payload.user.id);
+                
                 localStorage.setItem('userId', action.payload.user.id); // Save userId to localStorage
                 localStorage.setItem('token', action.payload.token); // Save token to localStorage
             })
@@ -89,8 +95,10 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.token = action.payload.token;
                 state.user = action.payload.user;
-                localStorage.setItem('userId', action.payload.user.id); // Save userId to localStorage
-                localStorage.setItem('token', action.payload.token); // Save token to localStorage
+                state.userId = action.payload.user.id; 
+                console.log(action.payload.user.id);
+                localStorage.setItem('userId', action.payload.user.id); 
+                localStorage.setItem('token', action.payload.token); 
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;

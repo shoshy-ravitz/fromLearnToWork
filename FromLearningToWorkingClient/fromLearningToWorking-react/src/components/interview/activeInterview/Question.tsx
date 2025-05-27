@@ -11,13 +11,12 @@ const Question = ({ index, question, onNext }) => {
     const codeInterview=useSelector(((state: StoreType) => state.interview.IdInterview));
 
     useEffect(() => {
-        // התחל טיימר כאשר השאלה מוצגת
+       
         setElapsedTime(0);
         const timer = setInterval(() => {
             setElapsedTime((prevTime) => prevTime + 1);
         }, 1000);
 
-        // נקה את הטיימר כאשר הקומפוננטה מתנתקת
         return () => clearInterval(timer);
     }, [question]);
 

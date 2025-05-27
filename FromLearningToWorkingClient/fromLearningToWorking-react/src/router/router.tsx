@@ -10,6 +10,11 @@ import GeneralFeedbackForInterviews from '../components/interview/resultIntervie
 import UpdateProfile from '../components/profile/UpdateProfile';
 import Home from '../pages/Home';
 import Register from '../components/auth/Register';
+import AddResume from '../components/resume/AddResume';
+import DownloadResume from '../components/resume/DownLoadResume';
+import UpdateResume from '../components/resume/UpdateResume';
+import Logout from '../components/auth/Logout';
+
 
 export const router = createBrowserRouter([
     {
@@ -17,10 +22,15 @@ export const router = createBrowserRouter([
         children: [
             { path: 'home', element: <Home /> },
             { path: 'login', element: <Login /> },
+            { path: 'logout', element: <Logout /> },
+
             { path: 'register', element: <Register /> },
             { path: 'update', element: <UpdateProfile /> },
-            { path: 'upload', element: <ResumeUpload /> },
+            { path: 'upload', element: <AddResume /> },
             { path: 'interview', element: <Interview /> },
+            { path: 'download', element: <DownloadResume /> },
+            { path: 'updateResume', element: <UpdateResume/> },
+
             {
                 path: 'histoyInterview', element:<InterviewHistory/>, 
                 children: [
