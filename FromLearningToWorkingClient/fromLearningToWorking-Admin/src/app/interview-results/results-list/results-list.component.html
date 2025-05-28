@@ -1,0 +1,28 @@
+<h2>Interview Results</h2>
+<table>
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Interview Date</th>
+      <th>Score</th>
+      <th>Feedback</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+    @for (result of results; track result.id) {
+    <tbody>
+    <tr>
+      <!-- <td>{{ result.userName }}</td> -->
+      <td>{{ result.date | date }}</td>
+      <td>{{ result.score }}</td>
+      <td>{{ result.feedback }}</td>
+      <td>
+        <button (click)="viewDetail(result.id)">View Details</button>
+      </td>
+    </tr>
+  </tbody>
+    }
+</table>
+
+

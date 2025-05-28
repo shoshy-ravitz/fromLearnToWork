@@ -1,0 +1,22 @@
+/* filepath: c:\פרויקט\FromLearningToWorkingClient\fromLearningToWorking-Admin\src\app\auth\register\register.component.scss */
+.form-group {
+    margin-bottom: 15px;
+  }
+  
+  input.is-invalid {
+    border-color: #dc3545;
+  }
+  
+  .invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875em;
+  }
+  
+  button[disabled] {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .alert {
+    margin-top: 20px;
+  }

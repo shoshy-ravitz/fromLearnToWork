@@ -1,0 +1,16 @@
+<div class="user-detail">
+  <h2>User Details</h2>
+  @if(user) {
+    <p><strong>Name:</strong> {{ user.name }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Interviews:</strong></p>
+    <ul>
+      לא עובד כרגע
+      <!-- @for(interview of user.interviews; track interview.id) {
+        <li>Interview on {{ interview.date }} - Score: {{ interview.score }}</li>
+      } -->
+    </ul>
+  } @else {
+    <p>No user details available.</p>
+  }
+</div>

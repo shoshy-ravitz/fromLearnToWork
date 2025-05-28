@@ -1,0 +1,53 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input
+      type="email"
+      id="email"
+      class="form-control"
+      formControlName="email"
+      [class.is-invalid]="email?.invalid && email?.touched"
+    />
+    @if (email?.invalid && email?.touched) {
+      <div class="invalid-feedback">
+        @if (email?.errors?.['required'])
+        {
+          <small>Email is required.</small>
+        }
+        @if (email?.errors?.['email'])
+        {
+          <small>Invalid email format.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input
+      type="password"
+      id="password"
+      class="form-control"
+      formControlName="password"
+      [class.is-invalid]="password?.invalid && password?.touched"
+    />
+    @if (password?.invalid && password?.touched) {
+      <div class="invalid-feedback">
+        @if (password?.errors?.['required']) {
+          <small>Password is required.</small>
+        }
+        @if (password?.errors?.['minlength']) {
+          <small>Password must be at least 6 characters long.</small>
+        }
+      </div>
+    }
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">Login</button>
+
+  @if (errorMessage) {
+    <div class="alert alert-danger mt-3">
+      {{ errorMessage }}
+    </div>
+  }
+</form>

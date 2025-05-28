@@ -1,0 +1,40 @@
+.user-detail {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.user-detail h2 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.user-detail .info {
+    margin-bottom: 10px;
+}
+
+.user-detail .info label {
+    font-weight: bold;
+}
+
+.user-detail .info p {
+    margin: 5px 0;
+}
+
+.user-detail .interviews {
+    margin-top: 15px;
+}
+
+.user-detail .interviews ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.user-detail .interviews li {
+    margin-bottom: 5px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background-color: #f1f1f1;
+}
