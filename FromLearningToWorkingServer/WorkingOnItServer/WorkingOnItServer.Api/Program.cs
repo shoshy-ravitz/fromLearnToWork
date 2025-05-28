@@ -63,8 +63,7 @@ builder.Services.AddAuthorization(options =>
 // Add services to the container.
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
 builder.Services.AddDbContext<DataContext>(options =>
-    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0)))); // Change to the appropriate version
-
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0)))); 
 
 
 builder.Services.AddControllers();
@@ -130,7 +129,7 @@ builder.Services.Configure<AWSOptions>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:5173", "https://fromlearntoworkclient-user.onrender.com")
+        builder => builder.WithOrigins("http://localhost:5173", "http://localhost:4200", "https://fromlearntoworkclient-user.onrender.com")
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
