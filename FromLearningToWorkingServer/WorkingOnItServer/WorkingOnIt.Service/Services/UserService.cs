@@ -21,10 +21,28 @@ namespace FromLearningToWorking.Service.Services
 
         public async Task<UserDTO> AddAsync(UserDTO userDTO)
         {
+
+            var existingUser = await _iRepositoryManager._userRepository.GetByEmailAsync(userDTO.Email);
+            if (existingUser != null)
+            {
+                throw new Exception("User already exists.");
+            }
+
             var user = _mapper.Map<User>(userDTO);
+
+
+            var defaultRole = await _iRepositoryManager._roleRepository.GetByNameAsync("user");
+
+            if (defaultRole == null)
+            {
+                throw new Exception("Default role 'user' not found.");
+            }
+
+            user.Role = defaultRole;
+
             user = await _iRepositoryManager._userRepository.AddAsync(user);
             if (user != null)
-                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+                await _iRepositoryManager.SaveAsync(); 
             return _mapper.Map<UserDTO>(user);
         }
 
@@ -32,7 +50,7 @@ namespace FromLearningToWorking.Service.Services
         {
             var res = await _iRepositoryManager._userRepository.DeleteAsync(id);
             if (res)
-                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+                await _iRepositoryManager.SaveAsync(); 
             return res;
         }
 
@@ -53,7 +71,7 @@ namespace FromLearningToWorking.Service.Services
             var user = _mapper.Map<User>(userDTO);
             var response = await _iRepositoryManager._userRepository.UpdateAsync(id, user);
             if (response != null)
-                await _iRepositoryManager.SaveAsync(); // Assuming SaveAsync is defined
+                await _iRepositoryManager.SaveAsync(); 
             return _mapper.Map<UserDTO>(response);
         }
     }
