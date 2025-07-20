@@ -71,5 +71,23 @@ namespace FromLearningToWorking.Api.Controllers
             if (question == null) return NotFound();
             return Ok(question);
         }
+
+        [HttpGet("byTopic/{topic}")]
+        //public async Task<ActionResult<IEnumerable<TotalResultInterviewDTO>>> GetByTopic(string topic)
+        //{
+        //    var results = await _totalResultInterviewService.GetAllAsync();
+
+        //    var filteredResults = results.Where(r => r.Topic.Equals(topic, StringComparison.OrdinalIgnoreCase));
+        //    return Ok(filteredResults);
+        //}
+        public async Task<ActionResult<IEnumerable<TotalResultInterviewDTO>>> GetByTopic(string topic)
+        {
+            var results = await _totalResultInterviewService.GetAllAsync();
+
+            // שינוי כאן: שימוש ב-Contains במקום Equals
+            var filteredResults = results.Where(r => r.Topic.IndexOf(topic, StringComparison.OrdinalIgnoreCase) >= 0);
+            return Ok(filteredResults);
+        }
+
     }
 }

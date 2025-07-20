@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(Policy = "User")]
+[Authorize(Policy = "UserOrAdmin")]
 public class InterviewController : ControllerBase
 {
     private readonly IInterviewService _interviewService;
