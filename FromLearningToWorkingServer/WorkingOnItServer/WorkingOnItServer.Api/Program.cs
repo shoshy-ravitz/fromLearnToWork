@@ -129,7 +129,7 @@ builder.Services.Configure<AWSOptions>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:5173", "http://localhost:4200", "https://fromlearntoworkclient-user.onrender.com")
+        builder => builder.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:4200", "https://fromlearntoworkclient-user.onrender.com")
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
