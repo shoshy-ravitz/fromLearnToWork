@@ -32,7 +32,7 @@ const UpdateResume: React.FC = () => {
         try {
            
             await dispatch(updateResumeWithPresignedUrl({ userId: Number(userId), file }));
-          debugger
+        //   debugger
             let json=JSON.stringify(file.name);
             console.log(json);
         

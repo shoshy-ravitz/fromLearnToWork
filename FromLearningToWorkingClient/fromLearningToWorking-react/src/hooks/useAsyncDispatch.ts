@@ -14,7 +14,6 @@ const useAsyncDispatch = () => {
         defaultErrorMessage?: string
     ): Promise<any> => {
         try {
-           debugger
             const result = await dispatch(action).then(unwrapResult);
             
             showNotification(successMessage, 'success');
