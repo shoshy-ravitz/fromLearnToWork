@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import {
     Box,
     Drawer,
@@ -40,6 +41,7 @@ import {
     Close as CloseIcon,
     QuestionAnswer
 } from '@mui/icons-material';
+import { StoreType } from '../../store/store';
 
 const DRAWER_WIDTH = 280;
 const COLLAPSED_WIDTH = 72;
@@ -52,15 +54,21 @@ interface NavItem {
     children?: NavItem[];
     category: string;
     color?: string;
+    requiresAuth?: boolean;
 }
 
 const Navbar: React.FC = () => {
     const [open, setOpen] = useState(false);
-    const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+    const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+    const [hoveredItem, setHoveredItem] = useState<string | null>(null);
     const location = useLocation();
     const navigate = useNavigate();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    
+    // Get auth state from Redux store
+    const { token, user } = useSelector((state: StoreType) => state.auth);
+    const isAuthenticated = !!token;
 
     const navItems: NavItem[] = [
         {
@@ -69,7 +77,8 @@ const Navbar: React.FC = () => {
             icon: <HomeIcon />,
             path: '/home',
             category: 'single',
-            color: '#4A90E2'
+            color: '#4A90E2',
+            requiresAuth: false
         },
         {
             id: 'auth',
@@ -77,10 +86,10 @@ const Navbar: React.FC = () => {
             icon: <SecurityIcon />,
             category: 'auth',
             color: '#FF6B6B',
+            requiresAuth: false,
             children: [
-                { id: 'login', label: 'Sign In', icon: <LoginIcon />, path: '/login', category: 'auth' },
-                { id: 'register', label: 'Sign Up', icon: <RegisterIcon />, path: '/register', category: 'auth' },
-                { id: 'logout', label: 'Sign Out', icon: <LogoutIcon />, path: '/logout', category: 'auth' }
+                { id: 'login', label: 'Sign In', icon: <LoginIcon />, path: '/login', category: 'auth', requiresAuth: false },
+                { id: 'register', label: 'Sign Up', icon: <RegisterIcon />, path: '/register', category: 'auth', requiresAuth: false }
             ]
         },
         {
@@ -89,8 +98,10 @@ const Navbar: React.FC = () => {
             icon: <AccountIcon />,
             category: 'profile',
             color: '#50C878',
+            requiresAuth: true,
             children: [
-                { id: 'update', label: 'Update Profile', icon: <EditIcon />, path: '/update', category: 'profile' }
+                { id: 'update', label: 'Update Profile', icon: <EditIcon />, path: '/update', category: 'profile', requiresAuth: true },
+                { id: 'logout', label: 'Sign Out', icon: <LogoutIcon />, path: '/logout', category: 'profile', requiresAuth: true }
             ]
         },
         {
@@ -99,10 +110,11 @@ const Navbar: React.FC = () => {
             icon: <AssignmentIcon />,
             category: 'resume',
             color: '#FFB84D',
+            requiresAuth: true,
             children: [
-                { id: 'upload', label: 'Upload Resume', icon: <UploadIcon />, path: '/upload', category: 'resume' },
-                { id: 'download', label: 'Download Resume', icon: <DownloadIcon />, path: '/download', category: 'resume' },
-                { id: 'updateResume', label: 'Update Resume', icon: <EditIcon />, path: '/updateResume', category: 'resume' }
+                { id: 'upload', label: 'Upload Resume', icon: <UploadIcon />, path: '/upload', category: 'resume', requiresAuth: true },
+                { id: 'download', label: 'Download Resume', icon: <DownloadIcon />, path: '/download', category: 'resume', requiresAuth: true },
+                { id: 'updateResume', label: 'Update Resume', icon: <EditIcon />, path: '/updateResume', category: 'resume', requiresAuth: true }
             ]
         },
         {
@@ -111,15 +123,77 @@ const Navbar: React.FC = () => {
             icon: <InterviewIcon />,
             category: 'interview',
             color: '#9B59B6',
+            requiresAuth: true,
             children: [
-                { id: 'startInterview', label: 'Start Interview', icon: <QuestionAnswer />, path: '/interview', category: 'interview' },
-                { id: 'historyInterview', label: 'Interview History', icon: <HistoryIcon />, path: '/histoyInterview', category: 'interview' }
+                { id: 'startInterview', label: 'Start Interview', icon: <QuestionAnswer />, path: '/interview', category: 'interview', requiresAuth: true },
+                { id: 'historyInterview', label: 'Interview History', icon: <HistoryIcon />, path: '/histoyInterview', category: 'interview', requiresAuth: true }
             ]
         }
     ];
 
+    // Filter nav items based on authentication status
+    const getFilteredNavItems = () => {
+        if (!isAuthenticated) {
+            // Show only non-auth required items for non-authenticated users
+            return navItems.filter(item => {
+                if (!item.requiresAuth) {
+                    // For items with children, filter children too
+                    if (item.children) {
+                        return {
+                            ...item,
+                            children: item.children.filter(child => !child.requiresAuth)
+                        };
+                    }
+                    return item;
+                }
+                return false;
+            });
+        } else {
+            // Show all items except login/register for authenticated users
+            return navItems.filter(item => {
+                if (item.id === 'auth') {
+                    return false; // Hide entire auth section for authenticated users
+                }
+                return true;
+            });
+        }
+    };
+
+    const filteredNavItems = getFilteredNavItems();
+
+    // Auto-expand categories on hover when sidebar is collapsed
+    useEffect(() => {
+        if (!open && hoveredItem && !isMobile) {
+            const hoveredNavItem = filteredNavItems.find(item => item.id === hoveredItem);
+            if (hoveredNavItem && hoveredNavItem.children) {
+                setExpandedCategory(hoveredItem);
+            }
+        }
+    }, [hoveredItem, open, filteredNavItems, isMobile]);
+
+    // Auto-collapse when not hovering
+    useEffect(() => {
+        if (!open && !hoveredItem) {
+            setExpandedCategory(null);
+        }
+    }, [hoveredItem, open]);
+
     const handleDrawerToggle = () => {
         setOpen(!open);
+    };
+
+    const handleMouseEnter = () => {
+        if (!isMobile) {
+            setOpen(true);
+        }
+    };
+
+        const handleMouseLeave = () => {
+        if (!isMobile) {
+            setOpen(false);
+            setExpandedCategory(null);
+            setHoveredItem(null);
+        }
     };
 
     const handleCategoryToggle = (categoryId: string) => {
@@ -127,15 +201,14 @@ const Navbar: React.FC = () => {
             setOpen(true);
         }
         
-        setExpandedCategories(prev =>
-            prev.includes(categoryId)
-                ? prev.filter(id => id !== categoryId)
-                : [...prev, categoryId]
-        );
+        // If same category is clicked, close it. Otherwise, open the new one
+        setExpandedCategory(prev => prev === categoryId ? null : categoryId);
     };
 
     const handleNavigation = (path: string) => {
         navigate(path);
+        // Close any expanded categories after navigation
+        setExpandedCategory(null);
         if (isMobile) {
             setOpen(false);
         }
@@ -155,7 +228,12 @@ const Navbar: React.FC = () => {
         const isActiveState = isItemActive || hasActiveChild;
 
         return (
-            <ListItem disablePadding sx={{ mb: 1 }}>
+            <ListItem 
+                disablePadding 
+                sx={{ mb: 1 }}
+                onMouseEnter={() => setHoveredItem(item.id)}
+                onMouseLeave={() => setHoveredItem(null)}
+            >
                 <ListItemButton
                     onClick={() => {
                         if (item.path) {
@@ -169,21 +247,21 @@ const Navbar: React.FC = () => {
                         justifyContent: 'center',
                         borderRadius: 3,
                         mx: 1,
-                        backgroundColor: isActiveState ? 'rgba(255, 204, 0, 0.08)' : 'transparent',
-                        border: isActiveState ? '2px solid rgba(255, 204, 0, 0.2)' : '2px solid transparent',
+                        backgroundColor: 'transparent',
+                        border: '1px solid transparent',
                         '&:hover': {
-                            backgroundColor: 'rgba(255, 204, 0, 0.06)',
-                            transform: 'scale(1.05)',
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+                            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                            transform: 'scale(1.02)',
+                            boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)'
                         },
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                     }}
                 >
                     <ListItemIcon
                         sx={{
                             minWidth: 0,
                             justifyContent: 'center',
-                            color: isActiveState ? 'rgb(255, 204, 0)' : item.color || '#666'
+                            color: item.color || '#666'
                         }}
                     >
                         {item.icon}
@@ -194,7 +272,7 @@ const Navbar: React.FC = () => {
     };
 
     const ExpandedNavItem = ({ item }: { item: NavItem }) => {
-        const isExpanded = expandedCategories.includes(item.id);
+        const isExpanded = expandedCategory === item.id;
         const hasActiveChild = item.children ? isAnyChildActive(item.children) : false;
         const isItemActive = item.path ? isActive(item.path) : false;
         const isActiveState = isItemActive || hasActiveChild;
@@ -207,19 +285,19 @@ const Navbar: React.FC = () => {
                         sx={{
                             borderRadius: 3,
                             mx: 1,
-                            backgroundColor: isActiveState ? 'rgba(255, 204, 0, 0.08)' : 'transparent',
-                            border: isActiveState ? '2px solid rgba(255, 204, 0, 0.2)' : '2px solid transparent',
+                            backgroundColor: 'transparent',
+                            border: '1px solid transparent',
                             '&:hover': {
-                                backgroundColor: 'rgba(255, 204, 0, 0.06)',
-                                transform: 'translateX(4px)',
-                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+                                backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                transform: 'translateX(2px)',
+                                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)'
                             },
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                             py: 1.5
                         }}
                     >
                         <ListItemIcon sx={{ 
-                            color: isActiveState ? 'rgb(255, 204, 0)' : item.color || '#666',
+                            color: item.color || '#666',
                             minWidth: 40
                         }}>
                             {item.icon}
@@ -229,14 +307,14 @@ const Navbar: React.FC = () => {
                             sx={{
                                 '& .MuiListItemText-primary': {
                                     fontSize: '0.95rem',
-                                    fontWeight: isActiveState ? 600 : 500,
-                                    color: isActiveState ? 'rgb(255, 204, 0)' : '#2c3e50'
+                                    fontWeight: 500,
+                                    color: '#2c3e50'
                                 }
                             }}
                         />
                         {isExpanded ? 
-                            <ExpandLess sx={{ color: isActiveState ? 'rgb(255, 204, 0)' : '#95a5a6' }} /> : 
-                            <ExpandMore sx={{ color: isActiveState ? 'rgb(255, 204, 0)' : '#95a5a6' }} />
+                            <ExpandLess sx={{ color: '#95a5a6' }} /> : 
+                            <ExpandMore sx={{ color: '#95a5a6' }} />
                         }
                     </ListItemButton>
 
@@ -245,7 +323,7 @@ const Navbar: React.FC = () => {
                             {item.children?.map((child, index) => (
                                 <Fade 
                                     in={isExpanded} 
-                                    timeout={300 + (index * 100)}
+                                    timeout={200 + (index * 50)}
                                     key={child.id}
                                 >
                                     <ListItemButton
@@ -257,18 +335,18 @@ const Navbar: React.FC = () => {
                                             borderRadius: 3,
                                             mx: 1,
                                             mb: 0.5,
-                                            backgroundColor: isActive(child.path!) ? 'rgba(255, 204, 0, 0.12)' : 'transparent',
-                                            border: isActive(child.path!) ? '1px solid rgba(255, 204, 0, 0.3)' : '1px solid transparent',
+                                            backgroundColor: 'transparent',
+                                            border: '1px solid transparent',
                                             '&:hover': {
-                                                backgroundColor: 'rgba(255, 204, 0, 0.08)',
-                                                transform: 'translateX(8px)',
-                                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
+                                                backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                                transform: 'translateX(4px)',
+                                                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)'
                                             },
-                                            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)'
+                                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
                                         }}
                                     >
                                         <ListItemIcon sx={{ 
-                                            color: isActive(child.path!) ? 'rgb(255, 204, 0)' : '#7f8c8d',
+                                            color: '#7f8c8d',
                                             minWidth: 32
                                         }}>
                                             {child.icon}
@@ -278,22 +356,20 @@ const Navbar: React.FC = () => {
                                             sx={{
                                                 '& .MuiListItemText-primary': {
                                                     fontSize: '0.875rem',
-                                                    fontWeight: isActive(child.path!) ? 600 : 400,
-                                                    color: isActive(child.path!) ? 'rgb(255, 204, 0)' : '#34495e'
+                                                    fontWeight: 400,
+                                                    color: '#34495e'
                                                 }
                                             }}
                                         />
                                         {isActive(child.path!) && (
-                                            <Chip
-                                                size="small"
-                                                label="Active"
+                                            <Box
                                                 sx={{
-                                                    bgcolor: 'rgb(255, 204, 0)',
-                                                    color: '#1a1a1a',
-                                                    fontSize: '0.7rem',
-                                                    height: 20,
-                                                    fontWeight: 600,
-                                                    boxShadow: '0 2px 4px rgba(255, 204, 0, 0.3)'
+                                                    width: 3,
+                                                    height: 3,
+                                                    borderRadius: '50%',
+                                                    bgcolor: '#95a5a6',
+                                                    ml: 1,
+                                                    opacity: 0.6
                                                 }}
                                             />
                                         )}
@@ -313,19 +389,19 @@ const Navbar: React.FC = () => {
                         sx={{
                             borderRadius: 3,
                             mx: 1,
-                            backgroundColor: isItemActive ? 'rgba(255, 204, 0, 0.08)' : 'transparent',
-                            border: isItemActive ? '2px solid rgba(255, 204, 0, 0.2)' : '2px solid transparent',
+                            backgroundColor: 'transparent',
+                            border: '1px solid transparent',
                             '&:hover': {
-                                backgroundColor: 'rgba(255, 204, 0, 0.06)',
-                                transform: 'translateX(4px)',
-                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+                                backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                transform: 'translateX(2px)',
+                                boxShadow: '0 1px 4px rgba(0, 0, 0, 0.05)'
                             },
-                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                             py: 1.5
                         }}
                     >
                         <ListItemIcon sx={{ 
-                            color: isItemActive ? 'rgb(255, 204, 0)' : item.color || '#666',
+                            color: item.color || '#666',
                             minWidth: 40
                         }}>
                             {item.icon}
@@ -335,22 +411,20 @@ const Navbar: React.FC = () => {
                             sx={{
                                 '& .MuiListItemText-primary': {
                                     fontSize: '0.95rem',
-                                    fontWeight: isItemActive ? 600 : 500,
-                                    color: isItemActive ? 'rgb(255, 204, 0)' : '#2c3e50'
+                                    fontWeight: 500,
+                                    color: '#2c3e50'
                                 }
                             }}
                         />
                         {isItemActive && (
-                            <Chip
-                                size="small"
-                                label="Active"
+                            <Box
                                 sx={{
-                                    bgcolor: 'rgb(255, 204, 0)',
-                                    color: '#1a1a1a',
-                                    fontSize: '0.7rem',
-                                    height: 20,
-                                    fontWeight: 600,
-                                    boxShadow: '0 2px 4px rgba(255, 204, 0, 0.3)'
+                                    width: 4,
+                                    height: 4,
+                                    borderRadius: '50%',
+                                    bgcolor: '#95a5a6',
+                                    ml: 1,
+                                    opacity: 0.6
                                 }}
                             />
                         )}
@@ -407,25 +481,27 @@ const Navbar: React.FC = () => {
                                     fontSize: '0.8rem',
                                     fontWeight: 500
                                 }}>
-                                    Interview Platform
+                                    {isAuthenticated ? `Welcome, ${user?.name || 'User'}` : 'Interview Platform'}
                                 </Typography>
                             </Box>
                         </Box>
-                        <IconButton
-                            onClick={handleDrawerToggle}
-                            sx={{
-                                color: '#95a5a6',
-                                bgcolor: 'rgba(0, 0, 0, 0.04)',
-                                '&:hover': {
-                                    color: 'rgb(255, 204, 0)',
-                                    bgcolor: 'rgba(255, 204, 0, 0.1)',
-                                    transform: 'rotate(180deg)'
-                                },
-                                transition: 'all 0.3s ease'
-                            }}
-                        >
-                            {isMobile ? <CloseIcon /> : <ChevronLeftIcon />}
-                        </IconButton>
+                        {isMobile && (
+                            <IconButton
+                                onClick={handleDrawerToggle}
+                                sx={{
+                                    color: '#95a5a6',
+                                    bgcolor: 'rgba(0, 0, 0, 0.04)',
+                                    '&:hover': {
+                                        color: 'rgb(255, 204, 0)',
+                                        bgcolor: 'rgba(255, 204, 0, 0.1)',
+                                        transform: 'rotate(180deg)'
+                                    },
+                                    transition: 'all 0.3s ease'
+                                }}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        )}
                     </>
                 ) : (
                     <IconButton
@@ -475,7 +551,7 @@ const Navbar: React.FC = () => {
                 }
             }}>
                 <List sx={{ p: 0 }}>
-                    {navItems.map((item) => (
+                    {filteredNavItems.map((item) => (
                         <React.Fragment key={item.id}>
                             {open ? (
                                 <ExpandedNavItem item={item} />
@@ -540,9 +616,13 @@ const Navbar: React.FC = () => {
                 variant={isMobile ? 'temporary' : 'permanent'}
                 open={isMobile ? open : true}
                 onClose={handleDrawerToggle}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
                 sx={{
                     width: open ? DRAWER_WIDTH : COLLAPSED_WIDTH,
                     flexShrink: 0,
+                    position: 'fixed',
+                    zIndex: 1200,
                     '& .MuiDrawer-paper': {
                         width: open ? DRAWER_WIDTH : COLLAPSED_WIDTH,
                         boxSizing: 'border-box',

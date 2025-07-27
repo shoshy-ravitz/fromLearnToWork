@@ -86,6 +86,7 @@ const Register: React.FC = () => {
         <Box
             sx={{
                 minHeight: '100vh', // גובה מינימלי של כל הדף
+                minWidth: '100vw', // רוחב מינימלי של כל הדף
                 background: 'linear-gradient(135deg, rgba(255, 204, 0, 0.03) 0%, #ffffff 100%)', // רקע בהיר
                 display: 'flex', // שימוש ב-flexbox
                 justifyContent: 'center', // מרכז אופקית

@@ -60,6 +60,7 @@ const Login: React.FC = () => {
     return (
         <Box sx={{
             minHeight: '100vh',
+            minWidth: '100vw',
             background: 'linear-gradient(135deg, rgba(255, 204, 0, 0.05) 0%, #ffffff 100%)',
             display: 'flex',
             justifyContent: 'center', // Center horizontally

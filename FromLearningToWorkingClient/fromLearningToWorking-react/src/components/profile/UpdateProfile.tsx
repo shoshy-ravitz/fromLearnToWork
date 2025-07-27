@@ -460,6 +460,7 @@ const UpdateProfile: React.FC = () => {
         return (
             <Box sx={{
                 minHeight: '100vh',
+                minWidth: '100vw',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

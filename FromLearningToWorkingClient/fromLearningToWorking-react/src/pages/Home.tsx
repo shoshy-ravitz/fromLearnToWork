@@ -86,6 +86,7 @@ const Home: React.FC = () => {
     return (
         <Box sx={{ 
             minHeight: '100vh',
+            minWidth: '100vw',
             background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
             paddingTop: '70px'
         }}>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { downloadResume } from '../../store/slices/resumeSlice';
 import { StoreType } from '../../store/store';
@@ -9,7 +9,7 @@ const DownloadResume: React.FC = () => {
     const { asyncDispatch } = useAsyncDispatch();
     const userId = useSelector((state: StoreType) => state.auth.userId);
     const navigate = useNavigate();
-
+    const [url,setUrl] =useState('');
     const handleDownload = async () => {
         if (!userId) {
             alert('משתמש לא מזוהה. אנא התחבר.');
@@ -24,15 +24,17 @@ const DownloadResume: React.FC = () => {
                 'הקובץ יורד בהצלחה!',
                 'הורדת הקובץ נכשלה. נסה שוב.'
             );
-
+            console.log(presignedUrl);
+            
             if (presignedUrl) {
+                setUrl(presignedUrl);
                 // Step 2: Trigger the download
-                const link = document.createElement('a');
-                link.href = presignedUrl;
-                link.download = 'resume.pdf'; // Set the default file name
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // const link = document.createElement('a');
+                // link.href = presignedUrl;
+                // link.download = 'resume.pdf'; // Set the default file name
+                // document.body.appendChild(link);
+                // link.click();
+                // document.body.removeChild(link);
 
                 // Step 3: Show success message
                 alert('הקובץ הורד בהצלחה!');
@@ -46,6 +48,12 @@ const DownloadResume: React.FC = () => {
     return (
         <div>
             <h2>הורדת קורות חיים</h2>
+            {url}
+            {url && (
+                <div>
+                    <a href={url} download="resume.pdf">לחץ כאן להורדת קורות חיים</a>
+                </div>
+            )}
             <button onClick={handleDownload}>הורד קורות חיים</button>
         </div>
     );
