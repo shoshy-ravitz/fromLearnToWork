@@ -121,7 +121,7 @@ import Interview from '../components/interview/activeInterview/Interview';
 import InterviewHistory from '../components/interview/resultInterview/InterviewHistory';
 import ResultOfInterview from '../components/interview/resultInterview/ResultOfInterview';
 import GeneralFeedbackForInterviews from '../components/interview/resultInterview/GeneralFeedbackForInterviews';
-import PageLayout from '../components/common/LayOut';
+import PageLayout from '../components/common/Layout';
 import Navbar from '../components/common/Navbar';
 
 
