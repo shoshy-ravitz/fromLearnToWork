@@ -27,6 +27,7 @@ import {
     CheckCircle as CheckCircleIcon,
     Speed as SpeedIcon
 } from '@mui/icons-material';
+
 import SketchOfInterviewResults from './SketchOfInterviewResults';
 import QuestionsResult from './QuestionsResult';
 
