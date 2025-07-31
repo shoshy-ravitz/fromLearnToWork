@@ -74,13 +74,21 @@ import {
     Chip,
     Stack,
     Fade,
-    Alert
+    Alert,
+    Avatar,
+    LinearProgress,
+    Card,
+    CardContent
 } from '@mui/material';
 import {
     EmojiEvents as TrophyIcon,
     Schedule as TimeIcon,
     Psychology as FeedbackIcon,
-    Assessment as AnalyticsIcon
+    Assessment as AnalyticsIcon,
+    Star as StarIcon,
+    TrendingUp as TrendingUpIcon,
+    CheckCircle as CheckCircleIcon,
+    Speed as SpeedIcon
 } from '@mui/icons-material';
 import SketchOfInterviewResults from './sketchOfInterviewResults';
 import QuestionsResult from './QuestionsResult';
@@ -108,13 +116,33 @@ const ResultOfInterview: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                <Box sx={{ textAlign: 'center' }}>
+                <Box sx={{ 
+                    textAlign: 'center',
+                    p: 4,
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    borderRadius: 4,
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 204, 0, 0.2)'
+                }}>
                     <CircularProgress 
                         size={60} 
-                        sx={{ color: 'rgb(255, 204, 0)', mb: 2 }} 
+                        sx={{ 
+                            color: 'rgb(255, 204, 0)', 
+                            mb: 3,
+                            '& .MuiCircularProgress-circle': {
+                                strokeLinecap: 'round',
+                            }
+                        }} 
                     />
-                    <Typography variant="h6" sx={{ color: '#666' }}>
-                        Loading your interview results...
+                    <Typography variant="h6" sx={{ 
+                        color: '#1a1a1a',
+                        fontWeight: 600,
+                        mb: 1
+                    }}>
+                        מעבד את תוצאות הראיון
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#666' }}>
+                        אנא המתן בזמן שהמערכת מנתחת את הביצועים שלך...
                     </Typography>
                 </Box>
             </Box>
@@ -129,20 +157,31 @@ const ResultOfInterview: React.FC = () => {
                 paddingTop: '100px'
             }}>
                 <Container maxWidth="md">
-                    <Alert 
-                        severity="error" 
-                        sx={{ 
-                            borderRadius: 3,
-                            border: '1px solid #f44336'
-                        }}
-                    >
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                            Unable to Load Results
+                    <Paper elevation={0} sx={{
+                        p: 4,
+                        textAlign: 'center',
+                        borderRadius: 4,
+                        border: '2px solid #f44336',
+                        background: 'rgba(244, 67, 54, 0.05)'
+                    }}>
+                        <Avatar sx={{ 
+                            bgcolor: '#f44336',
+                            width: 64,
+                            height: 64,
+                            mx: 'auto',
+                            mb: 2
+                        }}>
+                            <TrophyIcon sx={{ fontSize: 32 }} />
+                        </Avatar>
+                        <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#1a1a1a' }}>
+                            שגיאה בטעינת התוצאות
                         </Typography>
-                        <Typography variant="body2">
-                            {error || 'Something went wrong while loading your interview results. Please try again.'}
+                        <Typography variant="body1" sx={{ color: '#666' }}>
+                        {/* {error ? JSON.stringify(error) : 'אירעה שגיאה בטעינת הנתונים'} */}
+
+                            {/* {error || 'משהו השתבש בעת טעינת תוצאות הראיון. אנא נסה שוב מאוחר יותר.'} */}
                         </Typography>
-                    </Alert>
+                    </Paper>
                 </Container>
             </Box>
         );
@@ -156,18 +195,57 @@ const ResultOfInterview: React.FC = () => {
     };
 
     const getScoreLabel = (score: number) => {
-        if (score >= 80) return 'Excellent';
-        if (score >= 60) return 'Good';
-        if (score >= 40) return 'Fair';
-        return 'Needs Improvement';
+        if (score >= 80) return 'מצוין';
+        if (score >= 60) return 'טוב';
+        if (score >= 40) return 'בינוני';
+        return 'צריך שיפור';
     };
 
     const formatTime = (seconds: number) => {
-        if (!seconds) return 'N/A';
+        if (!seconds) return 'לא זמין';
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${mins}m ${secs}s`;
+        return `${mins} דקות ו-${secs} שניות`;
     };
+
+    const getPerformanceInsights = (score: number) => {
+        if (score >= 80) {
+            return {
+                title: 'ביצועים מעולים!',
+                message: 'הראיון שלך היה מצוין. אתה מוכן לעולם העבודה!',
+                icon: <CheckCircleIcon sx={{ color: '#4caf50' }} />,
+                tips: [
+                    'המשך להתרגל כדי לשמור על הרמה',
+                    'התמקד בחיזוק הנקודות החזקות שלך',
+                    'שקול להתרגל על תפקידים בכירים יותר'
+                ]
+            };
+        } else if (score >= 60) {
+            return {
+                title: 'ביצועים טובים',
+                message: 'יש לך בסיס חזק, עם מקום קטן לשיפור.',
+                icon: <TrendingUpIcon sx={{ color: 'rgb(255, 204, 0)' }} />,
+                tips: [
+                    'עבוד על נקודות החולשה שזוהו',
+                    'התרגל על שאלות מאתגרות יותר',
+                    'חזק את הביטחון העצמי שלך'
+                ]
+            };
+        } else {
+            return {
+                title: 'יש מקום לשיפור',
+                message: 'עם תרגול נוסף תוכל להשיג תוצאות טובות יותר.',
+                icon: <SpeedIcon sx={{ color: '#ff9800' }} />,
+                tips: [
+                    'התמקד בתרגול הבסיסי',
+                    'למד מהמשוב שקיבלת',
+                    'נסה שוב לאחר תרגול נוסף'
+                ]
+            };
+        }
+    };
+
+    const insights = getPerformanceInsights(mark || 0);
 
     return (
         <Box sx={{
@@ -177,186 +255,191 @@ const ResultOfInterview: React.FC = () => {
             paddingBottom: '40px'
         }}>
             <Container maxWidth="lg">
-                {/* Header */}
+                {/* Header with Main Score */}
                 <Fade in={true} timeout={600}>
-                    <Box sx={{ textAlign: 'center', mb: 6 }}>
-                        <Box sx={{
+                    <Paper elevation={0} sx={{
+                        p: 6,
+                        mb: 6,
+                        textAlign: 'center',
+                        borderRadius: 4,
+                        border: '1px solid #f0f0f0',
+                        background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: 4,
+                            background: `linear-gradient(90deg, ${getScoreColor(mark || 0)} 0%, ${getScoreColor(mark || 0)}aa 100%)`
+                        }
+                    }}>
+                        <Avatar sx={{
+                            bgcolor: getScoreColor(mark || 0),
                             width: 80,
                             height: 80,
-                            borderRadius: '50%',
-                            background: `rgba(${getScoreColor(mark || 0).replace('#', '')}, 0.1)`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
                             mx: 'auto',
-                            mb: 3
+                            mb: 3,
+                            boxShadow: `0 8px 24px ${getScoreColor(mark || 0)}40`
                         }}>
-                            <TrophyIcon sx={{ 
-                                fontSize: 40, 
-                                color: getScoreColor(mark || 0) 
-                            }} />
-                        </Box>
+                            <TrophyIcon sx={{ fontSize: 40, color: 'white' }} />
+                        </Avatar>
                         
                         <Typography variant="h3" sx={{ 
                             fontWeight: 700, 
                             color: '#1a1a1a',
-                            mb: 2
+                            mb: 1
                         }}>
-                            Interview Results
+                            תוצאות הראיון שלך
                         </Typography>
                         
-                        <Typography variant="h6" sx={{ 
-                            color: '#666',
-                            fontWeight: 400
+                        <Typography variant="h1" sx={{ 
+                            fontSize: '4rem',
+                            fontWeight: 800,
+                            color: getScoreColor(mark || 0),
+                            mb: 1,
+                            textShadow: '0 4px 8px rgba(0,0,0,0.1)'
                         }}>
-                            Here's your detailed performance analysis
+                            {mark !== undefined && mark !== null ? `${mark}%` : 'לא זמין'}
                         </Typography>
-                    </Box>
+                        
+                        <Chip 
+                            label={getScoreLabel(mark || 0)}
+                            sx={{
+                                bgcolor: getScoreColor(mark || 0),
+                                color: 'white',
+                                fontWeight: 700,
+                                fontSize: '1.1rem',
+                                px: 2,
+                                py: 1
+                            }}
+                        />
+                    </Paper>
                 </Fade>
 
-                {/* Score Overview */}
+                {/* Performance Cards */}
                 <Fade in={true} timeout={800}>
                     <Grid container spacing={3} sx={{ mb: 6 }}>
                         <Grid item xs={12} md={4}>
-                            <Paper elevation={0} sx={{
-                                p: 4,
-                                textAlign: 'center',
+                            <Card sx={{
+                                height: '100%',
+                                background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+                                border: '1px solid #e0e0e0',
                                 borderRadius: 4,
-                                border: '1px solid #f0f0f0',
-                                background: '#ffffff'
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    transform: 'translateY(-4px)',
+                                    boxShadow: '0 12px 32px rgba(0,0,0,0.1)'
+                                }
                             }}>
-                                <Box sx={{
-                                    width: 60,
-                                    height: 60,
-                                    borderRadius: '50%',
-                                    background: `${getScoreColor(mark || 0)}15`,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    mx: 'auto',
-                                    mb: 2
-                                }}>
-                                    <TrophyIcon sx={{ 
-                                        fontSize: 30, 
-                                        color: getScoreColor(mark || 0) 
-                                    }} />
-                                </Box>
-                                
-                                <Typography variant="h4" sx={{ 
-                                    fontWeight: 700, 
-                                    color: getScoreColor(mark || 0),
-                                    mb: 1
-                                }}>
-                                    {mark !== undefined && mark !== null ? `${mark}%` : 'N/A'}
-                                </Typography>
-                                
-                                <Typography variant="body2" sx={{ 
-                                    color: '#666',
-                                    fontWeight: 500
-                                }}>
-                                    Overall Score
-                                </Typography>
-                                
-                                <Chip 
-                                    label={getScoreLabel(mark || 0)}
-                                    sx={{
-                                        mt: 1,
-                                        bgcolor: getScoreColor(mark || 0),
-                                        color: 'white',
-                                        fontWeight: 600,
-                                        fontSize: '0.75rem'
-                                    }}
-                                />
-                            </Paper>
+                                <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                                    <Avatar sx={{
+                                        bgcolor: 'rgba(255, 204, 0, 0.1)',
+                                        width: 60,
+                                        height: 60,
+                                        mx: 'auto',
+                                        mb: 2
+                                    }}>
+                                        <TimeIcon sx={{ color: 'rgb(255, 204, 0)', fontSize: 30 }} />
+                                    </Avatar>
+                                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                                        זמן ראיון
+                                    </Typography>
+                                    <Typography variant="h4" sx={{ 
+                                        fontWeight: 700, 
+                                        color: '#1a1a1a',
+                                        fontSize: '1.5rem'
+                                    }}>
+                                        {formatTime(timeInterview)}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
                         </Grid>
 
                         <Grid item xs={12} md={4}>
-                            <Paper elevation={0} sx={{
-                                p: 4,
-                                textAlign: 'center',
+                            <Card sx={{
+                                height: '100%',
+                                background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+                                border: '1px solid #e0e0e0',
                                 borderRadius: 4,
-                                border: '1px solid #f0f0f0',
-                                background: '#ffffff'
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    transform: 'translateY(-4px)',
+                                    boxShadow: '0 12px 32px rgba(0,0,0,0.1)'
+                                }
                             }}>
-                                <Box sx={{
-                                    width: 60,
-                                    height: 60,
-                                    borderRadius: '50%',
-                                    background: 'rgba(255, 204, 0, 0.1)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    mx: 'auto',
-                                    mb: 2
-                                }}>
-                                    <TimeIcon sx={{ 
-                                        fontSize: 30, 
-                                        color: 'rgb(255, 204, 0)' 
-                                    }} />
-                                </Box>
-                                
-                                <Typography variant="h4" sx={{ 
-                                    fontWeight: 700, 
-                                    color: '#1a1a1a',
-                                    mb: 1
-                                }}>
-                                    {formatTime(timeInterview)}
-                                </Typography>
-                                
-                                <Typography variant="body2" sx={{ 
-                                    color: '#666',
-                                    fontWeight: 500
-                                }}>
-                                    Total Time
-                                </Typography>
-                            </Paper>
+                                <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                                    <Avatar sx={{
+                                        bgcolor: 'rgba(33, 150, 243, 0.1)',
+                                        width: 60,
+                                        height: 60,
+                                        mx: 'auto',
+                                        mb: 2
+                                    }}>
+                                        <AnalyticsIcon sx={{ color: '#2196f3', fontSize: 30 }} />
+                                    </Avatar>
+                                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                                        ניתוח AI
+                                    </Typography>
+                                    <Typography variant="h4" sx={{ 
+                                        fontWeight: 700, 
+                                        color: '#1a1a1a',
+                                        fontSize: '1.5rem'
+                                    }}>
+                                        מוכן
+                                    </Typography>
+                                </CardContent>
+                            </Card>
                         </Grid>
 
                         <Grid item xs={12} md={4}>
-                            <Paper elevation={0} sx={{
-                                p: 4,
-                                textAlign: 'center',
+                            <Card sx={{
+                                height: '100%',
+                                background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+                                border: '1px solid #e0e0e0',
                                 borderRadius: 4,
-                                border: '1px solid #f0f0f0',
-                                background: '#ffffff'
+                                transition: 'all 0.3s ease',
+                                '&:hover': {
+                                    transform: 'translateY(-4px)',
+                                    boxShadow: '0 12px 32px rgba(0,0,0,0.1)'
+                                }
                             }}>
-                                <Box sx={{
-                                    width: 60,
-                                    height: 60,
-                                    borderRadius: '50%',
-                                    background: 'rgba(33, 150, 243, 0.1)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    mx: 'auto',
-                                    mb: 2
-                                }}>
-                                    <AnalyticsIcon sx={{ 
-                                        fontSize: 30, 
-                                        color: '#2196f3' 
-                                    }} />
-                                </Box>
-                                
-                                <Typography variant="h4" sx={{ 
-                                    fontWeight: 700, 
-                                    color: '#1a1a1a',
-                                    mb: 1
-                                }}>
-                                    AI
-                                </Typography>
-                                
-                                <Typography variant="body2" sx={{ 
-                                    color: '#666',
-                                    fontWeight: 500
-                                }}>
-                                    Analysis Ready
-                                </Typography>
-                            </Paper>
+                                <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                                    <Avatar sx={{
+                                        bgcolor: 'rgba(76, 175, 80, 0.1)',
+                                        width: 60,
+                                        height: 60,
+                                        mx: 'auto',
+                                        mb: 2
+                                    }}>
+                                        <StarIcon sx={{ color: '#4caf50', fontSize: 30 }} />
+                                    </Avatar>
+                                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                                        דירוג כללי
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5, mb: 1 }}>
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <StarIcon 
+                                                key={star} 
+                                                sx={{ 
+                                                    color: star <= Math.ceil((mark || 0) / 20) ? '#ffc107' : '#e0e0e0',
+                                                    fontSize: 24
+                                                }} 
+                                            />
+                                        ))}
+                                    </Box>
+                                    <Typography variant="body2" sx={{ color: '#666' }}>
+                                        {Math.ceil((mark || 0) / 20)} מתוך 5 כוכבים
+                                    </Typography>
+                                </CardContent>
+                            </Card>
                         </Grid>
                     </Grid>
                 </Fade>
 
-                {/* Feedback Section */}
+                {/* Performance Insights */}
                 <Fade in={true} timeout={1000}>
                     <Paper elevation={0} sx={{
                         p: 4,
@@ -365,50 +448,118 @@ const ResultOfInterview: React.FC = () => {
                         border: '1px solid #f0f0f0',
                         background: '#ffffff'
                     }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                            <Box sx={{
-                                width: 40,
-                                height: 40,
-                                borderRadius: '50%',
-                                background: 'rgba(156, 39, 176, 0.1)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+                            <Avatar sx={{
+                                bgcolor: 'rgba(255, 204, 0, 0.1)',
+                                width: 60,
+                                height: 60
                             }}>
-                                <FeedbackIcon sx={{ color: '#9c27b0', fontSize: 20 }} />
-                            </Box>
+                                {insights.icon}
+                            </Avatar>
                             
+                            <Box sx={{ flex: 1 }}>
+                                <Typography variant="h5" sx={{ 
+                                    fontWeight: 600, 
+                                    color: '#1a1a1a',
+                                    mb: 1
+                                }}>
+                                    {insights.title}
+                                </Typography>
+                                
+                                <Typography variant="body1" sx={{ 
+                                    color: '#666',
+                                    mb: 3,
+                                    fontSize: '1.1rem',
+                                    lineHeight: 1.6
+                                }}>
+                                    {insights.message}
+                                </Typography>
+
+                                <Typography variant="h6" sx={{ 
+                                    fontWeight: 600, 
+                                    color: '#1a1a1a',
+                                    mb: 2
+                                }}>
+                                    המלצות לשיפור:
+                                </Typography>
+                                
+                                <Stack spacing={1}>
+                                    {insights.tips.map((tip, index) => (
+                                        <Box key={index} sx={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: 2
+                                        }}>
+                                            <CheckCircleIcon sx={{ 
+                                                color: 'rgb(255, 204, 0)', 
+                                                fontSize: 20 
+                                            }} />
+                                            <Typography variant="body2" sx={{ color: '#555' }}>
+                                                {tip}
+                                            </Typography>
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            </Box>
+                        </Box>
+                    </Paper>
+                </Fade>
+
+                {/* AI Feedback Section */}
+                <Fade in={true} timeout={1200}>
+                    <Paper elevation={0} sx={{
+                        p: 4,
+                        mb: 6,
+                        borderRadius: 4,
+                        border: '1px solid #f0f0f0',
+                        background: '#ffffff'
+                    }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                            <Avatar sx={{
+                                bgcolor: 'rgba(156, 39, 176, 0.1)',
+                                width: 48,
+                                height: 48
+                            }}>
+                                <FeedbackIcon sx={{ color: '#9c27b0', fontSize: 24 }} />
+                            </Avatar>
                             <Typography variant="h5" sx={{ 
                                 fontWeight: 600, 
                                 color: '#1a1a1a' 
                             }}>
-                                AI Feedback & Analysis
+                                משוב מפורט מהבינה המלאכותית
                             </Typography>
                         </Box>
                         
-                        <Typography variant="body1" sx={{ 
-                            color: '#555',
-                            lineHeight: 1.8,
-                            fontSize: '1.1rem'
+                        <Paper sx={{
+                            p: 3,
+                            background: 'rgba(156, 39, 176, 0.02)',
+                            border: '1px solid rgba(156, 39, 176, 0.1)',
+                            borderRadius: 3
                         }}>
-                            {typeof feedback === 'object' 
-                                ? JSON.stringify(feedback) 
-                                : feedback || 'No detailed feedback available at this time. Our AI is continuously improving to provide better insights.'
-                            }
-                        </Typography>
+                            <Typography variant="body1" sx={{ 
+                                color: '#555',
+                                lineHeight: 1.8,
+                                fontSize: '1.1rem'
+                            }}>
+                                {typeof feedback === 'object' 
+                                    ? JSON.stringify(feedback) 
+                                    : feedback || 'המערכת עדיין מעבדת את המשוב המפורט. המשוב יהיה זמין בקרוב עם ניתוח מעמיק של הביצועים שלך.'
+                                }
+                            </Typography>
+                        </Paper>
                     </Paper>
                 </Fade>
 
                 {/* Charts and Detailed Results */}
                 {id !== undefined && (
                     <>
-                        <Fade in={true} timeout={1200}>
+                        <Fade in={true} timeout={1400}>
                             <Box sx={{ mb: 6 }}>
                                 <SketchOfInterviewResults interviewId={id} />
                             </Box>
                         </Fade>
                         
-                        <Fade in={true} timeout={1400}>
+                        <Fade in={true} timeout={1600}>
                             <Box>
                                 <QuestionsResult interviewId={id} />
                             </Box>

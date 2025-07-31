@@ -63,9 +63,9 @@ const Login: React.FC = () => {
             minWidth: '100vw',
             background: 'linear-gradient(135deg, rgba(255, 204, 0, 0.05) 0%, #ffffff 100%)',
             display: 'flex',
-            justifyContent: 'center', // Center horizontally
-            alignItems: 'center', // Center vertically
-            padding: '40px' // Internal padding
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            padding: '40px' 
         }}>
             <Container maxWidth="sm">
                 <Box sx={{ textAlign: 'center', mb: 4 }}>

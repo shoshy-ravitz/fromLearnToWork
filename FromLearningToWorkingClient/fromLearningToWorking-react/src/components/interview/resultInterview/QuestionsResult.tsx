@@ -89,11 +89,11 @@ const QuestionsResult: React.FC<QuestionsResultProps> = ({ interviewId }) => {
     const dispatch = useDispatch();
     const { questions, status, error } = useSelector((state: StoreType) => state.interview);
     
-    useEffect(() => {
-        if (interviewId) {
-            dispatch(getQuestionsByInterviewId(Number(interviewId)));
-        }
-    }, [dispatch, interviewId]);
+    // useEffect(() => {
+    //     if (interviewId) {
+    //         dispatch(getQuestionsByInterviewId(Number(interviewId)));
+    //     }
+    // }, [dispatch, interviewId]);
 
     const handleFetchQuestions = () => {
         dispatch(getQuestionsByInterviewId(Number(interviewId)));

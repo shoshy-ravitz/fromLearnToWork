@@ -1,32 +1,3 @@
-// import React from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { createInterview, } from '../../../store/slices/interviewSlice';
-// import { User } from '../../../models/user.model';
-// import { useNavigate } from 'react-router-dom';
-// import { Button } from '@mui/material';
-
-
-// const CreateInterview = () => {
-//     const dispatch = useDispatch();
-//     const userId :User= useSelector((state: any) => state.auth.userId);
-//     const navigate = useNavigate();
-    
-//     const createNewInterview = () => {
-//         if (!userId) {
-//             alert('משתמש לא מזוהה. אנא התחבר.');
-//             navigate('/login');
-//         }
-//         dispatch(createInterview({ userId: userId }))
-//     }
-
-//     return (
-//         <>
-//             <Button onClick={() => createNewInterview()}>start interview</Button>
-//         </>
-//     );
-// };
-
-// export default CreateInterview;
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createInterview } from '../../../store/slices/interviewSlice';
@@ -43,6 +14,8 @@ import {
 import {
     ArrowForward as ArrowForwardIcon
 } from '@mui/icons-material';
+import Notification from '../../common/Notification';
+import { useNotification } from '../../../context/NotificationContext';
 
 interface CreateInterviewProps {
     selectedLevel: string;
@@ -54,6 +27,7 @@ const CreateInterview: React.FC<CreateInterviewProps> = ({ selectedLevel }) => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { showNotification } = useNotification();
 
     const createNewInterview = async () => {
         if (!userId) {
@@ -76,6 +50,17 @@ const CreateInterview: React.FC<CreateInterviewProps> = ({ selectedLevel }) => {
                 interviewLevel: selectedLevel 
             })).unwrap();
         } catch (error: any) {
+            console.log(error.errorMessage);
+            
+            if(error.errorMessage=="Resume not found.")
+            {
+                showNotification('Resume not found. Please upload your resume first.', 'warning');     
+                setTimeout(() => {
+                    navigate('/upload');
+                }, 3000);
+               
+                return;
+            }
             setError('Failed to create interview. Please try again.');
             console.error('Error creating interview:', error);
         } finally {

@@ -90,7 +90,7 @@ const Notification: React.FC = () => {
                     top: '90px !important'
                 }
             }}
-            autoHideDuration={5000}
+            autoHideDuration={3000}
         >
             <Box
                 sx={{

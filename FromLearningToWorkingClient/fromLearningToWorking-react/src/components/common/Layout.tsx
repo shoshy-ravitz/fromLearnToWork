@@ -12,7 +12,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
             minWidth: '100vw',
             width: '100%',
             backgroundColor: '#ffffff',
-            display: 'flex'
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden' // Prevent scroll issues
         }}>
             {children}
         </Box>
