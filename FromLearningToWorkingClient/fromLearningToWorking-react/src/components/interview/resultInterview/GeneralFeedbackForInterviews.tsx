@@ -44,7 +44,7 @@ const InterviewFeedback: React.FC = () => {
     const interviewsWithIndex = interviews.map((interview, index) => ({
         ...interview,
         index: index + 1,
-        date: `ראיון ${index + 1}`
+        date: `Interview ${index + 1}`
     }));
 
     const averageMark = interviews.length
@@ -55,17 +55,17 @@ const InterviewFeedback: React.FC = () => {
 
     const getFeedback = () => {
         if (averageMark >= 80) return {
-            message: 'מצוין! אתה מוכן לראיון עבודה מקצועי',
+            message: 'Excellent! You are ready for a professional job interview',
             color: '#4caf50',
             icon: <CheckCircleIcon />
         };
         if (averageMark >= 60) return {
-            message: 'טוב, אך יש מקום קטן לשיפור',
+            message: 'Good, but there is a little room for improvement',
             color: 'rgb(255, 204, 0)',
             icon: <TrendingUpIcon />
         };
         return {
-            message: 'יש צורך בתרגול נוסף כדי להיות מוכן לראיון',
+            message: 'More practice is needed to be ready for the interview',
             color: '#ff9800',
             icon: <SpeedIcon />
         };
@@ -109,7 +109,7 @@ const InterviewFeedback: React.FC = () => {
                         }} 
                     />
                     <Typography variant="h6" sx={{ color: '#1a1a1a', fontWeight: 600 }}>
-                        טוען נתוני ביצועים...
+                        Loading performance data...
                     </Typography>
                 </Box>
             </Box>
@@ -136,10 +136,10 @@ const InterviewFeedback: React.FC = () => {
                         <AssessmentIcon sx={{ fontSize: 32 }} />
                     </Avatar>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: '#1a1a1a' }}>
-                        שגיאה בטעינת הנתונים
+                        Error loading data
                     </Typography>
                     <Typography variant="body1" sx={{ color: '#666' }}>
-                        {error || 'אירעה שגיאה בטעינת נתוני הביצועים שלך'}
+                        {error || 'An error occurred while loading your performance data'}
                     </Typography>
                 </Paper>
             </Container>
@@ -166,10 +166,10 @@ const InterviewFeedback: React.FC = () => {
                         <PsychologyIcon sx={{ fontSize: 40, color: 'rgb(255, 204, 0)' }} />
                     </Avatar>
                     <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#1a1a1a' }}>
-                        עדיין לא ביצעת ראיונות
+                        You have not conducted any interviews yet
                     </Typography>
                     <Typography variant="body1" sx={{ color: '#666', mb: 3 }}>
-                        התחל את המסע שלך עם הראיון הראשון כדי לראות את הסטטיסטיקות שלך
+                        Start your journey with the first interview to see your statistics
                     </Typography>
                 </Paper>
             </Container>
@@ -196,7 +196,7 @@ const InterviewFeedback: React.FC = () => {
                         color: '#1a1a1a',
                         mb: 2
                     }}>
-                        סיכום ביצועים כללי
+                        Overall Performance Summary
                     </Typography>
                     
                     <Typography variant="h6" sx={{ 
@@ -205,7 +205,7 @@ const InterviewFeedback: React.FC = () => {
                         maxWidth: 600,
                         mx: 'auto'
                     }}>
-                        ניתוח מפורט של ההתקדמות שלך בראיונות עבודה
+                        Detailed analysis of your interview progress
                     </Typography>
                 </Box>
             </Fade>
@@ -213,7 +213,7 @@ const InterviewFeedback: React.FC = () => {
             {/* Main Stats Cards */}
             <Fade in={true} timeout={800}>
                 <Grid container spacing={3} sx={{ mb: 6 }}>
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={40}>
                         <Card sx={{
                             height: '100%',
                             background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
@@ -251,7 +251,7 @@ const InterviewFeedback: React.FC = () => {
                                     fontWeight: 500,
                                     mb: 2
                                 }}>
-                                    ציון ממוצע
+                                    Average Score
                                 </Typography>
 
                                 <LinearProgress
@@ -271,7 +271,7 @@ const InterviewFeedback: React.FC = () => {
                         </Card>
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={40}>
                         <Card sx={{
                             height: '100%',
                             background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
@@ -307,13 +307,13 @@ const InterviewFeedback: React.FC = () => {
                                     fontWeight: 500,
                                     mb: 2
                                 }}>
-                                    סה"כ ראיונות
+                                    Total Interviews
                                 </Typography>
 
                                 {trend !== null && (
                                     <Chip
                                         icon={trend >= 0 ? <TrendingUpIcon /> : <SpeedIcon />}
-                                        label={`${trend >= 0 ? '+' : ''}${trend.toFixed(1)}% מגמה`}
+                                        label={`${trend >= 0 ? '+' : ''}${trend.toFixed(1)}% Trend`}
                                         sx={{
                                             bgcolor: trend >= 0 ? '#4caf50' : '#ff9800',
                                             color: 'white',
@@ -326,7 +326,7 @@ const InterviewFeedback: React.FC = () => {
                         </Card>
                     </Grid>
 
-                    <Grid item xs={12} md={4}>
+                    <Grid item xs={12} md={40}>
                         <Card sx={{
                             height: '100%',
                             background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
@@ -362,7 +362,7 @@ const InterviewFeedback: React.FC = () => {
                                     fontWeight: 500,
                                     mb: 2
                                 }}>
-                                    שיא אישי
+                                    Personal Best
                                 </Typography>
 
                                 <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
@@ -410,7 +410,7 @@ const InterviewFeedback: React.FC = () => {
                             </Typography>
                             
                             <Typography variant="body1" sx={{ color: '#666' }}>
-                                בהתבסס על {interviews.length} ראיונות שביצעת
+                                Based on {interviews.length} interviews you conducted
                             </Typography>
                         </Box>
                     </Box>
@@ -440,10 +440,10 @@ const InterviewFeedback: React.FC = () => {
                                 color: '#1a1a1a',
                                 mb: 0.5
                             }}>
-                                גרף התקדמות הציונים
+                                Score Progress Chart
                             </Typography>
                             <Typography variant="body2" sx={{ color: '#666' }}>
-                                מעקב אחר השיפור שלך לאורך זמן
+                                Tracking your improvement over time
                             </Typography>
                         </Box>
                     </Box>
@@ -475,7 +475,7 @@ const InterviewFeedback: React.FC = () => {
                                         borderRadius: '8px',
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                                     }}
-                                    formatter={(value) => [`${value}%`, 'ציון']}
+                                    formatter={(value) => [`${value}%`, 'Score']}
                                     labelStyle={{ color: '#1a1a1a', fontWeight: 600 }}
                                 />
                                 <Area 
@@ -507,7 +507,7 @@ const InterviewFeedback: React.FC = () => {
                             <Grid item xs={12} md={4}>
                                 <Box sx={{ textAlign: 'center' }}>
                                     <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
-                                        ציון ראשון
+                                        First Score
                                     </Typography>
                                     <Typography variant="h6" sx={{ 
                                         fontWeight: 700, 
@@ -521,7 +521,7 @@ const InterviewFeedback: React.FC = () => {
                             <Grid item xs={12} md={4}>
                                 <Box sx={{ textAlign: 'center' }}>
                                     <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
-                                        ציון אחרון
+                                        Last Score
                                     </Typography>
                                     <Typography variant="h6" sx={{ 
                                         fontWeight: 700, 
@@ -535,7 +535,7 @@ const InterviewFeedback: React.FC = () => {
                             <Grid item xs={12} md={4}>
                                 <Box sx={{ textAlign: 'center' }}>
                                     <Typography variant="body2" sx={{ color: '#666', mb: 1 }}>
-                                        שיפור כללי
+                                        Overall Improvement
                                     </Typography>
                                     <Typography variant="h6" sx={{ 
                                         fontWeight: 700, 
@@ -575,7 +575,7 @@ const InterviewFeedback: React.FC = () => {
                             fontWeight: 600, 
                             color: '#1a1a1a' 
                         }}>
-                            המלצות אישיות לשיפור
+                            Personal Improvement Recommendations
                         </Typography>
                     </Box>
 
@@ -594,10 +594,10 @@ const InterviewFeedback: React.FC = () => {
                                             color: '#4caf50',
                                             mb: 2
                                         }}>
-                                            💪 המשך ברמה הגבוהה
+                                            💪 Keep up the high level
                                         </Typography>
                                         <Typography variant="body2" sx={{ color: '#666' }}>
-                                            הביצועים שלך מצוינים! התמקד בחיזוק החוזקות שלך והמשך להתרגל על תפקידים מתקדמים יותר.
+                                            Your performance is excellent! Focus on strengthening your strengths and continue practicing for more advanced roles.
                                         </Typography>
                                     </Box>
                                 </Grid>
@@ -613,10 +613,10 @@ const InterviewFeedback: React.FC = () => {
                                             color: '#2196f3',
                                             mb: 2
                                         }}>
-                                            🎯 התמחות נוספת
+                                            🎯 Further Specialization
                                         </Typography>
                                         <Typography variant="body2" sx={{ color: '#666' }}>
-                                            נסה ראיונות מתקדמים יותר או התמקד בתחומים ספציפיים שמעניינים אותך.
+                                            Try more advanced interviews or focus on specific areas that interest you.
                                         </Typography>
                                     </Box>
                                 </Grid>
@@ -635,10 +635,10 @@ const InterviewFeedback: React.FC = () => {
                                             color: 'rgb(255, 204, 0)',
                                             mb: 2
                                         }}>
-                                            📈 חיזוק נקודות חולשה
+                                            📈 Strengthen Weak Points
                                         </Typography>
                                         <Typography variant="body2" sx={{ color: '#666' }}>
-                                            זהה את התחומים שצריכים שיפור ותרגל עליהם באופן ממוקד.
+                                            Identify the areas that need improvement and practice them specifically.
                                         </Typography>
                                     </Box>
                                 </Grid>
@@ -654,10 +654,10 @@ const InterviewFeedback: React.FC = () => {
                                             color: '#9c27b0',
                                             mb: 2
                                         }}>
-                                        🧠 למידה מהמשוב
+                                            🧠 Learn from Feedback
                                         </Typography>
                                         <Typography variant="body2" sx={{ color: '#666' }}>
-                                            קרא בעיון את המשוב שקיבלת ויישם את ההמלצות בראיונות הבאים.
+                                            Carefully read the feedback you received and apply the recommendations in your next interviews.
                                         </Typography>
                                     </Box>
                                 </Grid>
@@ -676,10 +676,10 @@ const InterviewFeedback: React.FC = () => {
                                             color: '#ff9800',
                                             mb: 2
                                         }}>
-                                        📚 תרגול בסיסי
+                                            📚 Basic Practice
                                         </Typography>
                                         <Typography variant="body2" sx={{ color: '#666' }}>
-                                            התמקד בתרגול השאלות הבסיסיות ובחיזוק הביטחון העצמי שלך.
+                                            Focus on practicing basic questions and building your confidence.
                                         </Typography>
                                     </Box>
                                 </Grid>
@@ -695,10 +695,10 @@ const InterviewFeedback: React.FC = () => {
                                             color: '#f44336',
                                             mb: 2
                                         }}>
-                                        ⏰ תרגול נוסף
+                                            ⏰ Additional Practice
                                         </Typography>
                                         <Typography variant="body2" sx={{ color: '#666' }}>
-                                            הקדש זמן נוסף לתרגול יומיומי ונסה שוב לאחר הכנה יסודית יותר.
+                                            Dedicate more time to daily practice and try again after more thorough preparation.
                                         </Typography>
                                     </Box>
                                 </Grid>

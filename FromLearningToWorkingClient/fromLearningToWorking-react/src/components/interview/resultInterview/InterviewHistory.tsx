@@ -1,119 +1,3 @@
-// import React, { useEffect, useState } from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-// import { fetchUserInterviews } from '../../../store/slices/userInterviewsSlice';
-// import { StoreType } from '../../../store/store';
-// import {
-//     Drawer,
-//     List,
-//     ListItem,
-//     ListItemButton,
-//     ListItemText,
-//     Box,
-//     Typography,
-//     IconButton,
-// } from '@mui/material';
-// import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-// import GeneralFeedbackForInterviews from './GeneralFeedbackForInterviews';
-
-// const InterviewHistory = () => {
-//     const userId = localStorage.getItem('userId'); // Get the user ID from localStorage
-//     const dispatch = useDispatch();
-//     const navigate = useNavigate();
-//     const location = useLocation(); // Get the current location
-//     const listInterviews = useSelector((state: StoreType) => state.userInterviews.interviews);
-
-//     const [isOpen, setIsOpen] = useState(true); // Sidebar starts open by default
-
-//     useEffect(() => {
-//         if (userId) {
-//             dispatch(fetchUserInterviews(Number(userId))); // Fetch the list of interviews
-//         }
-//     }, [dispatch, userId]);
-
-//     const handleNavigate = (interviewId: number) => {
-//         setIsOpen(false); // Close the sidebar when navigating
-//         navigate(`resultInterview/${interviewId}`);
-//     };
-
-//     return (
-//         <div style={{ display: 'flex', height: '100vh', position: 'relative' }}>
-//             {/* Sidebar */}
-//             <Drawer
-//                 variant="persistent"
-//                 anchor="left"
-//                 open={isOpen}
-//                 sx={{
-//                     width: isOpen ? 240 : 50,
-//                     flexShrink: 0,
-//                     '& .MuiDrawer-paper': {
-//                         width: isOpen ? 240 : 50,
-//                         boxSizing: 'border-box',
-//                         overflowX: 'hidden',
-//                         transition: 'width 0.3s',
-//                     },
-//                 }}
-//             >
-//                 {isOpen && (
-//                     <Box sx={{ padding: 2 }}>
-//                         <Typography variant="h6" gutterBottom>
-//                             Interview History
-//                         </Typography>
-//                         <List>
-//                             {listInterviews.map((interview) => (
-//                                 <ListItem key={interview.id} disablePadding>
-//                                     <ListItemButton onClick={() => handleNavigate(interview.id)}>
-//                                         <ListItemText
-//                                             primary={`Interview ID: ${interview.id}`}
-//                                             secondary={`Mark: ${interview.mark}`}
-//                                         />
-//                                     </ListItemButton>
-//                                 </ListItem>
-//                             ))}
-//                         </List>
-//                     </Box>
-//                 )}
-//             </Drawer>
-
-//             {/* Toggle Button */}
-//             <Box
-//                 sx={{
-//                     position: 'absolute',
-//                     top: '50%',
-//                     left: isOpen ? 240 : 50,
-//                     transform: 'translateY(-50%)',
-//                     zIndex: 1000,
-//                 }}
-//             >
-//                 <IconButton onClick={() => setIsOpen(!isOpen)}>
-//                     {isOpen ? <ChevronLeft /> : <ChevronRight />}
-//                 </IconButton>
-//             </Box>
-
-//             {/* Main Content */}
-//             <Box
-//                 sx={{
-//                     flexGrow: 1,
-//                     padding: 2,
-//                     overflowY: 'auto', // Enable scrolling for long content
-//                     scrollbarWidth: 'none', // Hide scrollbar for Firefox
-//                     '&::-webkit-scrollbar': {
-//                         display: 'none', // Hide scrollbar for Chrome, Safari, and Edge
-//                     },
-//                 }}
-//             >
-//                 {/* Show GeneralFeedbackForInterviews if no interview is selected */}
-//                 {location.pathname === '/histoyInterview' ? (
-//                     <GeneralFeedbackForInterviews />
-//                 ) : (
-//                     <Outlet />
-//                 )}
-//             </Box>
-//         </div>
-//     );
-// };
-
-// export default InterviewHistory;
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
@@ -161,7 +45,7 @@ const InterviewHistory = () => {
     const location = useLocation();
     const listInterviews = useSelector((state: StoreType) => state.userInterviews.interviews);
 
-    const [isOpen, setIsOpen] = useState(false); // Sidebar starts closed by default for better UX
+    const [isOpen, setIsOpen] = useState(true); // Sidebar starts closed by default for better UX
     const [hoveredInterview, setHoveredInterview] = useState<number | null>(null);
 
     useEffect(() => {
@@ -174,6 +58,10 @@ const InterviewHistory = () => {
         navigate(`resultInterview/${interviewId}`);
     };
 
+    const closeSidebar = () => {
+        navigate('/home')
+    }
+
     const getScoreColor = (mark: number) => {
         if (mark >= 80) return '#4caf50';
         if (mark >= 60) return 'rgb(255, 204, 0)';
@@ -182,10 +70,10 @@ const InterviewHistory = () => {
     };
 
     const getScoreLabel = (mark: number) => {
-        if (mark >= 80) return 'מצוין';
-        if (mark >= 60) return 'טוב';
-        if (mark >= 40) return 'בינוני';
-        return 'צריך שיפור';
+        if (mark >= 80) return 'exellent';
+        if (mark >= 60) return 'good';
+        if (mark >= 40) return 'Medium';
+        return 'Needs improvement';
     };
 
     const getPerformanceIcon = (mark: number) => {
@@ -204,39 +92,6 @@ const InterviewHistory = () => {
 
     return (
         <Box sx={{ display: 'flex', height: '100vh', position: 'relative', bgcolor: '#f8f9fa' }}>
-            {/* Floating Toggle Button */}
-            <Box
-                sx={{
-                    position: 'fixed',
-                    top: '50%',
-                    left: isOpen ? 340 : 20,
-                    transform: 'translateY(-50%)',
-                    zIndex: 1300,
-                    transition: 'left 0.3s ease'
-                }}
-            >
-                <Tooltip title={isOpen ? 'סגור רשימת ראיונות' : 'פתח רשימת ראיונות'} placement="right">
-                    <IconButton
-                        onClick={() => setIsOpen(!isOpen)}
-                        sx={{
-                            bgcolor: 'white',
-                            color: 'rgb(255, 204, 0)',
-                            boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-                            width: 48,
-                            height: 48,
-                            '&:hover': {
-                                bgcolor: 'rgba(255, 204, 0, 0.1)',
-                                transform: 'scale(1.1)',
-                                boxShadow: '0 6px 20px rgba(0,0,0,0.2)'
-                            },
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        {isOpen ? <ChevronLeft /> : <MenuIcon />}
-                    </IconButton>
-                </Tooltip>
-            </Box>
-
             {/* Enhanced Sidebar */}
             <Drawer
                 variant="persistent"
@@ -277,16 +132,16 @@ const InterviewHistory = () => {
                                     color: '#1a1a1a',
                                     fontSize: '1.1rem'
                                 }}>
-                                    היסטוריית ראיונות
+                                   Interview history
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: '#666' }}>
-                                    {listInterviews.length} ראיונות נשמרו
+                                    {listInterviews.length} Interviews saved
                                 </Typography>
                             </Box>
                         </Box>
                         
                         <IconButton
-                            onClick={() => setIsOpen(false)}
+                            onClick={() => closeSidebar()}
                             sx={{
                                 color: '#95a5a6',
                                 '&:hover': {
@@ -316,7 +171,7 @@ const InterviewHistory = () => {
                                 {averageScore}%
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#666' }}>
-                                ממוצע
+                                avarage
                             </Typography>
                         </Card>
                         
@@ -335,7 +190,7 @@ const InterviewHistory = () => {
                                 {listInterviews.length}
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#666' }}>
-                                ראיונות
+                                interviews
                             </Typography>
                         </Card>
                     </Stack>
@@ -378,10 +233,10 @@ const InterviewHistory = () => {
                                 <HistoryIcon sx={{ color: 'rgb(255, 204, 0)', fontSize: 30 }} />
                             </Avatar>
                             <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: '#1a1a1a' }}>
-                                אין ראיונות עדיין
+                            No interviews yet
                             </Typography>
                             <Typography variant="body2" sx={{ color: '#666' }}>
-                                התחל את הראיון הראשון שלך!
+                            Start your first interview!
                             </Typography>
                         </Paper>
                     ) : (
@@ -425,7 +280,7 @@ const InterviewHistory = () => {
                                                             fontSize: '1rem',
                                                             mb: 0.5
                                                         }}>
-                                                            ראיון #{interview.id}
+                                                            interview #{interview.id}
                                                         </Typography>
                                                         <Stack direction="row" spacing={1} alignItems="center">
                                                             <CalendarIcon sx={{ fontSize: 14, color: '#666' }} />
@@ -491,7 +346,7 @@ const InterviewHistory = () => {
                                                         textTransform: 'uppercase',
                                                         fontSize: '0.7rem'
                                                     }}>
-                                                        דירוג
+                                                        rating
                                                     </Typography>
                                                     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.2, mt: 0.5 }}>
                                                         {[1, 2, 3, 4, 5].map((star) => (
@@ -519,7 +374,7 @@ const InterviewHistory = () => {
                                                         textTransform: 'uppercase',
                                                         fontSize: '0.7rem'
                                                     }}>
-                                                        סטטוס
+                                                        status
                                                     </Typography>
                                                     <Typography variant="body2" sx={{ 
                                                         color: '#4caf50',
@@ -527,7 +382,7 @@ const InterviewHistory = () => {
                                                         fontSize: '0.8rem',
                                                         mt: 0.5
                                                     }}>
-                                                        הושלם
+                                                        completed
                                                     </Typography>
                                                 </Box>
                                             </Stack>

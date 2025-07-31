@@ -83,7 +83,7 @@ const QuestionResult: React.FC<QuestionResultProps> = ({ question, index }) => {
                     <Stack direction="row" spacing={1} alignItems="center">
                         <Chip
                             icon={<StarIcon sx={{ fontSize: 16 }} />}
-                            label={`${question.mark}/100`}
+                            label={`${question.mark}/10`}
                             sx={{
                                 bgcolor: getScoreColor(question.mark),
                                 color: 'white',

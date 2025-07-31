@@ -1,64 +1,3 @@
-// import React, { useEffect } from 'react';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { useParams } from 'react-router-dom';
-// import { resultOfInterview } from '../../../store/slices/interviewSlice';
-// import { StoreType } from '../../../store/store';
-// import { Card, CardContent, Typography, CircularProgress } from '@mui/material';
-// import SketchOfInterviewResults from './sketchOfInterviewResults';
-// import QuestionsResult from './QuestionsResult';
-
-// const ResultOfInterview = () => {
-//     const { id: idParam } = useParams<{ id: string }>(); // Get the interview ID from the route parameters
-//     const id = idParam ? Number(idParam) : undefined; // Convert id to a number
-//     const dispatch = useDispatch();
-//     const { mark, feedback, timeInterview, status, error } = useSelector(
-//         (state: StoreType) => state.interview
-//     );
-
-//     useEffect(() => {
-//         if (id) {
-//             dispatch(resultOfInterview(Number(id))); // Fetch the result of the interview
-//         }
-//     }, [dispatch, id]);
-
-//     if (status === 'loading') {
-//         return <CircularProgress style={{ display: 'block', margin: '20px auto' }} />;
-//     }
-
-//     if (status === 'failed') {
-//         return (
-//             <Typography variant="h6" color="error" style={{ textAlign: 'center', marginTop: '20px' }}>
-//                 {error}
-//             </Typography>
-//         );
-//     }
-
-//     return (
-//         <Card style={{ maxWidth: 800, margin: '20px auto', padding: '20px' }}>
-//             <CardContent>
-//                 <Typography variant="h4" gutterBottom>
-//                     Interview Result
-//                 </Typography>
-//                 <Typography variant="h6" color="textSecondary">
-//                     Total Mark: {(mark !== undefined && mark !== null) ? mark : 'N/A'}
-//                 </Typography>
-//                 <Typography variant="h6" color="textSecondary">
-//                     Total Time: {timeInterview || 'N/A'} seconds
-//                 </Typography>
-//                 <Typography variant="body1" style={{ marginBottom: '20px' }}>
-//                     {typeof feedback === 'object' ? JSON.stringify(feedback) : feedback || 'No feedback provided.'}
-//                 </Typography>
-//                 {id !== undefined &&
-//                     <>
-//                         <SketchOfInterviewResults interviewId={id} />
-//                         <QuestionsResult interviewId={id} />
-//                     </>}
-//             </CardContent>
-//         </Card>
-//     );
-// };
-
-// export default ResultOfInterview;
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
@@ -74,9 +13,7 @@ import {
     Chip,
     Stack,
     Fade,
-    Alert,
     Avatar,
-    LinearProgress,
     Card,
     CardContent
 } from '@mui/material';
@@ -90,7 +27,7 @@ import {
     CheckCircle as CheckCircleIcon,
     Speed as SpeedIcon
 } from '@mui/icons-material';
-import SketchOfInterviewResults from './sketchOfInterviewResults';
+import SketchOfInterviewResults from './SketchOfInterviewResults';
 import QuestionsResult from './QuestionsResult';
 
 const ResultOfInterview: React.FC = () => {
@@ -139,10 +76,10 @@ const ResultOfInterview: React.FC = () => {
                         fontWeight: 600,
                         mb: 1
                     }}>
-                        מעבד את תוצאות הראיון
+                        Processing interview results
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#666' }}>
-                        אנא המתן בזמן שהמערכת מנתחת את הביצועים שלך...
+                        Please wait while the system analyzes your performance...
                     </Typography>
                 </Box>
             </Box>
@@ -174,12 +111,11 @@ const ResultOfInterview: React.FC = () => {
                             <TrophyIcon sx={{ fontSize: 32 }} />
                         </Avatar>
                         <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: '#1a1a1a' }}>
-                            שגיאה בטעינת התוצאות
+                            Error loading results
                         </Typography>
                         <Typography variant="body1" sx={{ color: '#666' }}>
-                        {/* {error ? JSON.stringify(error) : 'אירעה שגיאה בטעינת הנתונים'} */}
-
-                            {/* {error || 'משהו השתבש בעת טעינת תוצאות הראיון. אנא נסה שוב מאוחר יותר.'} */}
+                            {/* {error ? JSON.stringify(error) : 'An error occurred while loading the data'} */}
+                            {/* {error || 'Something went wrong while loading the interview results. Please try again later.'} */}
                         </Typography>
                     </Paper>
                 </Container>
@@ -195,51 +131,51 @@ const ResultOfInterview: React.FC = () => {
     };
 
     const getScoreLabel = (score: number) => {
-        if (score >= 80) return 'מצוין';
-        if (score >= 60) return 'טוב';
-        if (score >= 40) return 'בינוני';
-        return 'צריך שיפור';
+        if (score >= 80) return 'Excellent';
+        if (score >= 60) return 'Good';
+        if (score >= 40) return 'Average';
+        return 'Needs Improvement';
     };
 
     const formatTime = (seconds: number) => {
-        if (!seconds) return 'לא זמין';
+        if (!seconds) return 'Not available';
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${mins} דקות ו-${secs} שניות`;
+        return `${mins} minutes and ${secs} seconds`;
     };
 
     const getPerformanceInsights = (score: number) => {
         if (score >= 80) {
             return {
-                title: 'ביצועים מעולים!',
-                message: 'הראיון שלך היה מצוין. אתה מוכן לעולם העבודה!',
+                title: 'Outstanding Performance!',
+                message: 'Your interview went excellently. You are ready for the job market!',
                 icon: <CheckCircleIcon sx={{ color: '#4caf50' }} />,
                 tips: [
-                    'המשך להתרגל כדי לשמור על הרמה',
-                    'התמקד בחיזוק הנקודות החזקות שלך',
-                    'שקול להתרגל על תפקידים בכירים יותר'
+                    'Keep practicing to maintain your level',
+                    'Focus on strengthening your strengths',
+                    'Consider practicing for more advanced roles'
                 ]
             };
         } else if (score >= 60) {
             return {
-                title: 'ביצועים טובים',
-                message: 'יש לך בסיס חזק, עם מקום קטן לשיפור.',
+                title: 'Good Performance',
+                message: 'You have a strong foundation, with a little room for improvement.',
                 icon: <TrendingUpIcon sx={{ color: 'rgb(255, 204, 0)' }} />,
                 tips: [
-                    'עבוד על נקודות החולשה שזוהו',
-                    'התרגל על שאלות מאתגרות יותר',
-                    'חזק את הביטחון העצמי שלך'
+                    'Work on the weaknesses identified',
+                    'Practice more challenging questions',
+                    'Boost your self-confidence'
                 ]
             };
         } else {
             return {
-                title: 'יש מקום לשיפור',
-                message: 'עם תרגול נוסף תוכל להשיג תוצאות טובות יותר.',
+                title: 'Room for Improvement',
+                message: 'With more practice, you can achieve better results.',
                 icon: <SpeedIcon sx={{ color: '#ff9800' }} />,
                 tips: [
-                    'התמקד בתרגול הבסיסי',
-                    'למד מהמשוב שקיבלת',
-                    'נסה שוב לאחר תרגול נוסף'
+                    'Focus on basic practice',
+                    'Learn from the feedback you received',
+                    'Try again after additional practice'
                 ]
             };
         }
@@ -292,7 +228,7 @@ const ResultOfInterview: React.FC = () => {
                             color: '#1a1a1a',
                             mb: 1
                         }}>
-                            תוצאות הראיון שלך
+                            Your Interview Results
                         </Typography>
                         
                         <Typography variant="h1" sx={{ 
@@ -302,7 +238,7 @@ const ResultOfInterview: React.FC = () => {
                             mb: 1,
                             textShadow: '0 4px 8px rgba(0,0,0,0.1)'
                         }}>
-                            {mark !== undefined && mark !== null ? `${mark}%` : 'לא זמין'}
+                            {mark !== undefined && mark !== null ? `${mark}%` : 'Not available'}
                         </Typography>
                         
                         <Chip 
@@ -345,7 +281,7 @@ const ResultOfInterview: React.FC = () => {
                                         <TimeIcon sx={{ color: 'rgb(255, 204, 0)', fontSize: 30 }} />
                                     </Avatar>
                                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                                        זמן ראיון
+                                        Interview Time
                                     </Typography>
                                     <Typography variant="h4" sx={{ 
                                         fontWeight: 700, 
@@ -381,14 +317,14 @@ const ResultOfInterview: React.FC = () => {
                                         <AnalyticsIcon sx={{ color: '#2196f3', fontSize: 30 }} />
                                     </Avatar>
                                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                                        ניתוח AI
+                                        AI Analysis
                                     </Typography>
                                     <Typography variant="h4" sx={{ 
                                         fontWeight: 700, 
                                         color: '#1a1a1a',
                                         fontSize: '1.5rem'
                                     }}>
-                                        מוכן
+                                        Ready
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -417,7 +353,7 @@ const ResultOfInterview: React.FC = () => {
                                         <StarIcon sx={{ color: '#4caf50', fontSize: 30 }} />
                                     </Avatar>
                                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                                        דירוג כללי
+                                        Overall Rating
                                     </Typography>
                                     <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5, mb: 1 }}>
                                         {[1, 2, 3, 4, 5].map((star) => (
@@ -431,7 +367,7 @@ const ResultOfInterview: React.FC = () => {
                                         ))}
                                     </Box>
                                     <Typography variant="body2" sx={{ color: '#666' }}>
-                                        {Math.ceil((mark || 0) / 20)} מתוך 5 כוכבים
+                                        {Math.ceil((mark || 0) / 20)} out of 5 stars
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -480,7 +416,7 @@ const ResultOfInterview: React.FC = () => {
                                     color: '#1a1a1a',
                                     mb: 2
                                 }}>
-                                    המלצות לשיפור:
+                                    Improvement Recommendations:
                                 </Typography>
                                 
                                 <Stack spacing={1}>
@@ -526,7 +462,7 @@ const ResultOfInterview: React.FC = () => {
                                 fontWeight: 600, 
                                 color: '#1a1a1a' 
                             }}>
-                                משוב מפורט מהבינה המלאכותית
+                                Detailed AI Feedback
                             </Typography>
                         </Box>
                         
@@ -543,7 +479,7 @@ const ResultOfInterview: React.FC = () => {
                             }}>
                                 {typeof feedback === 'object' 
                                     ? JSON.stringify(feedback) 
-                                    : feedback || 'המערכת עדיין מעבדת את המשוב המפורט. המשוב יהיה זמין בקרוב עם ניתוח מעמיק של הביצועים שלך.'
+                                    : feedback || 'The system is still processing the detailed feedback. The feedback will be available soon with an in-depth analysis of your performance.'
                                 }
                             </Typography>
                         </Paper>
