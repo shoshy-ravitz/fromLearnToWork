@@ -217,7 +217,7 @@ const Home: React.FC = () => {
                                     background: 'linear-gradient(135deg, rgba(255, 204, 0, 0.1) 0%, rgba(255, 204, 0, 0.05) 100%)',
                                     borderRadius: '50%',
                                     display: 'flex',
-                                    alignItems: 'center',
+                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     position: 'relative',
                                     border: '2px solid rgba(255, 204, 0, 0.2)',
