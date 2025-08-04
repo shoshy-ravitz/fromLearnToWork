@@ -28,7 +28,7 @@ import {
     Speed as SpeedIcon
 } from '@mui/icons-material';
 
-import SketchOfInterviewResults from './SketchOfInterviewResults';
+import SketchOfInterviewResults from './SketchOfInterviewResult';
 import QuestionsResult from './QuestionsResult';
 
 const ResultOfInterview: React.FC = () => {
