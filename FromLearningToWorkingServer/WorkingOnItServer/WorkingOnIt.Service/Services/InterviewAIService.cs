@@ -19,6 +19,82 @@ public class InterviewAIService : IInterviewAIService
         _interviewQuestionService = interviewQuestionService;
         _totalResultInterviewService = totalResultInterviewService;
     }
+    public async Task<CreateInterviewResponse> CreateInterview(int userId, string interviewLevel)
+    {
+        using (var httpClient = new HttpClient())
+        {
+            var user = await _repositoryManager._userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            var resume = await _repositoryManager._resumeRepository.GetByUserIdAsync(user.Id);
+            if (resume == null)
+            {
+                throw new Exception("Resume not found.");
+            }
+
+
+            var resumeKey = resume.FilePath;
+
+            var presignedUrl = UrlForAwsService.GeneratePresignedUrl(resumeKey, 15, HttpVerb.GET);
+
+            var requestBody = new
+            {
+                resume_url = presignedUrl
+            };
+
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
+            if (string.IsNullOrEmpty(pythonApiUrl))
+            {
+                throw new Exception("PYTHON_API is not configured properly.");
+            }
+
+            var response = await httpClient.PostAsync($"{pythonApiUrl}/create_interview", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var responseDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(responseBody);
+                if (responseDict != null && responseDict.ContainsKey("questions"))
+                {
+                    var questions = responseDict["questions"]
+                        .Select(q => q.Trim().Trim('"', ',', '}', '{'))
+                        .ToArray();
+
+                    var interview = new Interview
+                    {
+                        UserId = userId,
+                        InterviewDate = DateTime.Now,
+                        Mark = null
+                    };
+
+                    interview = await _repositoryManager._interviewRepository.AddAsync(interview);
+                    await _repositoryManager.SaveAsync();
+
+                    var result = new CreateInterviewResponse
+                    {
+                        Id = interview.Id,
+                        Questions = questions
+                    };
+                    return result;
+                }
+                else
+                {
+                    throw new Exception("Invalid response format from Python API.");
+                }
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Error: {errorContent}");
+            }
+        }
+    }
 
     public async Task<ResultQuestionModel> CheckAnswer(CheckAnswerRequest request)
     {
@@ -104,80 +180,5 @@ public class InterviewAIService : IInterviewAIService
         }
     }
 
-    public async Task<CreateInterviewResponse> CreateInterview(int userId, string interviewLevel)
-    {
-        using (var httpClient = new HttpClient())
-        {
-            var user = await _repositoryManager._userRepository.GetByIdAsync(userId);
-            if (user == null)
-            {
-                throw new Exception("User not found.");
-            }
 
-            var resume = await _repositoryManager._resumeRepository.GetByUserIdAsync(user.Id);
-            if (resume == null)
-            {
-                throw new Exception("Resume not found.");
-            }
-          
-
-            var resumeKey = resume.FilePath;
-            
-           var presignedUrl = UrlForAwsService.GeneratePresignedUrl( resumeKey, 15, HttpVerb.GET);
-
-            var requestBody = new
-            {
-                resume_url = presignedUrl
-            };
-
-            var json = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var pythonApiUrl = Environment.GetEnvironmentVariable("PYTHON_API");
-            if (string.IsNullOrEmpty(pythonApiUrl))
-            {
-                throw new Exception("PYTHON_API is not configured properly.");
-            }
-
-            var response = await httpClient.PostAsync($"{pythonApiUrl}/create_interview", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var responseDict = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(responseBody);
-                if (responseDict != null && responseDict.ContainsKey("questions"))
-                {
-                    var questions = responseDict["questions"]
-                        .Select(q => q.Trim().Trim('"', ',', '}', '{'))
-                        .ToArray();
-
-                    var interview = new Interview
-                    {
-                        UserId = userId,
-                        InterviewDate = DateTime.Now,
-                        Mark = null
-                    };
-
-                    interview = await _repositoryManager._interviewRepository.AddAsync(interview);
-                    await _repositoryManager.SaveAsync();
-
-                    var result = new CreateInterviewResponse
-                    {
-                        Id = interview.Id,
-                        Questions = questions
-                    };
-                    return result;
-                }
-                else
-                {
-                    throw new Exception("Invalid response format from Python API.");
-                }
-            }
-            else
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Error: {errorContent}");
-            }
-        }
-    }
 }

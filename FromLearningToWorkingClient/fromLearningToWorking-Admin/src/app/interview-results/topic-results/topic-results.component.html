@@ -1,0 +1,31 @@
+<div class="topic-search">
+    <h2>Search Results by Topic</h2>
+    <input [(ngModel)]="topic" placeholder="Enter topic" />
+    <button (click)="searchByTopic()">Search</button>
+    @if(results.length > 0)
+    {
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for(result of results; track result.id) {
+            <tr>
+                <!-- <td>{{ result. }}</td> -->
+                <td>{{ result.score }}</td>
+                <!-- <td>{{ result.topic }}</td> -->
+            </tr>
+            }
+        </tbody>
+    </table>
+    }
+
+@if(results.length === 0)
+{
+    <p >No results found for the selected topic.</p>
+
+}
+</div>
